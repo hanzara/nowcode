@@ -1,13 +1,30 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+
+interface Profile {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+  phone_number: string | null;
+  country: string | null;
+  credit_score: number;
+  loan_eligibility: number;
+}
 
 const Settings: React.FC = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [formState, setFormState] = useState({
     fullName: "",
     email: "",
@@ -18,6 +35,45 @@ const Settings: React.FC = () => {
     pushNotifications: false,
   });
 
+  useEffect(() => {
+    if (user) {
+      fetchProfile();
+    }
+  }, [user]);
+
+  const fetchProfile = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user?.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') throw error;
+
+      if (data) {
+        setProfile(data);
+        setFormState({
+          fullName: data.full_name || "",
+          email: data.email || "",
+          phoneNumber: data.phone_number || "",
+          country: data.country || "",
+          walletAddress: "0x71C...A3F8",
+          emailNotifications: true,
+          pushNotifications: false,
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to load profile",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormState(prev => ({ ...prev, [name]: value }));
@@ -27,11 +83,53 @@ const Settings: React.FC = () => {
     setFormState(prev => ({ ...prev, [name]: checked }));
   };
 
+  const saveProfile = async () => {
+    if (!user) return;
+    
+    setSaving(true);
+    try {
+      const profileData = {
+        user_id: user.id,
+        full_name: formState.fullName,
+        email: formState.email,
+        phone_number: formState.phoneNumber,
+        country: formState.country,
+      };
+
+      const { error } = await supabase
+        .from('profiles')
+        .upsert(profileData);
+
+      if (error) throw error;
+
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been successfully updated.",
+      });
+
+      fetchProfile();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to update profile",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return <div className="p-6">Loading settings...</div>;
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
-        <Button variant="outline">Save Changes</Button>
+        <Button onClick={saveProfile} disabled={saving}>
+          {saving ? 'Saving...' : 'Save Changes'}
+        </Button>
       </div>
 
       <Tabs defaultValue="profile" className="w-full">
@@ -99,12 +197,12 @@ const Settings: React.FC = () => {
                 <div className="grid gap-6 md:grid-cols-2">
                   <div className="bg-gray-50 rounded-lg p-4 border">
                     <p className="text-sm text-gray-500 mb-1">Current Score</p>
-                    <p className="font-semibold text-2xl">720</p>
+                    <p className="font-semibold text-2xl">{profile?.credit_score || 720}</p>
                     <p className="text-sm text-gray-500 mt-2">Good standing</p>
                   </div>
                   <div className="bg-gray-50 rounded-lg p-4 border">
                     <p className="text-sm text-gray-500 mb-1">Loan Eligibility</p>
-                    <p className="font-semibold text-2xl">Up to 10,000 USDC</p>
+                    <p className="font-semibold text-2xl">Up to {profile?.loan_eligibility || 10000} USDC</p>
                     <p className="text-sm text-gray-500 mt-2">Complete KYC for higher limits</p>
                   </div>
                 </div>

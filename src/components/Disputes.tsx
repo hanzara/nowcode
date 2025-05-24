@@ -1,10 +1,58 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { HelpCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import CreateDisputeDialog from './CreateDisputeDialog';
+import DisputesList from './DisputesList';
+
+interface Dispute {
+  id: string;
+  title: string;
+  description: string;
+  status: string;
+  created_at: string;
+}
 
 const Disputes: React.FC = () => {
+  const [disputes, setDisputes] = useState<Dispute[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  const fetchDisputes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('disputes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setDisputes(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to load disputes",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDisputes();
+  }, []);
+
+  const handleDisputeCreated = () => {
+    fetchDisputes();
+  };
+
+  if (loading) {
+    return <div className="p-6">Loading disputes...</div>;
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -14,19 +62,30 @@ const Disputes: React.FC = () => {
 
       <Card className="border-0 shadow-md">
         <CardHeader>
-          <CardTitle>Open Disputes</CardTitle>
-          <CardDescription>Any active disputes will appear here</CardDescription>
+          <CardTitle>My Disputes</CardTitle>
+          <CardDescription>Track and manage your dispute tickets</CardDescription>
         </CardHeader>
-        <CardContent className="text-center py-8">
-          <div className="rounded-full bg-blue-100 w-16 h-16 flex items-center justify-center mx-auto mb-4">
-            <HelpCircle className="h-8 w-8 text-loan-primary" />
-          </div>
-          <h3 className="font-medium text-lg mb-2">No Active Disputes</h3>
-          <p className="text-gray-500 mb-6 max-w-md mx-auto">
-            You don't have any active disputes. If you encounter any issues with your loans, 
-            you can create a new dispute ticket.
-          </p>
-          <Button className="bg-loan-primary hover:bg-blue-600">Create New Dispute</Button>
+        <CardContent>
+          {disputes.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="rounded-full bg-blue-100 w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <HelpCircle className="h-8 w-8 text-loan-primary" />
+              </div>
+              <h3 className="font-medium text-lg mb-2">No Active Disputes</h3>
+              <p className="text-gray-500 mb-6 max-w-md mx-auto">
+                You don't have any active disputes. If you encounter any issues with your loans, 
+                you can create a new dispute ticket.
+              </p>
+              <CreateDisputeDialog onDisputeCreated={handleDisputeCreated} />
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="flex justify-end">
+                <CreateDisputeDialog onDisputeCreated={handleDisputeCreated} />
+              </div>
+              <DisputesList disputes={disputes} />
+            </div>
+          )}
         </CardContent>
       </Card>
 

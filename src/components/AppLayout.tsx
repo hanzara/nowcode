@@ -9,11 +9,15 @@ import MyLoans from '@/components/MyLoans';
 import Wallet from '@/components/Wallet';
 import Disputes from '@/components/Disputes';
 import Settings from '@/components/Settings';
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import AuthPage from '@/components/AuthPage';
+import { ChevronRight, ChevronLeft, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from '@/hooks/useAuth';
 
 export type TabType = 'dashboard' | 'marketplace' | 'loans' | 'wallet' | 'disputes' | 'settings';
 
 const AppLayout: React.FC = () => {
+  const { user, loading, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [collapsed, setCollapsed] = useState(false);
   const [hasActiveLoan, setHasActiveLoan] = useState(false);
@@ -26,10 +30,21 @@ const AppLayout: React.FC = () => {
     setCollapsed(!collapsed);
   };
 
-  // Function to simulate applying for a loan
   const applyForLoan = () => {
     setHasActiveLoan(true);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthPage />;
+  }
 
   return (
     <SidebarProvider>
@@ -55,6 +70,17 @@ const AppLayout: React.FC = () => {
                 onTabChange={handleTabChange} 
                 collapsed={collapsed}
               />
+              <div className="mt-auto p-4 border-t border-gray-200">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={signOut}
+                  className={cn("w-full", collapsed && "px-2")}
+                >
+                  <LogOut size={16} />
+                  {!collapsed && <span className="ml-2">Sign Out</span>}
+                </Button>
+              </div>
             </SidebarContent>
           </Sidebar>
         </div>
