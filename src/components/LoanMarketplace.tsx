@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
+import { useLoans } from '@/hooks/useLoans';
 
 interface LoanMarketplaceProps {
   onSubmitApplication: () => void;
@@ -12,6 +13,7 @@ interface LoanMarketplaceProps {
 
 const LoanMarketplace: React.FC<LoanMarketplaceProps> = ({ onSubmitApplication }) => {
   const { toast } = useToast();
+  const { marketplaceLoans, submitLoanApplication, loading } = useLoans();
   const [formStep, setFormStep] = useState<'form' | 'confirmation'>('form');
   const [loanAmount, setLoanAmount] = useState(5000);
   const [duration, setDuration] = useState(12);
@@ -26,17 +28,34 @@ const LoanMarketplace: React.FC<LoanMarketplaceProps> = ({ onSubmitApplication }
     return monthlyPayment.toFixed(2);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (formStep === 'form') {
       setFormStep('confirmation');
     } else {
-      toast({
-        title: "Loan Application Submitted",
-        description: `Your application for ${loanAmount} USDC has been submitted for review.`,
-      });
-      onSubmitApplication();
+      try {
+        await submitLoanApplication({
+          amount: loanAmount,
+          interest_rate: interestRate,
+          duration_months: duration,
+          collateral,
+          monthly_payment: parseFloat(calculateMonthlyPayment()),
+          total_payment: parseFloat(calculateMonthlyPayment()) * duration
+        });
+
+        toast({
+          title: "Loan Application Submitted",
+          description: `Your application for ${loanAmount} USDC has been submitted for review.`,
+        });
+        onSubmitApplication();
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to submit loan application. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -45,6 +64,50 @@ const LoanMarketplace: React.FC<LoanMarketplaceProps> = ({ onSubmitApplication }
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold tracking-tight">Loan Marketplace</h1>
       </div>
+
+      {/* Available Loans Section */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader>
+          <CardTitle>Available Loans</CardTitle>
+          <CardDescription>Browse loans available in the marketplace</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="text-center py-4">Loading marketplace loans...</div>
+          ) : marketplaceLoans.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500">No loans available in the marketplace.</p>
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {marketplaceLoans.map((loan) => (
+                <div key={loan.id} className="border rounded-lg p-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-500">Amount</span>
+                      <span className="font-medium">{loan.amount} USDC</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-500">Interest Rate</span>
+                      <span className="font-medium">{loan.interest_rate}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-500">Duration</span>
+                      <span className="font-medium">{loan.duration_months} months</span>
+                    </div>
+                    {loan.collateral_required && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-500">Collateral</span>
+                        <span className="font-medium text-xs">{loan.collateral_required}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid md:grid-cols-3 gap-6">
         <div className="md:col-span-2">

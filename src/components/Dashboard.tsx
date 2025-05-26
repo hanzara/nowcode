@@ -3,19 +3,39 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronRight, TrendingUp, PieChart, FileText, Clock } from "lucide-react";
+import { useLoans } from '@/hooks/useLoans';
+import { useAuth } from '@/hooks/useAuth';
 
 interface DashboardProps {
-  hasActiveLoan: boolean;
   onApply: () => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ hasActiveLoan, onApply }) => {
+const Dashboard: React.FC<DashboardProps> = ({ onApply }) => {
+  const { user } = useAuth();
+  const { userApplications, loading } = useLoans();
+
+  const hasActiveLoan = userApplications.length > 0;
+  const latestApplication = userApplications[0];
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-500">Loading...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
         <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-500">Last updated: {new Date().toLocaleDateString()}</span>
+          <span className="text-sm text-gray-500">Welcome back, {user?.email}</span>
         </div>
       </div>
 
@@ -45,21 +65,23 @@ const Dashboard: React.FC<DashboardProps> = ({ hasActiveLoan, onApply }) => {
                       <Clock className="h-5 w-5 text-amber-600" />
                     </div>
                     <div>
-                      <h3 className="font-medium">Pending Approval</h3>
-                      <p className="text-sm text-gray-500">Submitted on {new Date().toLocaleDateString()}</p>
+                      <h3 className="font-medium capitalize">{latestApplication.status}</h3>
+                      <p className="text-sm text-gray-500">
+                        Submitted on {new Date(latestApplication.created_at).toLocaleDateString()}
+                      </p>
                     </div>
                   </div>
-                  <span className="font-semibold text-amber-600">5,000 USDC</span>
+                  <span className="font-semibold text-amber-600">{latestApplication.amount} USDC</span>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4 mt-2">
                   <div className="border rounded-lg p-4 bg-gray-50">
                     <h4 className="text-sm text-gray-500 mb-1">Interest Rate</h4>
-                    <p className="font-semibold text-lg">5.2%</p>
+                    <p className="font-semibold text-lg">{latestApplication.interest_rate}%</p>
                   </div>
                   <div className="border rounded-lg p-4 bg-gray-50">
                     <h4 className="text-sm text-gray-500 mb-1">Duration</h4>
-                    <p className="font-semibold text-lg">12 months</p>
+                    <p className="font-semibold text-lg">{latestApplication.duration_months} months</p>
                   </div>
                 </div>
               </div>

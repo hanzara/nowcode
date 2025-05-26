@@ -20,7 +20,6 @@ const AppLayout: React.FC = () => {
   const { user, loading, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [collapsed, setCollapsed] = useState(false);
-  const [hasActiveLoan, setHasActiveLoan] = useState(false);
 
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
@@ -28,10 +27,6 @@ const AppLayout: React.FC = () => {
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
-  };
-
-  const applyForLoan = () => {
-    setHasActiveLoan(true);
   };
 
   if (loading) {
@@ -89,16 +84,15 @@ const AppLayout: React.FC = () => {
           <main className="p-6 h-full">
             {activeTab === 'dashboard' && (
               <Dashboard 
-                hasActiveLoan={hasActiveLoan} 
                 onApply={() => setActiveTab('marketplace')} 
               />
             )}
             {activeTab === 'marketplace' && (
               <LoanMarketplace 
-                onSubmitApplication={applyForLoan} 
+                onSubmitApplication={() => setActiveTab('dashboard')} 
               />
             )}
-            {activeTab === 'loans' && <MyLoans hasActiveLoan={hasActiveLoan} />}
+            {activeTab === 'loans' && <MyLoans />}
             {activeTab === 'wallet' && <Wallet />}
             {activeTab === 'disputes' && <Disputes />}
             {activeTab === 'settings' && <Settings />}

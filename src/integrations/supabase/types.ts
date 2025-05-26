@@ -39,6 +39,98 @@ export type Database = {
         }
         Relationships: []
       }
+      loan_applications: {
+        Row: {
+          amount: number
+          borrower_id: string
+          collateral: string | null
+          created_at: string
+          duration_months: number
+          funding_progress: number | null
+          id: string
+          interest_rate: number
+          loan_id: string | null
+          monthly_payment: number | null
+          status: string | null
+          total_payment: number | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          borrower_id: string
+          collateral?: string | null
+          created_at?: string
+          duration_months: number
+          funding_progress?: number | null
+          id?: string
+          interest_rate: number
+          loan_id?: string | null
+          monthly_payment?: number | null
+          status?: string | null
+          total_payment?: number | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          borrower_id?: string
+          collateral?: string | null
+          created_at?: string
+          duration_months?: number
+          funding_progress?: number | null
+          id?: string
+          interest_rate?: number
+          loan_id?: string | null
+          monthly_payment?: number | null
+          status?: string | null
+          total_payment?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loan_applications_loan_id_fkey"
+            columns: ["loan_id"]
+            isOneToOne: false
+            referencedRelation: "loans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loans: {
+        Row: {
+          amount: number
+          collateral_required: string | null
+          created_at: string
+          duration_months: number
+          id: string
+          interest_rate: number
+          lender_id: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          collateral_required?: string | null
+          created_at?: string
+          duration_months: number
+          id?: string
+          interest_rate: number
+          lender_id: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          collateral_required?: string | null
+          created_at?: string
+          duration_months?: number
+          id?: string
+          interest_rate?: number
+          lender_id?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           country: string | null
@@ -74,6 +166,75 @@ export type Database = {
           loan_eligibility?: number | null
           phone_number?: string | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_wallets: {
+        Row: {
+          balance: number | null
+          created_at: string
+          currency: string | null
+          id: string
+          is_connected: boolean | null
+          locked_collateral: number | null
+          updated_at: string
+          user_id: string
+          wallet_address: string | null
+        }
+        Insert: {
+          balance?: number | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          is_connected?: boolean | null
+          locked_collateral?: number | null
+          updated_at?: string
+          user_id: string
+          wallet_address?: string | null
+        }
+        Update: {
+          balance?: number | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          is_connected?: boolean | null
+          locked_collateral?: number | null
+          updated_at?: string
+          user_id?: string
+          wallet_address?: string | null
+        }
+        Relationships: []
+      }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string | null
+          description: string | null
+          id: string
+          status: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          status?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          status?: string | null
+          type?: string
           user_id?: string
         }
         Relationships: []
