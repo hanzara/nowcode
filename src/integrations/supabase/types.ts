@@ -131,6 +131,75 @@ export type Database = {
         }
         Relationships: []
       }
+      mobile_money_accounts: {
+        Row: {
+          account_name: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          is_verified: boolean | null
+          phone_number: string
+          provider: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_name?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          phone_number: string
+          provider: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_name?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          phone_number?: string
+          provider?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          title: string
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           country: string | null
@@ -169,6 +238,146 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      staking_pools: {
+        Row: {
+          apy: number
+          created_at: string
+          currency: string
+          id: string
+          is_active: boolean | null
+          max_stake: number | null
+          min_stake: number
+          name: string
+          total_staked: number | null
+          updated_at: string
+        }
+        Insert: {
+          apy: number
+          created_at?: string
+          currency: string
+          id?: string
+          is_active?: boolean | null
+          max_stake?: number | null
+          min_stake: number
+          name: string
+          total_staked?: number | null
+          updated_at?: string
+        }
+        Update: {
+          apy?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          is_active?: boolean | null
+          max_stake?: number | null
+          min_stake?: number
+          name?: string
+          total_staked?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          display_name: string | null
+          experience_years: number | null
+          id: string
+          location: string | null
+          profession: string | null
+          profile_type: string
+          success_rate: number | null
+          total_borrowed: number | null
+          total_funded: number | null
+          updated_at: string
+          user_id: string
+          verification_status: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          experience_years?: number | null
+          id?: string
+          location?: string | null
+          profession?: string | null
+          profile_type: string
+          success_rate?: number | null
+          total_borrowed?: number | null
+          total_funded?: number | null
+          updated_at?: string
+          user_id: string
+          verification_status?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          experience_years?: number | null
+          id?: string
+          location?: string | null
+          profession?: string | null
+          profile_type?: string
+          success_rate?: number | null
+          total_borrowed?: number | null
+          total_funded?: number | null
+          updated_at?: string
+          user_id?: string
+          verification_status?: string | null
+        }
+        Relationships: []
+      }
+      user_stakes: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_reward_date: string | null
+          pool_id: string
+          rewards_earned: number | null
+          stake_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_reward_date?: string | null
+          pool_id: string
+          rewards_earned?: number | null
+          stake_date?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_reward_date?: string | null
+          pool_id?: string
+          rewards_earned?: number | null
+          stake_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_stakes_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "staking_pools"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_wallets: {
         Row: {

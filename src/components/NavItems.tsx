@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Store, FileText, Wallet, HelpCircle, Settings } from "lucide-react";
+import { LayoutDashboard, Store, FileText, Wallet, HelpCircle, Settings, User, Coins } from "lucide-react";
 import type { TabType } from './AppLayout';
 
 interface NavItemsProps {
@@ -15,6 +15,8 @@ const NavItems: React.FC<NavItemsProps> = ({ activeTab, onTabChange, collapsed }
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
     { id: 'marketplace', label: 'Loan Marketplace', icon: <Store size={20} /> },
     { id: 'loans', label: 'My Loans', icon: <FileText size={20} /> },
+    { id: 'portfolio', label: 'Portfolio', icon: <User size={20} /> },
+    { id: 'staking', label: 'Staking', icon: <Coins size={20} /> },
     { id: 'wallet', label: 'Wallet', icon: <Wallet size={20} /> },
     { id: 'disputes', label: 'Disputes & Support', icon: <HelpCircle size={20} /> },
     { id: 'settings', label: 'Settings', icon: <Settings size={20} /> }
