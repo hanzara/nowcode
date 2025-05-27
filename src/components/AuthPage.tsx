@@ -21,30 +21,67 @@ const AuthPage: React.FC = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
+        console.log('Attempting to sign in with:', email);
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
-        if (error) throw error;
+        
+        console.log('Sign in response:', { data, error });
+        
+        if (error) {
+          console.error('Sign in error:', error);
+          throw error;
+        }
+        
+        console.log('Sign in successful:', data);
         toast({
           title: "Welcome back!",
           description: "You have successfully logged in.",
         });
       } else {
-        const { error } = await supabase.auth.signUp({
+        console.log('Attempting to sign up with:', email);
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
         });
-        if (error) throw error;
-        toast({
-          title: "Account created!",
-          description: "Welcome to LendChain. You can now start using the platform.",
-        });
+        
+        console.log('Sign up response:', { data, error });
+        
+        if (error) {
+          console.error('Sign up error:', error);
+          throw error;
+        }
+        
+        // Check if email confirmation is required
+        if (data.user && !data.session) {
+          toast({
+            title: "Check your email!",
+            description: "We've sent you a confirmation link. Please check your email and click the link to verify your account before signing in.",
+          });
+        } else {
+          toast({
+            title: "Account created!",
+            description: "Welcome to LendChain. You can now start using the platform.",
+          });
+        }
       }
     } catch (error: any) {
+      console.error('Authentication error:', error);
+      let errorMessage = error.message;
+      
+      // Provide more helpful error messages
+      if (error.message === 'Invalid login credentials') {
+        errorMessage = "The email or password you entered is incorrect. Please check your credentials and try again.";
+      } else if (error.message === 'Email not confirmed') {
+        errorMessage = "Please check your email and click the confirmation link before signing in.";
+      } else if (error.message === 'User not found') {
+        errorMessage = "No account found with this email address. Please sign up first.";
+      }
+      
       toast({
         title: "Authentication Error",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -58,7 +95,7 @@ const AuthPage: React.FC = () => {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.protocol}//${window.location.host}/`,
+        redirectTo: `${window.location.origin}/`,
       });
       
       if (error) throw error;
