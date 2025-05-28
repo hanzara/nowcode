@@ -33,7 +33,14 @@ export const useMobileMoney = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setAccounts(data || []);
+      
+      // Type assertion to ensure provider matches our expected union type
+      const typedData = (data || []).map(account => ({
+        ...account,
+        provider: account.provider as 'mpesa' | 'airtel_money'
+      })) as MobileMoneyAccount[];
+      
+      setAccounts(typedData);
     } catch (error) {
       console.error('Error fetching mobile money accounts:', error);
     } finally {

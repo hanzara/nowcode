@@ -39,7 +39,14 @@ export const useUserProfile = () => {
         .single();
 
       if (error && error.code !== 'PGRST116') throw error;
-      setProfile(data);
+      
+      // Type assertion to ensure profile_type matches our expected union type
+      const typedData = data ? {
+        ...data,
+        profile_type: data.profile_type as 'lender' | 'borrower'
+      } as UserProfile : null;
+      
+      setProfile(typedData);
     } catch (error) {
       console.error('Error fetching user profile:', error);
     } finally {
