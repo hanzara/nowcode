@@ -44,6 +44,9 @@ const AuthPage: React.FC = () => {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: undefined // This prevents email confirmation redirect
+          }
         });
         
         console.log('Sign up response:', { data, error });
@@ -53,17 +56,23 @@ const AuthPage: React.FC = () => {
           throw error;
         }
         
-        // Check if email confirmation is required
-        if (data.user && !data.session) {
-          toast({
-            title: "Check your email!",
-            description: "We've sent you a confirmation link. Please check your email and click the link to verify your account before signing in.",
-          });
-        } else {
-          toast({
-            title: "Account created!",
-            description: "Welcome to LendChain. You can now start using the platform.",
-          });
+        // Check if user was created successfully
+        if (data.user) {
+          if (data.session) {
+            // User is immediately signed in (email confirmation disabled)
+            toast({
+              title: "Account created successfully!",
+              description: "Welcome to LendChain. You are now signed in and can start using the platform.",
+            });
+          } else {
+            // Email confirmation is required
+            toast({
+              title: "Account created!",
+              description: "Your account has been created. You can now sign in with your credentials.",
+            });
+            // Automatically switch to sign in mode
+            setIsLogin(true);
+          }
         }
       }
     } catch (error: any) {
@@ -74,9 +83,14 @@ const AuthPage: React.FC = () => {
       if (error.message === 'Invalid login credentials') {
         errorMessage = "The email or password you entered is incorrect. Please check your credentials and try again.";
       } else if (error.message === 'Email not confirmed') {
-        errorMessage = "Please check your email and click the confirmation link before signing in.";
+        errorMessage = "Your account exists but email confirmation is required. Please check your email or contact support.";
       } else if (error.message === 'User not found') {
         errorMessage = "No account found with this email address. Please sign up first.";
+      } else if (error.message.includes('User already registered')) {
+        errorMessage = "An account with this email already exists. Please sign in instead.";
+        setIsLogin(true);
+      } else if (error.message.includes('Password should be')) {
+        errorMessage = "Password must be at least 6 characters long.";
       }
       
       toast({
@@ -186,10 +200,16 @@ const AuthPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                minLength={6}
               />
+              {!isLogin && (
+                <p className="text-xs text-gray-500">
+                  Password must be at least 6 characters long
+                </p>
+              )}
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Sign Up'}
+              {loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
             </Button>
           </form>
           
@@ -214,6 +234,14 @@ const AuthPage: React.FC = () => {
               {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
             </Button>
           </div>
+
+          {!isLogin && (
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-700">
+                After creating your account, you can immediately sign in with the same credentials.
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
