@@ -5,9 +5,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Smartphone } from "lucide-react";
 import { useMobileMoney } from '@/hooks/useMobileMoney';
 import { useToast } from "@/hooks/use-toast";
+import { Smartphone } from "lucide-react";
 
 const MobileMoneySetup: React.FC = () => {
   const { addAccount } = useMobileMoney();
@@ -22,10 +22,10 @@ const MobileMoneySetup: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.provider || !formData.phone_number) {
+    if (!formData.provider) {
       toast({
         title: "Error",
-        description: "Please fill in all required fields",
+        description: "Please select a mobile money provider",
         variant: "destructive",
       });
       return;
@@ -33,7 +33,11 @@ const MobileMoneySetup: React.FC = () => {
 
     setIsLoading(true);
     try {
-      await addAccount(formData as any);
+      await addAccount({
+        provider: formData.provider as 'mpesa' | 'airtel_money',
+        phone_number: formData.phone_number,
+        account_name: formData.account_name || undefined
+      });
       toast({
         title: "Success",
         description: "Mobile money account added successfully!",
@@ -54,16 +58,16 @@ const MobileMoneySetup: React.FC = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-green-600 hover:bg-green-700">
-          <Smartphone className="mr-2 h-4 w-4" />
+        <Button variant="outline" size="sm" className="flex items-center gap-2">
+          <Smartphone size={16} />
           Setup Mobile Money
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Connect Mobile Money</DialogTitle>
+          <DialogTitle>Setup Mobile Money Account</DialogTitle>
           <DialogDescription>
-            Link your mobile money account for easy deposits and withdrawals
+            Add your mobile money account to enable staking and withdrawals
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -71,7 +75,7 @@ const MobileMoneySetup: React.FC = () => {
             <Label htmlFor="provider">Provider</Label>
             <Select onValueChange={(value) => setFormData(prev => ({ ...prev, provider: value as 'mpesa' | 'airtel_money' }))}>
               <SelectTrigger>
-                <SelectValue placeholder="Select your mobile money provider" />
+                <SelectValue placeholder="Select mobile money provider" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="mpesa">M-Pesa</SelectItem>
@@ -98,7 +102,7 @@ const MobileMoneySetup: React.FC = () => {
               id="account_name"
               value={formData.account_name}
               onChange={(e) => setFormData(prev => ({ ...prev, account_name: e.target.value }))}
-              placeholder="Your account name"
+              placeholder="Your name as it appears on the account"
             />
           </div>
 
