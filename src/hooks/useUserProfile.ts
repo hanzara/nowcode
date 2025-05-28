@@ -6,17 +6,19 @@ import { useAuth } from './useAuth';
 export interface UserProfile {
   id: string;
   user_id: string;
-  profile_type: 'lender' | 'borrower';
   display_name: string | null;
   bio: string | null;
+  avatar_url: string | null;
   location: string | null;
   profession: string | null;
   experience_years: number | null;
+  profile_type: 'lender' | 'borrower';
+  verification_status: string | null;
+  success_rate: number | null;
   total_funded: number | null;
   total_borrowed: number | null;
-  success_rate: number | null;
-  avatar_url: string | null;
-  verification_status: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export const useUserProfile = () => {
@@ -40,13 +42,26 @@ export const useUserProfile = () => {
 
       if (error && error.code !== 'PGRST116') throw error;
       
-      // Type assertion to ensure profile_type matches our expected union type
-      const typedData = data ? {
-        ...data,
-        profile_type: data.profile_type as 'lender' | 'borrower'
-      } as UserProfile : null;
+      // Properly transform the data to match our interface
+      const transformedProfile: UserProfile | null = data ? {
+        id: data.id,
+        user_id: data.user_id,
+        display_name: data.display_name,
+        bio: data.bio,
+        avatar_url: data.avatar_url,
+        location: data.location,
+        profession: data.profession,
+        experience_years: data.experience_years,
+        profile_type: data.profile_type as 'lender' | 'borrower',
+        verification_status: data.verification_status,
+        success_rate: data.success_rate,
+        total_funded: data.total_funded,
+        total_borrowed: data.total_borrowed,
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      } : null;
       
-      setProfile(typedData);
+      setProfile(transformedProfile);
     } catch (error) {
       console.error('Error fetching user profile:', error);
     } finally {
@@ -55,8 +70,8 @@ export const useUserProfile = () => {
   };
 
   const createProfile = async (profileData: {
+    display_name: string;
     profile_type: 'lender' | 'borrower';
-    display_name?: string;
     bio?: string;
     location?: string;
     profession?: string;
@@ -73,22 +88,7 @@ export const useUserProfile = () => {
       if (error) throw error;
       await fetchProfile();
     } catch (error) {
-      console.error('Error creating profile:', error);
-      throw error;
-    }
-  };
-
-  const updateProfile = async (profileData: Partial<UserProfile>) => {
-    try {
-      const { error } = await supabase
-        .from('user_profiles')
-        .update(profileData)
-        .eq('user_id', user?.id);
-
-      if (error) throw error;
-      await fetchProfile();
-    } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error('Error creating user profile:', error);
       throw error;
     }
   };
@@ -97,7 +97,6 @@ export const useUserProfile = () => {
     profile,
     loading,
     createProfile,
-    updateProfile,
     fetchProfile
   };
 };

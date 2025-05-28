@@ -34,13 +34,17 @@ export const useMobileMoney = () => {
 
       if (error) throw error;
       
-      // Type assertion to ensure provider matches our expected union type
-      const typedData = (data || []).map(account => ({
-        ...account,
-        provider: account.provider as 'mpesa' | 'airtel_money'
-      })) as MobileMoneyAccount[];
+      // Properly transform the data to match our interface
+      const transformedAccounts: MobileMoneyAccount[] = (data || []).map(account => ({
+        id: account.id,
+        provider: account.provider as 'mpesa' | 'airtel_money',
+        phone_number: account.phone_number,
+        account_name: account.account_name,
+        is_verified: account.is_verified,
+        is_active: account.is_active
+      }));
       
-      setAccounts(typedData);
+      setAccounts(transformedAccounts);
     } catch (error) {
       console.error('Error fetching mobile money accounts:', error);
     } finally {
