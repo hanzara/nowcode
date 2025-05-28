@@ -44,7 +44,7 @@ const Staking: React.FC = () => {
             <Coins className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalStaked.toFixed(2)}</div>
+            <div className="text-2xl font-bold">KES {(totalStaked * 130).toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
               Across {userStakes.length} pool{userStakes.length !== 1 ? 's' : ''}
             </p>
@@ -57,7 +57,7 @@ const Staking: React.FC = () => {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalRewards.toFixed(2)}</div>
+            <div className="text-2xl font-bold">KES {(totalRewards * 130).toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">All time earnings</p>
           </CardContent>
         </Card>
@@ -93,10 +93,10 @@ const Staking: React.FC = () => {
                     <div>
                       <CardTitle className="flex items-center gap-2">
                         {pool.name}
-                        <Badge variant="outline">{pool.currency}</Badge>
+                        <Badge variant="outline">KES</Badge>
                       </CardTitle>
                       <CardDescription>
-                        Minimum stake: ${pool.min_stake} • Maximum stake: ${pool.max_stake || 'No limit'}
+                        Minimum stake: KES {(pool.min_stake * 130).toLocaleString()} • Maximum stake: {pool.max_stake ? `KES ${(pool.max_stake * 130).toLocaleString()}` : 'No limit'}
                       </CardDescription>
                     </div>
                     <div className="text-right">
@@ -109,7 +109,7 @@ const Staking: React.FC = () => {
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="text-sm text-gray-500">Total Staked</p>
-                      <p className="font-medium">${(pool.total_staked || 0).toLocaleString()}</p>
+                      <p className="font-medium">KES {((pool.total_staked || 0) * 130).toLocaleString()}</p>
                     </div>
                     <StakeDialog pool={pool} />
                   </div>
@@ -140,14 +140,14 @@ const Staking: React.FC = () => {
                       <div>
                         <CardTitle className="flex items-center gap-2">
                           {stake.staking_pools.name}
-                          <Badge variant="outline">{stake.staking_pools.currency}</Badge>
+                          <Badge variant="outline">KES</Badge>
                         </CardTitle>
                         <CardDescription>
                           Staked on {new Date(stake.stake_date).toLocaleDateString()}
                         </CardDescription>
                       </div>
                       <div className="text-right">
-                        <div className="text-xl font-bold">${stake.amount}</div>
+                        <div className="text-xl font-bold">KES {(stake.amount * 130).toLocaleString()}</div>
                         <p className="text-sm text-gray-500">{stake.staking_pools.apy}% APY</p>
                       </div>
                     </div>
@@ -156,7 +156,7 @@ const Staking: React.FC = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-sm text-gray-500">Rewards Earned</p>
-                        <p className="font-medium text-green-600">${(stake.rewards_earned || 0).toFixed(2)}</p>
+                        <p className="font-medium text-green-600">KES {((stake.rewards_earned || 0) * 130).toLocaleString()}</p>
                       </div>
                       <div className="flex justify-end">
                         <Button variant="outline" size="sm">

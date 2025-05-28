@@ -60,7 +60,7 @@ const Wallet: React.FC = () => {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="bg-gradient-to-br from-blue-500 to-blue-700 text-white rounded-xl p-6">
                     <p className="text-sm opacity-80 mb-1">Available Balance</p>
-                    <h2 className="text-3xl font-bold mb-3">{wallet.balance} {wallet.currency}</h2>
+                    <h2 className="text-3xl font-bold mb-3">KES {(wallet.balance * 130).toLocaleString()}</h2>
                     <p className="text-sm opacity-80">Connected: {wallet.wallet_address?.slice(0, 6)}...{wallet.wallet_address?.slice(-4)}</p>
                   </div>
                   
@@ -95,7 +95,7 @@ const Wallet: React.FC = () => {
                   <div className="border rounded-lg p-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-500">Locked Amount</span>
-                      <span className="font-medium">{wallet.locked_collateral} {wallet.currency}</span>
+                      <span className="font-medium">KES {(wallet.locked_collateral * 130).toLocaleString()}</span>
                     </div>
                   </div>
                 ) : (
@@ -146,7 +146,7 @@ const Wallet: React.FC = () => {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="font-medium">{transaction.amount} {transaction.currency}</p>
+                            <p className="font-medium">KES {(transaction.amount * 130).toLocaleString()}</p>
                             <p className={`text-sm ${
                               transaction.status === 'completed' ? 'text-green-600' : 
                               transaction.status === 'pending' ? 'text-yellow-600' : 'text-red-600'
@@ -180,7 +180,7 @@ const Wallet: React.FC = () => {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="font-medium">+{transaction.amount} {transaction.currency}</p>
+                            <p className="font-medium">+KES {(transaction.amount * 130).toLocaleString()}</p>
                             <p className="text-sm text-green-600">{transaction.status}</p>
                           </div>
                         </div>
@@ -209,7 +209,7 @@ const Wallet: React.FC = () => {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="font-medium">-{transaction.amount} {transaction.currency}</p>
+                            <p className="font-medium">-KES {(transaction.amount * 130).toLocaleString()}</p>
                             <p className="text-sm text-red-600">{transaction.status}</p>
                           </div>
                         </div>

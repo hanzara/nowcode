@@ -21,21 +21,22 @@ const StakeDialog: React.FC<StakeDialogProps> = ({ pool }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const stakeAmount = parseFloat(amount);
+    const stakeAmountKES = parseFloat(amount);
+    const stakeAmountUSD = stakeAmountKES / 130; // Convert KES to USD for storage
     
-    if (stakeAmount < pool.min_stake) {
+    if (stakeAmountUSD < pool.min_stake) {
       toast({
         title: "Error",
-        description: `Minimum stake amount is $${pool.min_stake}`,
+        description: `Minimum stake amount is KES ${(pool.min_stake * 130).toLocaleString()}`,
         variant: "destructive",
       });
       return;
     }
 
-    if (pool.max_stake && stakeAmount > pool.max_stake) {
+    if (pool.max_stake && stakeAmountUSD > pool.max_stake) {
       toast({
         title: "Error",
-        description: `Maximum stake amount is $${pool.max_stake}`,
+        description: `Maximum stake amount is KES ${(pool.max_stake * 130).toLocaleString()}`,
         variant: "destructive",
       });
       return;
@@ -43,7 +44,7 @@ const StakeDialog: React.FC<StakeDialogProps> = ({ pool }) => {
 
     setIsLoading(true);
     try {
-      await createStake(pool.id, stakeAmount);
+      await createStake(pool.id, stakeAmountUSD);
       toast({
         title: "Success",
         description: "Successfully staked your funds!",
@@ -61,7 +62,7 @@ const StakeDialog: React.FC<StakeDialogProps> = ({ pool }) => {
     }
   };
 
-  const estimatedRewards = parseFloat(amount) * (pool.apy / 100);
+  const estimatedRewardsKES = parseFloat(amount) * (pool.apy / 100);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -74,7 +75,7 @@ const StakeDialog: React.FC<StakeDialogProps> = ({ pool }) => {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             Stake in {pool.name}
-            <Badge variant="outline">{pool.currency}</Badge>
+            <Badge variant="outline">KES</Badge>
           </DialogTitle>
           <DialogDescription>
             Start earning {pool.apy}% APY on your staked funds
@@ -82,20 +83,20 @@ const StakeDialog: React.FC<StakeDialogProps> = ({ pool }) => {
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="amount">Stake Amount</Label>
+            <Label htmlFor="amount">Stake Amount (KES)</Label>
             <Input
               id="amount"
               type="number"
-              step="0.01"
-              min={pool.min_stake}
-              max={pool.max_stake || undefined}
+              step="1"
+              min={pool.min_stake * 130}
+              max={pool.max_stake ? pool.max_stake * 130 : undefined}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder={`Min: $${pool.min_stake}`}
+              placeholder={`Min: KES ${(pool.min_stake * 130).toLocaleString()}`}
               required
             />
             <div className="text-sm text-gray-500">
-              Min: ${pool.min_stake} • Max: ${pool.max_stake || 'No limit'}
+              Min: KES {(pool.min_stake * 130).toLocaleString()} • Max: {pool.max_stake ? `KES ${(pool.max_stake * 130).toLocaleString()}` : 'No limit'}
             </div>
           </div>
 
@@ -103,11 +104,11 @@ const StakeDialog: React.FC<StakeDialogProps> = ({ pool }) => {
             <div className="bg-gray-50 rounded-lg p-4 space-y-2">
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">Annual rewards estimate:</span>
-                <span className="font-medium">${estimatedRewards.toFixed(2)}</span>
+                <span className="font-medium">KES {estimatedRewardsKES.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">Monthly estimate:</span>
-                <span className="font-medium">${(estimatedRewards / 12).toFixed(2)}</span>
+                <span className="font-medium">KES {(estimatedRewardsKES / 12).toLocaleString()}</span>
               </div>
             </div>
           )}
