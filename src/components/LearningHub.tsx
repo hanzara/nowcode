@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,11 +31,13 @@ interface UserProgress {
   completed_at?: string;
 }
 
+type ActiveTab = 'all' | 'defi' | 'risk' | 'investment';
+
 const LearningHub: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [selectedContent, setSelectedContent] = useState<LearningContent | null>(null);
-  const [activeTab, setActiveTab] = useState<string>('all');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('all');
 
   const { data: learningContent = [] as LearningContent[], isLoading: contentLoading } = useQuery({
     queryKey: ['learning-content'],
@@ -298,7 +299,7 @@ const LearningHub: React.FC = () => {
         </Card>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as ActiveTab)} className="w-full">
         <TabsList>
           <TabsTrigger value="all">All Content</TabsTrigger>
           <TabsTrigger value="defi">DeFi Basics</TabsTrigger>
