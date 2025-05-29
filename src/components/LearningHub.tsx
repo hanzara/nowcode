@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,7 @@ const LearningHub: React.FC = () => {
   const [selectedContent, setSelectedContent] = useState<LearningContent | null>(null);
   const [activeTab, setActiveTab] = useState<string>('all');
 
-  const { data: learningContent = [], isLoading: contentLoading } = useQuery({
+  const { data: learningContent = [] as LearningContent[], isLoading: contentLoading } = useQuery({
     queryKey: ['learning-content'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -51,7 +52,7 @@ const LearningHub: React.FC = () => {
     }
   });
 
-  const { data: userProgress = [], isLoading: progressLoading } = useQuery({
+  const { data: userProgress = [] as UserProgress[], isLoading: progressLoading } = useQuery({
     queryKey: ['user-progress', user?.id],
     queryFn: async () => {
       if (!user) return [];
