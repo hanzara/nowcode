@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -185,10 +186,12 @@ const LearningHub: React.FC = () => {
     return userProgress.find(p => p.content_id === contentId);
   };
 
-  const filteredContent = learningContent.filter((content) => {
+  const filteredContent = learningContent.filter((content: LearningContent) => {
     if (activeTab === 'all') return true;
-    if (typeof content.category === 'string') {
-      return content.category.toLowerCase().includes(activeTab.toLowerCase());
+    if (content.category && typeof content.category === 'string') {
+      const categoryLower = content.category.toLowerCase();
+      const activeTabLower = activeTab.toLowerCase();
+      return categoryLower.includes(activeTabLower);
     }
     return false;
   });
