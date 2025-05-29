@@ -1,50 +1,99 @@
+import {
+  LayoutDashboard,
+  Store,
+  CreditCard,
+  TrendingUp,
+  BookOpen,
+  Brain,
+  Coins,
+  Wallet,
+  AlertCircle,
+  Settings,
+} from "lucide-react";
+import Dashboard from "@/components/Dashboard";
+import LoanMarketplace from "@/components/LoanMarketplace";
+import MyLoans from "@/components/MyLoans";
+import Portfolio from "@/components/Portfolio";
+import LearningHub from "@/components/LearningHub";
+import InvestmentInsights from "@/components/InvestmentInsights";
+import TokenManagement from "@/components/TokenManagement";
+import Staking from "@/components/Staking";
+import WalletComponent from "@/components/Wallet";
+import Disputes from "@/components/Disputes";
+import SettingsComponent from "@/components/Settings";
 
-import React from 'react';
-import { cn } from '@/lib/utils';
-import { LayoutDashboard, Store, FileText, Wallet, HelpCircle, Settings, User, Coins } from "lucide-react";
-import type { TabType } from './AppLayout';
-
-interface NavItemsProps {
-  activeTab: TabType;
-  onTabChange: (tab: TabType) => void;
-  collapsed: boolean;
+interface NavItem {
+  title: string;
+  icon: any;
+  component: React.FC;
+  description: string;
 }
 
-const NavItems: React.FC<NavItemsProps> = ({ activeTab, onTabChange, collapsed }) => {
-  const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
-    { id: 'marketplace', label: 'Loan Marketplace', icon: <Store size={20} /> },
-    { id: 'loans', label: 'My Loans', icon: <FileText size={20} /> },
-    { id: 'portfolio', label: 'Portfolio', icon: <User size={20} /> },
-    { id: 'staking', label: 'Staking', icon: <Coins size={20} /> },
-    { id: 'wallet', label: 'Wallet', icon: <Wallet size={20} /> },
-    { id: 'disputes', label: 'Disputes & Support', icon: <HelpCircle size={20} /> },
-    { id: 'settings', label: 'Settings', icon: <Settings size={20} /> }
-  ];
-
-  return (
-    <nav className="flex flex-col py-4 h-full">
-      {navItems.map((item) => (
-        <button
-          key={item.id}
-          onClick={() => onTabChange(item.id as TabType)}
-          className={cn(
-            "flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors",
-            activeTab === item.id && "bg-blue-50 text-loan-primary border-l-4 border-loan-primary",
-            collapsed ? "justify-center" : "justify-start"
-          )}
-        >
-          <span className="flex-shrink-0">{item.icon}</span>
-          <span className={cn(
-            "ml-3 whitespace-nowrap transition-opacity", 
-            collapsed ? "opacity-0 hidden" : "opacity-100 block"
-          )}>
-            {item.label}
-          </span>
-        </button>
-      ))}
-    </nav>
-  );
-};
-
-export default NavItems;
+export const navItems = [
+  {
+    title: "Dashboard",
+    icon: LayoutDashboard,
+    component: Dashboard,
+    description: "Overview of your lending portfolio"
+  },
+  {
+    title: "Loan Marketplace",
+    icon: Store,
+    component: LoanMarketplace,
+    description: "Browse and invest in available loans"
+  },
+  {
+    title: "My Loans",
+    icon: CreditCard,
+    component: MyLoans,
+    description: "Manage your active loans and applications"
+  },
+  {
+    title: "Portfolio",
+    icon: TrendingUp,
+    component: Portfolio,
+    description: "Track your investment performance"
+  },
+  {
+    title: "Learning Hub",
+    icon: BookOpen,
+    component: LearningHub,
+    description: "Educational content and earn VDO tokens"
+  },
+  {
+    title: "AI Insights",
+    icon: Brain,
+    component: InvestmentInsights,
+    description: "AI-powered investment recommendations"
+  },
+  {
+    title: "VDO Tokens",
+    icon: Coins,
+    component: TokenManagement,
+    description: "Manage your tokenized earnings and rewards"
+  },
+  {
+    title: "Staking",
+    icon: Coins,
+    component: Staking,
+    description: "Stake your tokens to earn rewards"
+  },
+  {
+    title: "Wallet",
+    icon: Wallet,
+    component: WalletComponent,
+    description: "Manage your digital wallet and funds"
+  },
+  {
+    title: "Disputes",
+    icon: AlertCircle,
+    component: Disputes,
+    description: "Dispute resolution and support"
+  },
+  {
+    title: "Settings",
+    icon: Settings,
+    component: SettingsComponent,
+    description: "Account settings and preferences"
+  }
+];
