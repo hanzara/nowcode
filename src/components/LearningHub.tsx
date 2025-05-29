@@ -35,7 +35,7 @@ const LearningHub: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [selectedContent, setSelectedContent] = useState<LearningContent | null>(null);
-  const [activeTab, setActiveTab] = useState('all');
+  const [activeTab, setActiveTab] = useState<string>('all');
 
   const { data: learningContent = [], isLoading: contentLoading } = useQuery({
     queryKey: ['learning-content'],
@@ -187,7 +187,7 @@ const LearningHub: React.FC = () => {
 
   const filteredContent = learningContent.filter((content: LearningContent) => {
     if (activeTab === 'all') return true;
-    return content.category.toLowerCase().includes(activeTab.toLowerCase());
+    return content.category.toLowerCase().includes(activeTab);
   });
 
   const completedCount = userProgress.filter(p => p.status === 'completed').length;
