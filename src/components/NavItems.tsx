@@ -5,7 +5,6 @@ import {
   Store,
   CreditCard,
   TrendingUp,
-  BookOpen,
   Brain,
   Coins,
   Wallet,
@@ -52,6 +51,12 @@ const navItems: NavItem[] = [
     icon: TrendingUp,
     tab: 'portfolio',
     description: "Track your investment performance"
+  },
+  {
+    title: "Investment Insights",
+    icon: Brain,
+    tab: 'insights',
+    description: "AI-powered market analysis and recommendations"
   },
   {
     title: "Staking",
