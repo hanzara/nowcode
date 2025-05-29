@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -186,9 +185,9 @@ const LearningHub: React.FC = () => {
     return userProgress.find(p => p.content_id === contentId);
   };
 
-  const filteredContent = learningContent.filter(content => {
+  const filteredContent = learningContent.filter((content: LearningContent) => {
     if (activeTab === 'all') return true;
-    return content.category.toLowerCase().includes(activeTab);
+    return content.category.toLowerCase().includes(activeTab.toLowerCase());
   });
 
   const completedCount = userProgress.filter(p => p.status === 'completed').length;

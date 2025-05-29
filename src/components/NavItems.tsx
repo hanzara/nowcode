@@ -1,3 +1,5 @@
+
+import React from 'react';
 import {
   LayoutDashboard,
   Store,
@@ -10,90 +12,101 @@ import {
   AlertCircle,
   Settings,
 } from "lucide-react";
-import Dashboard from "@/components/Dashboard";
-import LoanMarketplace from "@/components/LoanMarketplace";
-import MyLoans from "@/components/MyLoans";
-import Portfolio from "@/components/Portfolio";
-import LearningHub from "@/components/LearningHub";
-import InvestmentInsights from "@/components/InvestmentInsights";
-import TokenManagement from "@/components/TokenManagement";
-import Staking from "@/components/Staking";
-import WalletComponent from "@/components/Wallet";
-import Disputes from "@/components/Disputes";
-import SettingsComponent from "@/components/Settings";
+import { cn } from "@/lib/utils";
+import { TabType } from './AppLayout';
 
 interface NavItem {
   title: string;
   icon: any;
-  component: React.FC;
+  tab: TabType;
   description: string;
 }
 
-export const navItems = [
+interface NavItemsProps {
+  activeTab: TabType;
+  onTabChange: (tab: TabType) => void;
+  collapsed: boolean;
+}
+
+const navItems: NavItem[] = [
   {
     title: "Dashboard",
     icon: LayoutDashboard,
-    component: Dashboard,
+    tab: 'dashboard',
     description: "Overview of your lending portfolio"
   },
   {
     title: "Loan Marketplace",
     icon: Store,
-    component: LoanMarketplace,
+    tab: 'marketplace',
     description: "Browse and invest in available loans"
   },
   {
     title: "My Loans",
     icon: CreditCard,
-    component: MyLoans,
+    tab: 'loans',
     description: "Manage your active loans and applications"
   },
   {
     title: "Portfolio",
     icon: TrendingUp,
-    component: Portfolio,
+    tab: 'portfolio',
     description: "Track your investment performance"
-  },
-  {
-    title: "Learning Hub",
-    icon: BookOpen,
-    component: LearningHub,
-    description: "Educational content and earn VDO tokens"
-  },
-  {
-    title: "AI Insights",
-    icon: Brain,
-    component: InvestmentInsights,
-    description: "AI-powered investment recommendations"
-  },
-  {
-    title: "VDO Tokens",
-    icon: Coins,
-    component: TokenManagement,
-    description: "Manage your tokenized earnings and rewards"
   },
   {
     title: "Staking",
     icon: Coins,
-    component: Staking,
+    tab: 'staking',
     description: "Stake your tokens to earn rewards"
   },
   {
     title: "Wallet",
     icon: Wallet,
-    component: WalletComponent,
+    tab: 'wallet',
     description: "Manage your digital wallet and funds"
   },
   {
     title: "Disputes",
     icon: AlertCircle,
-    component: Disputes,
+    tab: 'disputes',
     description: "Dispute resolution and support"
   },
   {
     title: "Settings",
     icon: Settings,
-    component: SettingsComponent,
+    tab: 'settings',
     description: "Account settings and preferences"
   }
 ];
+
+const NavItems: React.FC<NavItemsProps> = ({ activeTab, onTabChange, collapsed }) => {
+  return (
+    <nav className="flex-1 space-y-1 p-2">
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        const isActive = activeTab === item.tab;
+        
+        return (
+          <button
+            key={item.tab}
+            onClick={() => onTabChange(item.tab)}
+            className={cn(
+              "w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+              isActive
+                ? "bg-blue-100 text-blue-900"
+                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+            )}
+            title={collapsed ? item.title : undefined}
+          >
+            <Icon className="h-5 w-5 flex-shrink-0" />
+            {!collapsed && (
+              <span className="ml-3 truncate">{item.title}</span>
+            )}
+          </button>
+        );
+      })}
+    </nav>
+  );
+};
+
+export default NavItems;

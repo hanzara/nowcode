@@ -7,6 +7,8 @@ import Dashboard from '@/components/Dashboard';
 import LoanMarketplace from '@/components/LoanMarketplace';
 import MyLoans from '@/components/MyLoans';
 import Portfolio from '@/components/Portfolio';
+import LearningHub from '@/components/LearningHub';
+import InvestmentInsights from '@/components/InvestmentInsights';
 import Staking from '@/components/Staking';
 import Wallet from '@/components/Wallet';
 import Disputes from '@/components/Disputes';
@@ -16,7 +18,7 @@ import { ChevronRight, ChevronLeft, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/hooks/useAuth';
 
-export type TabType = 'dashboard' | 'marketplace' | 'loans' | 'portfolio' | 'staking' | 'wallet' | 'disputes' | 'settings';
+export type TabType = 'dashboard' | 'marketplace' | 'loans' | 'portfolio' | 'learning' | 'insights' | 'staking' | 'wallet' | 'disputes' | 'settings';
 
 const AppLayout: React.FC = () => {
   const { user, loading, signOut } = useAuth();
@@ -96,6 +98,8 @@ const AppLayout: React.FC = () => {
             )}
             {activeTab === 'loans' && <MyLoans />}
             {activeTab === 'portfolio' && <Portfolio />}
+            {activeTab === 'learning' && <LearningHub />}
+            {activeTab === 'insights' && <InvestmentInsights />}
             {activeTab === 'staking' && <Staking />}
             {activeTab === 'wallet' && <Wallet />}
             {activeTab === 'disputes' && <Disputes />}
