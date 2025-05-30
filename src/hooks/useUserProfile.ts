@@ -12,7 +12,7 @@ export interface UserProfile {
   location: string | null;
   profession: string | null;
   experience_years: number | null;
-  profile_type: 'lender' | 'borrower';
+  profile_type: 'borrower' | 'investor';
   verification_status: string | null;
   success_rate: number | null;
   total_funded: number | null;
@@ -52,7 +52,7 @@ export const useUserProfile = () => {
         location: data.location,
         profession: data.profession,
         experience_years: data.experience_years,
-        profile_type: data.profile_type as 'lender' | 'borrower',
+        profile_type: data.profile_type as 'borrower' | 'investor',
         verification_status: data.verification_status,
         success_rate: data.success_rate,
         total_funded: data.total_funded,
@@ -71,7 +71,7 @@ export const useUserProfile = () => {
 
   const createProfile = async (profileData: {
     display_name: string;
-    profile_type: 'lender' | 'borrower';
+    profile_type: 'borrower' | 'investor';
     bio?: string;
     location?: string;
     profession?: string;

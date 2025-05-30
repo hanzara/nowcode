@@ -15,7 +15,7 @@ const CreateProfileDialog: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    profile_type: '' as 'lender' | 'borrower' | '',
+    profile_type: '' as 'borrower' | 'investor' | '',
     display_name: '',
     bio: '',
     location: '',
@@ -62,7 +62,7 @@ const CreateProfileDialog: React.FC = () => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
-          <DialogTitle>Create Your Portfolio</DialogTitle>
+          <DialogTitle>Create Your Profile</DialogTitle>
           <DialogDescription>
             Set up your profile to start lending or borrowing on LendChain
           </DialogDescription>
@@ -70,13 +70,13 @@ const CreateProfileDialog: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="profile_type">Profile Type</Label>
-            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, profile_type: value as 'lender' | 'borrower' }))}>
+            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, profile_type: value as 'borrower' | 'investor' }))}>
               <SelectTrigger>
                 <SelectValue placeholder="Select your role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="lender">Lender - I want to fund loans</SelectItem>
                 <SelectItem value="borrower">Borrower - I need funding</SelectItem>
+                <SelectItem value="investor">Investor - I want to fund loans</SelectItem>
               </SelectContent>
             </Select>
           </div>

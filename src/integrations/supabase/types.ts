@@ -179,6 +179,50 @@ export type Database = {
           },
         ]
       }
+      loan_offers: {
+        Row: {
+          created_at: string
+          id: string
+          investor_id: string
+          loan_application_id: string
+          message: string | null
+          offered_amount: number
+          offered_interest_rate: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          investor_id: string
+          loan_application_id: string
+          message?: string | null
+          offered_amount: number
+          offered_interest_rate: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          investor_id?: string
+          loan_application_id?: string
+          message?: string | null
+          offered_amount?: number
+          offered_interest_rate?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loan_offers_loan_application_id_fkey"
+            columns: ["loan_application_id"]
+            isOneToOne: false
+            referencedRelation: "loan_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       loans: {
         Row: {
           amount: number
