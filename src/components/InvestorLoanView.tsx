@@ -33,6 +33,9 @@ const InvestorLoanView: React.FC = () => {
         {pendingApplications.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-gray-500">No loan applications available for investment.</p>
+            <p className="text-sm text-gray-400 mt-2">
+              Borrowers need to submit loan applications for them to appear here.
+            </p>
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

@@ -59,16 +59,16 @@ export const useLoans = () => {
 
   const fetchUserApplications = async () => {
     try {
+      // Fetch all loan applications for the current view
       const { data, error } = await supabase
         .from('loan_applications')
         .select('*')
-        .eq('borrower_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       setUserApplications(data || []);
     } catch (error) {
-      console.error('Error fetching user applications:', error);
+      console.error('Error fetching loan applications:', error);
     }
   };
 
