@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -33,7 +32,7 @@ const Portfolio: React.FC = () => {
           <CardHeader className="text-center">
             <CardTitle>Create Your Portfolio</CardTitle>
             <CardDescription>
-              Set up your investor or borrower profile to get started
+              Set up your investor, lender, or borrower profile to get started
             </CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center">
@@ -44,12 +43,32 @@ const Portfolio: React.FC = () => {
     );
   }
 
+  const getBadgeVariant = () => {
+    if (profile.profile_type === 'investor' || profile.profile_type === 'lender') {
+      return 'default';
+    }
+    return 'secondary';
+  };
+
+  const getProfileTypeDisplay = () => {
+    switch (profile.profile_type) {
+      case 'investor':
+        return 'Investor';
+      case 'lender':
+        return 'Lender';
+      case 'borrower':
+        return 'Borrower';
+      default:
+        return profile.profile_type;
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold tracking-tight">Portfolio</h1>
-        <Badge variant={profile.profile_type === 'investor' ? 'default' : 'secondary'}>
-          {profile.profile_type === 'investor' ? 'Investor' : 'Borrower'}
+        <Badge variant={getBadgeVariant()}>
+          {getProfileTypeDisplay()}
         </Badge>
       </div>
 
@@ -110,16 +129,16 @@ const Portfolio: React.FC = () => {
             <Card className="border-0 shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  {profile.profile_type === 'investor' ? 'Total Funded' : 'Total Borrowed'}
+                  {profile.profile_type === 'borrower' ? 'Total Borrowed' : 'Total Funded'}
                 </CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  ${profile.profile_type === 'investor' ? profile.total_funded || 0 : profile.total_borrowed || 0}
+                  ${profile.profile_type === 'borrower' ? profile.total_borrowed || 0 : profile.total_funded || 0}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  All time {profile.profile_type === 'investor' ? 'funding' : 'borrowing'}
+                  All time {profile.profile_type === 'borrower' ? 'borrowing' : 'funding'}
                 </p>
               </CardContent>
             </Card>
@@ -132,7 +151,7 @@ const Portfolio: React.FC = () => {
               <CardContent>
                 <div className="text-2xl font-bold">{profile.success_rate || 0}%</div>
                 <p className="text-xs text-muted-foreground">
-                  {profile.profile_type === 'investor' ? 'Successful loans' : 'On-time repayments'}
+                  {profile.profile_type === 'borrower' ? 'On-time repayments' : 'Successful loans'}
                 </p>
               </CardContent>
             </Card>

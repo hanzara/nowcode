@@ -11,7 +11,7 @@ const InvestorLoanView: React.FC = () => {
   const { userApplications: loanApplications, loading } = useLoans();
   const { profile } = useUserProfile();
 
-  if (!profile || profile.profile_type !== 'investor') {
+  if (!profile || (profile.profile_type !== 'investor' && profile.profile_type !== 'lender')) {
     return null;
   }
 

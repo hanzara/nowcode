@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -15,7 +14,7 @@ const CreateProfileDialog: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    profile_type: '' as 'borrower' | 'investor' | '',
+    profile_type: '' as 'borrower' | 'investor' | 'lender' | '',
     display_name: '',
     bio: '',
     location: '',
@@ -70,13 +69,14 @@ const CreateProfileDialog: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="profile_type">Profile Type</Label>
-            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, profile_type: value as 'borrower' | 'investor' }))}>
+            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, profile_type: value as 'borrower' | 'investor' | 'lender' }))}>
               <SelectTrigger>
                 <SelectValue placeholder="Select your role" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="borrower">Borrower - I need funding</SelectItem>
                 <SelectItem value="investor">Investor - I want to fund loans</SelectItem>
+                <SelectItem value="lender">Lender - I provide loans directly</SelectItem>
               </SelectContent>
             </Select>
           </div>
