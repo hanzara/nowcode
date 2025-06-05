@@ -1,12 +1,12 @@
 
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import SignInForm from './auth/SignInForm';
+import SignUpForm from './auth/SignUpForm';
+import ForgotPasswordForm from './auth/ForgotPasswordForm';
 
 const AuthPage: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -174,146 +174,66 @@ const AuthPage: React.FC = () => {
     }
   };
 
-  if (isForgotPassword) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
-            <CardDescription>
-              Enter your email to receive a password reset link
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleForgotPassword} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Sending...' : 'Send Reset Link'}
-              </Button>
-            </form>
-            <div className="mt-4 text-center">
-              <Button
-                variant="link"
-                onClick={() => setIsForgotPassword(false)}
-                className="text-sm"
-              >
-                Back to login
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  const getCardTitle = () => {
+    if (isForgotPassword) return "Reset Password";
+    return "LendChain";
+  };
+
+  const getCardDescription = () => {
+    if (isForgotPassword) return "Enter your email to receive a password reset link";
+    return isLogin ? 'Sign in to your account' : 'Create a new account';
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">LendChain</CardTitle>
-          <CardDescription>
-            {isLogin ? 'Sign in to your account' : 'Create a new account'}
-          </CardDescription>
+          <CardTitle className="text-2xl font-bold">{getCardTitle()}</CardTitle>
+          <CardDescription>{getCardDescription()}</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleAuth} className="space-y-4">
-            {!isLogin && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="displayName">Display Name</Label>
-                  <Input
-                    id="displayName"
-                    type="text"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    placeholder="Enter your display name"
-                    required={!isLogin}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="profileType">I want to sign up as</Label>
-                  <Select onValueChange={(value) => setProfileType(value as 'borrower' | 'investor' | 'lender')}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select your role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="borrower">Borrower - I need funding</SelectItem>
-                      <SelectItem value="investor">Investor - I want to fund loans</SelectItem>
-                      <SelectItem value="lender">Lender - I provide loans directly</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-              />
-              {!isLogin && (
-                <p className="text-xs text-gray-500">
-                  Password must be at least 6 characters long
-                </p>
-              )}
-            </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
-            </Button>
-          </form>
+          {isForgotPassword ? (
+            <ForgotPasswordForm
+              email={email}
+              loading={loading}
+              onEmailChange={setEmail}
+              onSubmit={handleForgotPassword}
+              onBackToLogin={() => setIsForgotPassword(false)}
+            />
+          ) : isLogin ? (
+            <SignInForm
+              email={email}
+              password={password}
+              loading={loading}
+              onEmailChange={setEmail}
+              onPasswordChange={setPassword}
+              onSubmit={handleAuth}
+              onForgotPassword={() => setIsForgotPassword(true)}
+            />
+          ) : (
+            <SignUpForm
+              email={email}
+              password={password}
+              displayName={displayName}
+              profileType={profileType}
+              loading={loading}
+              onEmailChange={setEmail}
+              onPasswordChange={setPassword}
+              onDisplayNameChange={setDisplayName}
+              onProfileTypeChange={setProfileType}
+              onSubmit={handleAuth}
+            />
+          )}
           
-          {isLogin && (
+          {!isForgotPassword && (
             <div className="mt-4 text-center">
               <Button
                 variant="link"
-                onClick={() => setIsForgotPassword(true)}
-                className="text-sm text-blue-600"
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-sm"
               >
-                Forgot your password?
+                {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
               </Button>
-            </div>
-          )}
-          
-          <div className="mt-4 text-center">
-            <Button
-              variant="link"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm"
-            >
-              {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
-            </Button>
-          </div>
-
-          {!isLogin && (
-            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-700">
-                Choose your role to access the right features for your needs. You can apply for loans as a Borrower, or fund and manage loans as an Investor or Lender.
-              </p>
             </div>
           )}
         </CardContent>
