@@ -29,6 +29,9 @@ export const useUserProfile = () => {
   useEffect(() => {
     if (user) {
       fetchProfile();
+    } else {
+      setProfile(null);
+      setLoading(false);
     }
   }, [user]);
 
@@ -64,6 +67,7 @@ export const useUserProfile = () => {
       setProfile(transformedProfile);
     } catch (error) {
       console.error('Error fetching user profile:', error);
+      setProfile(null);
     } finally {
       setLoading(false);
     }
@@ -93,10 +97,36 @@ export const useUserProfile = () => {
     }
   };
 
+  const updateProfile = async (updates: Partial<UserProfile>) => {
+    try {
+      const { error } = await supabase
+        .from('user_profiles')
+        .update(updates)
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+      await fetchProfile();
+    } catch (error) {
+      console.error('Error updating user profile:', error);
+      throw error;
+    }
+  };
+
+  // Helper functions to check user capabilities
+  const canBorrow = () => profile?.profile_type === 'borrower';
+  const canLend = () => profile?.profile_type === 'lender' || profile?.profile_type === 'investor';
+  const canManageDisputes = () => profile?.profile_type === 'lender' || profile?.profile_type === 'investor';
+  const canViewAllLoans = () => profile?.profile_type === 'lender' || profile?.profile_type === 'investor';
+
   return {
     profile,
     loading,
     createProfile,
-    fetchProfile
+    updateProfile,
+    fetchProfile,
+    canBorrow,
+    canLend,
+    canManageDisputes,
+    canViewAllLoans
   };
 };

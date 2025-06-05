@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -12,6 +13,8 @@ const AuthPage: React.FC = () => {
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [profileType, setProfileType] = useState<'borrower' | 'investor' | 'lender' | ''>('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -40,12 +43,35 @@ const AuthPage: React.FC = () => {
           description: "You have successfully logged in.",
         });
       } else {
-        console.log('Attempting to sign up with:', email);
+        // Validate required fields for sign up
+        if (!profileType) {
+          toast({
+            title: "Error",
+            description: "Please select your role (Borrower, Investor, or Lender)",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (!displayName.trim()) {
+          toast({
+            title: "Error",
+            description: "Please enter your display name",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        console.log('Attempting to sign up with:', email, 'Role:', profileType);
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: undefined // This prevents email confirmation redirect
+            emailRedirectTo: undefined,
+            data: {
+              display_name: displayName,
+              profile_type: profileType
+            }
           }
         });
         
@@ -58,11 +84,29 @@ const AuthPage: React.FC = () => {
         
         // Check if user was created successfully
         if (data.user) {
+          // Create user profile after successful signup
+          try {
+            const { error: profileError } = await supabase
+              .from('user_profiles')
+              .insert({
+                user_id: data.user.id,
+                display_name: displayName,
+                profile_type: profileType
+              });
+
+            if (profileError) {
+              console.error('Profile creation error:', profileError);
+              // Don't throw here, as the user was created successfully
+            }
+          } catch (profileErr) {
+            console.error('Profile creation failed:', profileErr);
+          }
+
           if (data.session) {
             // User is immediately signed in (email confirmation disabled)
             toast({
               title: "Account created successfully!",
-              description: "Welcome to LendChain. You are now signed in and can start using the platform.",
+              description: `Welcome to LendChain as a ${profileType}. You can now start using the platform.`,
             });
           } else {
             // Email confirmation is required
@@ -182,6 +226,36 @@ const AuthPage: React.FC = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAuth} className="space-y-4">
+            {!isLogin && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="displayName">Display Name</Label>
+                  <Input
+                    id="displayName"
+                    type="text"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="Enter your display name"
+                    required={!isLogin}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="profileType">I want to sign up as</Label>
+                  <Select onValueChange={(value) => setProfileType(value as 'borrower' | 'investor' | 'lender')}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="borrower">Borrower - I need funding</SelectItem>
+                      <SelectItem value="investor">Investor - I want to fund loans</SelectItem>
+                      <SelectItem value="lender">Lender - I provide loans directly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -238,7 +312,7 @@ const AuthPage: React.FC = () => {
           {!isLogin && (
             <div className="mt-4 p-3 bg-blue-50 rounded-lg">
               <p className="text-sm text-blue-700">
-                After creating your account, you can immediately sign in with the same credentials.
+                Choose your role to access the right features for your needs. You can apply for loans as a Borrower, or fund and manage loans as an Investor or Lender.
               </p>
             </div>
           )}

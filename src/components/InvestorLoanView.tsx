@@ -9,9 +9,9 @@ import { format } from 'date-fns';
 
 const InvestorLoanView: React.FC = () => {
   const { userApplications: loanApplications, loading } = useLoans();
-  const { profile } = useUserProfile();
+  const { profile, canLend } = useUserProfile();
 
-  if (!profile || (profile.profile_type !== 'investor' && profile.profile_type !== 'lender')) {
+  if (!profile || !canLend()) {
     return null;
   }
 
@@ -21,18 +21,32 @@ const InvestorLoanView: React.FC = () => {
 
   const pendingApplications = loanApplications.filter(app => app.status === 'pending');
 
+  const getTitle = () => {
+    if (profile.profile_type === 'lender') {
+      return 'Lending Opportunities';
+    }
+    return 'Investment Opportunities';
+  };
+
+  const getDescription = () => {
+    if (profile.profile_type === 'lender') {
+      return 'Browse loan applications from borrowers seeking direct lending';
+    }
+    return 'Browse loan applications from borrowers seeking funding';
+  };
+
   return (
     <Card className="border-0 shadow-sm">
       <CardHeader>
-        <CardTitle>Investment Opportunities</CardTitle>
+        <CardTitle>{getTitle()}</CardTitle>
         <CardDescription>
-          Browse loan applications from borrowers seeking funding
+          {getDescription()}
         </CardDescription>
       </CardHeader>
       <CardContent>
         {pendingApplications.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-500">No loan applications available for investment.</p>
+            <p className="text-gray-500">No loan applications available for {profile.profile_type === 'lender' ? 'lending' : 'investment'}.</p>
             <p className="text-sm text-gray-400 mt-2">
               Borrowers need to submit loan applications for them to appear here.
             </p>
@@ -85,7 +99,7 @@ const InvestorLoanView: React.FC = () => {
 
                 <LoanOfferDialog loanApplication={application}>
                   <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                    Make Offer
+                    {profile.profile_type === 'lender' ? 'Make Loan Offer' : 'Make Investment Offer'}
                   </Button>
                 </LoanOfferDialog>
               </div>

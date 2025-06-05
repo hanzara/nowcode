@@ -63,6 +63,39 @@ const Portfolio: React.FC = () => {
     }
   };
 
+  const getMetricLabel = () => {
+    switch (profile.profile_type) {
+      case 'lender':
+        return 'Total Lent';
+      case 'investor':
+        return 'Total Invested';
+      case 'borrower':
+        return 'Total Borrowed';
+      default:
+        return 'Total Amount';
+    }
+  };
+
+  const getMetricValue = () => {
+    if (profile.profile_type === 'borrower') {
+      return profile.total_borrowed || 0;
+    }
+    return profile.total_funded || 0;
+  };
+
+  const getSuccessRateLabel = () => {
+    switch (profile.profile_type) {
+      case 'lender':
+        return 'Successful loans';
+      case 'investor':
+        return 'Successful investments';
+      case 'borrower':
+        return 'On-time repayments';
+      default:
+        return 'Success rate';
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -129,16 +162,16 @@ const Portfolio: React.FC = () => {
             <Card className="border-0 shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  {profile.profile_type === 'borrower' ? 'Total Borrowed' : 'Total Funded'}
+                  {getMetricLabel()}
                 </CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  ${profile.profile_type === 'borrower' ? profile.total_borrowed || 0 : profile.total_funded || 0}
+                  ${getMetricValue()}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  All time {profile.profile_type === 'borrower' ? 'borrowing' : 'funding'}
+                  All time {profile.profile_type === 'borrower' ? 'borrowing' : profile.profile_type === 'lender' ? 'lending' : 'investing'}
                 </p>
               </CardContent>
             </Card>
@@ -151,7 +184,7 @@ const Portfolio: React.FC = () => {
               <CardContent>
                 <div className="text-2xl font-bold">{profile.success_rate || 0}%</div>
                 <p className="text-xs text-muted-foreground">
-                  {profile.profile_type === 'borrower' ? 'On-time repayments' : 'Successful loans'}
+                  {getSuccessRateLabel()}
                 </p>
               </CardContent>
             </Card>
@@ -167,6 +200,52 @@ const Portfolio: React.FC = () => {
               </CardContent>
             </Card>
           </div>
+
+          {/* Role-specific capabilities info */}
+          <Card className="border-0 shadow-sm mt-6">
+            <CardHeader>
+              <CardTitle>Your Capabilities</CardTitle>
+              <CardDescription>
+                What you can do as a {getProfileTypeDisplay().toLowerCase()}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-2 text-sm">
+                {profile.profile_type === 'borrower' && (
+                  <>
+                    <div className="flex items-center text-green-600">
+                      ✓ Apply for loans
+                    </div>
+                    <div className="flex items-center text-green-600">
+                      ✓ Manage loan applications
+                    </div>
+                    <div className="flex items-center text-green-600">
+                      ✓ Track repayment schedules
+                    </div>
+                  </>
+                )}
+                {(profile.profile_type === 'investor' || profile.profile_type === 'lender') && (
+                  <>
+                    <div className="flex items-center text-green-600">
+                      ✓ View all loan applications
+                    </div>
+                    <div className="flex items-center text-green-600">
+                      ✓ Make loan offers
+                    </div>
+                    <div className="flex items-center text-green-600">
+                      ✓ Fund loans
+                    </div>
+                    <div className="flex items-center text-green-600">
+                      ✓ Manage disputes
+                    </div>
+                    <div className="flex items-center text-green-600">
+                      ✓ Post notifications
+                    </div>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="activity" className="pt-6">
