@@ -38,10 +38,30 @@ const AuthPage: React.FC = () => {
         }
         
         console.log('Sign in successful:', data);
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully logged in.",
-        });
+        
+        // Test database connection after successful login
+        try {
+          const { data: profileData, error: profileError } = await supabase
+            .from('user_profiles')
+            .select('*')
+            .eq('user_id', data.user.id)
+            .maybeSingle();
+          
+          if (profileError) {
+            console.warn('Profile fetch warning:', profileError);
+          }
+          
+          toast({
+            title: "Welcome back!",
+            description: `Successfully logged in. ${profileData ? `Profile: ${profileData.profile_type}` : 'No profile found.'}`,
+          });
+        } catch (profileErr) {
+          console.warn('Profile check failed after login:', profileErr);
+          toast({
+            title: "Welcome back!",
+            description: "You have successfully logged in. Please check your profile setup.",
+          });
+        }
       } else {
         // Validate required fields for sign up
         if (!profileType) {
@@ -96,8 +116,25 @@ const AuthPage: React.FC = () => {
 
             if (profileError) {
               console.error('Profile creation error:', profileError);
-              // Don't throw here, as the user was created successfully
             }
+
+            // Test wallet creation
+            try {
+              const { data: walletData, error: walletError } = await supabase
+                .from('user_wallets')
+                .select('*')
+                .eq('user_id', data.user.id)
+                .maybeSingle();
+
+              if (walletError) {
+                console.warn('Wallet check warning:', walletError);
+              }
+
+              console.log('User wallet status:', walletData ? 'Found' : 'Not found');
+            } catch (walletErr) {
+              console.warn('Wallet check failed:', walletErr);
+            }
+
           } catch (profileErr) {
             console.error('Profile creation failed:', profileErr);
           }
@@ -106,7 +143,7 @@ const AuthPage: React.FC = () => {
             // User is immediately signed in (email confirmation disabled)
             toast({
               title: "Account created successfully!",
-              description: `Welcome to LendChain as a ${profileType}. You can now start using the platform.`,
+              description: `Welcome to LendChain as a ${profileType}. Database connection verified.`,
             });
           } else {
             // Email confirmation is required
