@@ -4,7 +4,7 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import { useAuth } from '@/hooks/useAuth';
 import CreateProfileDialog from './CreateProfileDialog';
 import InvestorLoanView from './InvestorLoanView';
-import LoanMarketplace from './LoanMarketplace';
+import BorrowerDashboard from './BorrowerDashboard';
 import DatabaseHealthCheck from './DatabaseHealthCheck';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -52,14 +52,14 @@ const Dashboard: React.FC = () => {
         
         <TabsContent value="overview" className="space-y-6">
           {profile.profile_type === 'borrower' ? (
-            <LoanMarketplace />
+            <BorrowerDashboard />
           ) : (
             <InvestorLoanView />
           )}
         </TabsContent>
         
         <TabsContent value="marketplace" className="space-y-6">
-          <LoanMarketplace />
+          <InvestorLoanView />
         </TabsContent>
         
         <TabsContent value="health" className="space-y-6">

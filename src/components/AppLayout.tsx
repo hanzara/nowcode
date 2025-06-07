@@ -32,6 +32,10 @@ const AppLayout: React.FC = () => {
     setCollapsed(!collapsed);
   };
 
+  const handleSubmitApplication = () => {
+    setActiveTab('dashboard');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -85,15 +89,9 @@ const AppLayout: React.FC = () => {
 
         <div className="flex-1 overflow-auto">
           <main className="p-6 h-full">
-            {activeTab === 'dashboard' && (
-              <Dashboard 
-                onApply={() => setActiveTab('marketplace')} 
-              />
-            )}
+            {activeTab === 'dashboard' && <Dashboard />}
             {activeTab === 'marketplace' && (
-              <LoanMarketplace 
-                onSubmitApplication={() => setActiveTab('dashboard')} 
-              />
+              <LoanMarketplace onSubmitApplication={handleSubmitApplication} />
             )}
             {activeTab === 'loans' && <MyLoans />}
             {activeTab === 'portfolio' && <Portfolio />}
