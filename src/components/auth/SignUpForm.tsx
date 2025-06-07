@@ -9,11 +9,13 @@ interface SignUpFormProps {
   email: string;
   password: string;
   displayName: string;
+  phoneNumber: string;
   profileType: 'borrower' | 'investor' | 'lender' | '';
   loading: boolean;
   onEmailChange: (email: string) => void;
   onPasswordChange: (password: string) => void;
   onDisplayNameChange: (name: string) => void;
+  onPhoneNumberChange: (phone: string) => void;
   onProfileTypeChange: (type: 'borrower' | 'investor' | 'lender') => void;
   onSubmit: (e: React.FormEvent) => void;
 }
@@ -22,11 +24,13 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   email,
   password,
   displayName,
+  phoneNumber,
   profileType,
   loading,
   onEmailChange,
   onPasswordChange,
   onDisplayNameChange,
+  onPhoneNumberChange,
   onProfileTypeChange,
   onSubmit
 }) => {
@@ -40,6 +44,46 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
           value={displayName}
           onChange={(e) => onDisplayNameChange(e.target.value)}
           placeholder="Enter your display name"
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
+          type="email"
+          value={email}
+          onChange={(e) => onEmailChange(e.target.value)}
+          placeholder="Enter your email address"
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="password">Password</Label>
+        <Input
+          id="password"
+          type="password"
+          value={password}
+          onChange={(e) => onPasswordChange(e.target.value)}
+          required
+          minLength={6}
+          placeholder="Enter your password"
+        />
+        <p className="text-xs text-gray-500">
+          Password must be at least 6 characters long
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="phoneNumber">Phone Number</Label>
+        <Input
+          id="phoneNumber"
+          type="tel"
+          value={phoneNumber}
+          onChange={(e) => onPhoneNumberChange(e.target.value)}
+          placeholder="Enter your phone number"
           required
         />
       </div>
@@ -58,31 +102,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         </Select>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => onEmailChange(e.target.value)}
-          required
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
-        <Input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => onPasswordChange(e.target.value)}
-          required
-          minLength={6}
-        />
-        <p className="text-xs text-gray-500">
-          Password must be at least 6 characters long
-        </p>
-      </div>
-      <Button type="submit" className="w-full" disabled={loading}>
+      <Button type="submit" className="w-full" disabled={loading || !profileType}>
         {loading ? 'Please wait...' : 'Create Account'}
       </Button>
 

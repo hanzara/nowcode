@@ -14,6 +14,7 @@ const AuthPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [profileType, setProfileType] = useState<'borrower' | 'investor' | 'lender' | ''>('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -82,7 +83,16 @@ const AuthPage: React.FC = () => {
           return;
         }
 
-        console.log('Attempting to sign up with:', email, 'Role:', profileType);
+        if (!phoneNumber.trim()) {
+          toast({
+            title: "Error",
+            description: "Please enter your phone number",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        console.log('Attempting to sign up with:', email, 'Role:', profileType, 'Phone:', phoneNumber);
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -90,7 +100,8 @@ const AuthPage: React.FC = () => {
             emailRedirectTo: undefined,
             data: {
               display_name: displayName,
-              profile_type: profileType
+              profile_type: profileType,
+              phone_number: phoneNumber
             }
           }
         });
@@ -118,6 +129,24 @@ const AuthPage: React.FC = () => {
               console.error('Profile creation error:', profileError);
             }
 
+            // Create or update the profiles table with phone number
+            try {
+              const { error: profilesError } = await supabase
+                .from('profiles')
+                .upsert({
+                  user_id: data.user.id,
+                  email: email,
+                  phone_number: phoneNumber,
+                  full_name: displayName
+                });
+
+              if (profilesError) {
+                console.error('Profiles table update error:', profilesError);
+              }
+            } catch (profilesErr) {
+              console.warn('Profiles table update failed:', profilesErr);
+            }
+
             // Test wallet creation
             try {
               const { data: walletData, error: walletError } = await supabase
@@ -143,13 +172,13 @@ const AuthPage: React.FC = () => {
             // User is immediately signed in (email confirmation disabled)
             toast({
               title: "Account created successfully!",
-              description: `Welcome to LendChain as a ${profileType}. Database connection verified.`,
+              description: `Welcome to LendChain as a ${profileType}. Your phone number has been saved.`,
             });
           } else {
             // Email confirmation is required
             toast({
               title: "Account created!",
-              description: "Your account has been created. You can now sign in with your credentials.",
+              description: "Your account has been created. You can now sign in with your email and password.",
             });
             // Automatically switch to sign in mode
             setIsLogin(true);
@@ -252,11 +281,13 @@ const AuthPage: React.FC = () => {
               email={email}
               password={password}
               displayName={displayName}
+              phoneNumber={phoneNumber}
               profileType={profileType}
               loading={loading}
               onEmailChange={setEmail}
               onPasswordChange={setPassword}
               onDisplayNameChange={setDisplayName}
+              onPhoneNumberChange={setPhoneNumber}
               onProfileTypeChange={setProfileType}
               onSubmit={handleAuth}
             />
