@@ -9,6 +9,9 @@ import { useWallet } from '@/hooks/useWallet';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CreditCard, Smartphone, Banknote, Plus, Minus } from "lucide-react";
+import CurrencyDisplay from './CurrencyDisplay';
 
 const WalletActions: React.FC = () => {
   const { wallet, fetchWalletData } = useWallet();
@@ -18,7 +21,10 @@ const WalletActions: React.FC = () => {
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false);
   const [amount, setAmount] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
+  const [accountDetails, setAccountDetails] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const quickAmounts = [10, 25, 50, 100, 250, 500];
 
   const handleDeposit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,8 +39,9 @@ const WalletActions: React.FC = () => {
 
     setLoading(true);
     try {
+      const depositAmount = parseFloat(amount);
       // Update wallet balance
-      const newBalance = (wallet?.balance || 0) + parseFloat(amount);
+      const newBalance = (wallet?.balance || 0) + depositAmount;
       await supabase
         .from('user_wallets')
         .update({ balance: newBalance })
@@ -46,8 +53,8 @@ const WalletActions: React.FC = () => {
         .insert({
           user_id: user?.id,
           type: 'deposit',
-          amount: parseFloat(amount),
-          description: `Deposit via ${paymentMethod}`,
+          amount: depositAmount,
+          description: `Deposit via ${paymentMethod}${accountDetails ? ` - ${accountDetails}` : ''}`,
           status: 'completed'
         });
 
@@ -59,6 +66,7 @@ const WalletActions: React.FC = () => {
       setIsDepositOpen(false);
       setAmount('');
       setPaymentMethod('');
+      setAccountDetails('');
     } catch (error) {
       toast({
         title: "Deposit Failed",
@@ -107,7 +115,7 @@ const WalletActions: React.FC = () => {
           user_id: user?.id,
           type: 'withdrawal',
           amount: -withdrawAmount,
-          description: `Withdrawal to ${paymentMethod}`,
+          description: `Withdrawal to ${paymentMethod}${accountDetails ? ` - ${accountDetails}` : ''}`,
           status: 'completed'
         });
 
@@ -119,6 +127,7 @@ const WalletActions: React.FC = () => {
       setIsWithdrawOpen(false);
       setAmount('');
       setPaymentMethod('');
+      setAccountDetails('');
     } catch (error) {
       toast({
         title: "Withdrawal Failed",
@@ -130,110 +139,281 @@ const WalletActions: React.FC = () => {
     }
   };
 
+  const setQuickAmount = (quickAmount: number) => {
+    setAmount(quickAmount.toString());
+  };
+
   return (
     <div className="flex gap-4">
       <Dialog open={isDepositOpen} onOpenChange={setIsDepositOpen}>
         <DialogTrigger asChild>
-          <Button className="bg-green-600 hover:bg-green-700">
+          <Button className="bg-green-600 hover:bg-green-700 flex items-center gap-2">
+            <Plus size={16} />
             Deposit
           </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Deposit Funds</DialogTitle>
             <DialogDescription>
-              Add funds to your wallet
+              Add money to your LendChain wallet
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleDeposit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="deposit-amount">Amount (USDC)</Label>
-              <Input
-                id="deposit-amount"
-                type="number"
-                step="0.01"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="Enter amount"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="deposit-method">Payment Method</Label>
-              <Select onValueChange={setPaymentMethod}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select payment method" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="bank-transfer">Bank Transfer</SelectItem>
-                  <SelectItem value="credit-card">Credit Card</SelectItem>
-                  <SelectItem value="crypto">Cryptocurrency</SelectItem>
-                  <SelectItem value="mobile-money">Mobile Money</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex justify-end space-x-2 pt-4">
-              <Button type="button" variant="outline" onClick={() => setIsDepositOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? 'Processing...' : 'Deposit'}
-              </Button>
-            </div>
-          </form>
+          
+          <Tabs defaultValue="amount" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="amount">Amount</TabsTrigger>
+              <TabsTrigger value="method">Payment</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="amount" className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="deposit-amount">Amount</Label>
+                <div className="relative">
+                  <Input
+                    id="deposit-amount"
+                    type="number"
+                    step="0.01"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="Enter amount"
+                    className="pr-16"
+                  />
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">
+                    USDC
+                  </div>
+                </div>
+                {amount && (
+                  <div className="text-sm text-gray-600">
+                    ≈ <CurrencyDisplay usdAmount={parseFloat(amount)} defaultCurrency="KES" showToggle={false} />
+                  </div>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Quick amounts</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {quickAmounts.map((quickAmount) => (
+                    <Button
+                      key={quickAmount}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setQuickAmount(quickAmount)}
+                      className="text-xs"
+                    >
+                      ${quickAmount}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="method" className="space-y-4">
+              <form onSubmit={handleDeposit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="deposit-method">Payment Method</Label>
+                  <Select onValueChange={setPaymentMethod}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select payment method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="mpesa">
+                        <div className="flex items-center gap-2">
+                          <Smartphone size={16} />
+                          M-Pesa
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="airtel-money">
+                        <div className="flex items-center gap-2">
+                          <Smartphone size={16} />
+                          Airtel Money
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="bank-transfer">
+                        <div className="flex items-center gap-2">
+                          <Banknote size={16} />
+                          Bank Transfer
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="credit-card">
+                        <div className="flex items-center gap-2">
+                          <CreditCard size={16} />
+                          Credit/Debit Card
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {paymentMethod && (
+                  <div className="space-y-2">
+                    <Label htmlFor="account-details">
+                      {paymentMethod === 'mpesa' || paymentMethod === 'airtel-money' 
+                        ? 'Phone Number' 
+                        : paymentMethod === 'bank-transfer' 
+                          ? 'Account Number' 
+                          : 'Card Number'
+                      }
+                    </Label>
+                    <Input
+                      id="account-details"
+                      value={accountDetails}
+                      onChange={(e) => setAccountDetails(e.target.value)}
+                      placeholder={
+                        paymentMethod === 'mpesa' || paymentMethod === 'airtel-money' 
+                          ? '+254 700 000 000' 
+                          : paymentMethod === 'bank-transfer' 
+                            ? 'Account number' 
+                            : '1234 5678 9012 3456'
+                      }
+                    />
+                  </div>
+                )}
+                
+                <div className="flex justify-end space-x-2 pt-4">
+                  <Button type="button" variant="outline" onClick={() => setIsDepositOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={loading || !amount || !paymentMethod}>
+                    {loading ? 'Processing...' : `Deposit $${amount || '0'}`}
+                  </Button>
+                </div>
+              </form>
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
 
       <Dialog open={isWithdrawOpen} onOpenChange={setIsWithdrawOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline">
+          <Button variant="outline" className="flex items-center gap-2">
+            <Minus size={16} />
             Withdraw
           </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Withdraw Funds</DialogTitle>
             <DialogDescription>
-              Withdraw funds from your wallet
+              Withdraw money from your LendChain wallet
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleWithdraw} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="withdraw-amount">Amount (USDC)</Label>
-              <Input
-                id="withdraw-amount"
-                type="number"
-                step="0.01"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="Enter amount"
-                max={wallet?.balance || 0}
-              />
-              <p className="text-sm text-gray-500">
-                Available balance: {wallet?.balance || 0} USDC
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="withdraw-method">Withdrawal Method</Label>
-              <Select onValueChange={setPaymentMethod}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select withdrawal method" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="bank-transfer">Bank Transfer</SelectItem>
-                  <SelectItem value="crypto-address">Crypto Address</SelectItem>
-                  <SelectItem value="mobile-money">Mobile Money</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex justify-end space-x-2 pt-4">
-              <Button type="button" variant="outline" onClick={() => setIsWithdrawOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? 'Processing...' : 'Withdraw'}
-              </Button>
-            </div>
-          </form>
+          
+          <Tabs defaultValue="amount" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="amount">Amount</TabsTrigger>
+              <TabsTrigger value="method">Withdrawal</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="amount" className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="withdraw-amount">Amount</Label>
+                <div className="relative">
+                  <Input
+                    id="withdraw-amount"
+                    type="number"
+                    step="0.01"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="Enter amount"
+                    max={wallet?.balance || 0}
+                    className="pr-16"
+                  />
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">
+                    USDC
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500">
+                  Available: <CurrencyDisplay usdAmount={wallet?.balance || 0} showToggle={false} />
+                </p>
+                {amount && (
+                  <div className="text-sm text-gray-600">
+                    ≈ <CurrencyDisplay usdAmount={parseFloat(amount)} defaultCurrency="KES" showToggle={false} />
+                  </div>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Quick amounts</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {quickAmounts.filter(amt => amt <= (wallet?.balance || 0)).map((quickAmount) => (
+                    <Button
+                      key={quickAmount}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setQuickAmount(quickAmount)}
+                      className="text-xs"
+                    >
+                      ${quickAmount}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="method" className="space-y-4">
+              <form onSubmit={handleWithdraw} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="withdraw-method">Withdrawal Method</Label>
+                  <Select onValueChange={setPaymentMethod}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select withdrawal method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="mpesa">
+                        <div className="flex items-center gap-2">
+                          <Smartphone size={16} />
+                          M-Pesa
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="airtel-money">
+                        <div className="flex items-center gap-2">
+                          <Smartphone size={16} />
+                          Airtel Money
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="bank-transfer">
+                        <div className="flex items-center gap-2">
+                          <Banknote size={16} />
+                          Bank Transfer
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {paymentMethod && (
+                  <div className="space-y-2">
+                    <Label htmlFor="withdraw-account-details">
+                      {paymentMethod === 'mpesa' || paymentMethod === 'airtel-money' 
+                        ? 'Phone Number' 
+                        : 'Account Number'
+                      }
+                    </Label>
+                    <Input
+                      id="withdraw-account-details"
+                      value={accountDetails}
+                      onChange={(e) => setAccountDetails(e.target.value)}
+                      placeholder={
+                        paymentMethod === 'mpesa' || paymentMethod === 'airtel-money' 
+                          ? '+254 700 000 000' 
+                          : 'Account number'
+                      }
+                    />
+                  </div>
+                )}
+                
+                <div className="flex justify-end space-x-2 pt-4">
+                  <Button type="button" variant="outline" onClick={() => setIsWithdrawOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={loading || !amount || !paymentMethod}>
+                    {loading ? 'Processing...' : `Withdraw $${amount || '0'}`}
+                  </Button>
+                </div>
+              </form>
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
     </div>

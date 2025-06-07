@@ -1,25 +1,23 @@
 
 import React from 'react';
-import {
-  LayoutDashboard,
-  Store,
-  CreditCard,
-  TrendingUp,
-  Brain,
-  Coins,
-  Wallet,
-  AlertCircle,
-  Settings,
-} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { 
+  Home, 
+  Search, 
+  CreditCard, 
+  TrendingUp, 
+  Eye, 
+  Coins, 
+  Wallet, 
+  AlertTriangle, 
+  Settings,
+  Receipt,
+  PiggyBank,
+  QrCode,
+  BarChart3,
+  Smartphone
+} from "lucide-react";
 import { TabType } from './AppLayout';
-
-interface NavItem {
-  title: string;
-  icon: any;
-  tab: TabType;
-  description: string;
-}
 
 interface NavItemsProps {
   activeTab: TabType;
@@ -27,86 +25,42 @@ interface NavItemsProps {
   collapsed: boolean;
 }
 
-const navItems: NavItem[] = [
-  {
-    title: "Dashboard",
-    icon: LayoutDashboard,
-    tab: 'dashboard',
-    description: "Overview of your lending portfolio"
-  },
-  {
-    title: "Loan Marketplace",
-    icon: Store,
-    tab: 'marketplace',
-    description: "Browse and invest in available loans"
-  },
-  {
-    title: "My Loans",
-    icon: CreditCard,
-    tab: 'loans',
-    description: "Manage your active loans and applications"
-  },
-  {
-    title: "Portfolio",
-    icon: TrendingUp,
-    tab: 'portfolio',
-    description: "Track your investment performance"
-  },
-  {
-    title: "Investment Insights",
-    icon: Brain,
-    tab: 'insights',
-    description: "AI-powered market analysis and recommendations"
-  },
-  {
-    title: "Staking",
-    icon: Coins,
-    tab: 'staking',
-    description: "Stake your tokens to earn rewards"
-  },
-  {
-    title: "Wallet",
-    icon: Wallet,
-    tab: 'wallet',
-    description: "Manage your digital wallet and funds"
-  },
-  {
-    title: "Disputes",
-    icon: AlertCircle,
-    tab: 'disputes',
-    description: "Dispute resolution and support"
-  },
-  {
-    title: "Settings",
-    icon: Settings,
-    tab: 'settings',
-    description: "Account settings and preferences"
-  }
-];
-
 const NavItems: React.FC<NavItemsProps> = ({ activeTab, onTabChange, collapsed }) => {
+  const navItems = [
+    { id: 'dashboard' as TabType, label: 'Dashboard', icon: Home },
+    { id: 'marketplace' as TabType, label: 'Marketplace', icon: Search },
+    { id: 'loans' as TabType, label: 'My Loans', icon: CreditCard },
+    { id: 'portfolio' as TabType, label: 'Portfolio', icon: TrendingUp },
+    { id: 'insights' as TabType, label: 'Insights', icon: Eye },
+    { id: 'staking' as TabType, label: 'Staking', icon: Coins },
+    { id: 'wallet' as TabType, label: 'Wallet', icon: Wallet },
+    { id: 'bills' as TabType, label: 'Bill Payments', icon: Receipt },
+    { id: 'savings' as TabType, label: 'Savings Goals', icon: PiggyBank },
+    { id: 'qr' as TabType, label: 'QR Payments', icon: QrCode },
+    { id: 'analytics' as TabType, label: 'Analytics', icon: BarChart3 },
+    { id: 'mobile' as TabType, label: 'Mobile Money', icon: Smartphone },
+    { id: 'disputes' as TabType, label: 'Disputes', icon: AlertTriangle },
+    { id: 'settings' as TabType, label: 'Settings', icon: Settings },
+  ];
+
   return (
-    <nav className="flex-1 space-y-1 p-2">
+    <nav className="flex-1 space-y-1 p-4">
       {navItems.map((item) => {
         const Icon = item.icon;
-        const isActive = activeTab === item.tab;
-        
         return (
           <button
-            key={item.tab}
-            onClick={() => onTabChange(item.tab)}
+            key={item.id}
+            onClick={() => onTabChange(item.id)}
             className={cn(
-              "w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
-              isActive
-                ? "bg-blue-100 text-blue-900"
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              "w-full flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
+              activeTab === item.id
+                ? "bg-gray-100 text-gray-900"
+                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+              collapsed && "justify-center px-3"
             )}
-            title={collapsed ? item.title : undefined}
           >
-            <Icon className="h-5 w-5 flex-shrink-0" />
-            {!collapsed && (
-              <span className="ml-3 truncate">{item.title}</span>
-            )}
+            <Icon className={cn("h-5 w-5", !collapsed && "mr-3")} />
+            {!collapsed && item.label}
           </button>
         );
       })}
