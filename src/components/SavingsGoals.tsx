@@ -59,6 +59,9 @@ const SavingsGoals: React.FC = () => {
 
   const categories = ['Emergency', 'Travel', 'Electronics', 'Education', 'Home', 'Car', 'General'];
 
+  // Convert USD amounts to KES for display
+  const convertToKES = (usdAmount: number) => usdAmount * 130;
+
   const handleCreateGoal = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newGoal.name || !newGoal.targetAmount || !newGoal.targetDate) {
@@ -234,7 +237,7 @@ const SavingsGoals: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <CurrencyDisplay usdAmount={goals.reduce((sum, goal) => sum + goal.currentAmount, 0)} />
+              <CurrencyDisplay amount={convertToKES(goals.reduce((sum, goal) => sum + goal.currentAmount, 0))} />
             </div>
           </CardContent>
         </Card>
@@ -246,7 +249,7 @@ const SavingsGoals: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <CurrencyDisplay usdAmount={goals.reduce((sum, goal) => sum + goal.targetAmount, 0)} />
+              <CurrencyDisplay amount={convertToKES(goals.reduce((sum, goal) => sum + goal.targetAmount, 0))} />
             </div>
           </CardContent>
         </Card>
@@ -302,13 +305,13 @@ const SavingsGoals: React.FC = () => {
                   <div>
                     <div className="text-muted-foreground">Current</div>
                     <div className="font-medium">
-                      <CurrencyDisplay usdAmount={goal.currentAmount} showToggle={false} />
+                      <CurrencyDisplay amount={convertToKES(goal.currentAmount)} showToggle={false} />
                     </div>
                   </div>
                   <div>
                     <div className="text-muted-foreground">Target</div>
                     <div className="font-medium">
-                      <CurrencyDisplay usdAmount={goal.targetAmount} showToggle={false} />
+                      <CurrencyDisplay amount={convertToKES(goal.targetAmount)} showToggle={false} />
                     </div>
                   </div>
                 </div>
@@ -317,7 +320,7 @@ const SavingsGoals: React.FC = () => {
                   <div className="text-sm">
                     <span className="text-muted-foreground">Remaining: </span>
                     <span className="font-medium">
-                      <CurrencyDisplay usdAmount={remainingAmount} showToggle={false} />
+                      <CurrencyDisplay amount={convertToKES(remainingAmount)} showToggle={false} />
                     </span>
                   </div>
                   {goal.autoSave && (

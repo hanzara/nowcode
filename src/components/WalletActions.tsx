@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -25,6 +24,9 @@ const WalletActions: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   const quickAmounts = [10, 25, 50, 100, 250, 500];
+
+  // Convert USD amounts to KES for display
+  const convertToKES = (usdAmount: number) => usdAmount * 130;
 
   const handleDeposit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -185,7 +187,7 @@ const WalletActions: React.FC = () => {
                 </div>
                 {amount && (
                   <div className="text-sm text-gray-600">
-                    ≈ <CurrencyDisplay usdAmount={parseFloat(amount)} defaultCurrency="KES" showToggle={false} />
+                    ≈ <CurrencyDisplay amount={convertToKES(parseFloat(amount))} defaultCurrency="KES" showToggle={false} />
                   </div>
                 )}
               </div>
@@ -324,11 +326,11 @@ const WalletActions: React.FC = () => {
                   </div>
                 </div>
                 <p className="text-sm text-gray-500">
-                  Available: <CurrencyDisplay usdAmount={wallet?.balance || 0} showToggle={false} />
+                  Available: <CurrencyDisplay amount={convertToKES(wallet?.balance || 0)} showToggle={false} />
                 </p>
                 {amount && (
                   <div className="text-sm text-gray-600">
-                    ≈ <CurrencyDisplay usdAmount={parseFloat(amount)} defaultCurrency="KES" showToggle={false} />
+                    ≈ <CurrencyDisplay amount={convertToKES(parseFloat(amount))} defaultCurrency="KES" showToggle={false} />
                   </div>
                 )}
               </div>

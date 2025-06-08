@@ -10,6 +10,9 @@ import CurrencyDisplay from './CurrencyDisplay';
 const TransactionAnalytics: React.FC = () => {
   const [timeRange, setTimeRange] = useState('7d');
 
+  // Convert USD amounts to KES for display
+  const convertToKES = (usdAmount: number) => usdAmount * 130;
+
   // Mock data for analytics
   const spendingData = [
     { category: 'Bills', amount: 450, percentage: 30 },
@@ -72,7 +75,7 @@ const TransactionAnalytics: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <CurrencyDisplay usdAmount={totalSpent} showToggle={false} />
+              <CurrencyDisplay amount={convertToKES(totalSpent)} showToggle={false} />
             </div>
             <p className="text-xs text-muted-foreground">
               <span className="text-red-500 flex items-center">
@@ -90,7 +93,7 @@ const TransactionAnalytics: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <CurrencyDisplay usdAmount={avgDaily} showToggle={false} />
+              <CurrencyDisplay amount={convertToKES(avgDaily)} showToggle={false} />
             </div>
             <p className="text-xs text-muted-foreground">
               <span className="text-green-500 flex items-center">
@@ -109,7 +112,7 @@ const TransactionAnalytics: React.FC = () => {
           <CardContent>
             <div className="text-2xl font-bold">{topCategory.category}</div>
             <p className="text-xs text-muted-foreground">
-              <CurrencyDisplay usdAmount={topCategory.amount} showToggle={false} /> ({topCategory.percentage}%)
+              <CurrencyDisplay amount={convertToKES(topCategory.amount)} showToggle={false} /> ({topCategory.percentage}%)
             </p>
           </CardContent>
         </Card>
@@ -187,7 +190,7 @@ const TransactionAnalytics: React.FC = () => {
                       </div>
                       <div className="text-right">
                         <div className="font-semibold">
-                          <CurrencyDisplay usdAmount={item.amount} showToggle={false} />
+                          <CurrencyDisplay amount={convertToKES(item.amount)} showToggle={false} />
                         </div>
                         <div className="text-xs text-muted-foreground">{item.percentage}%</div>
                       </div>
