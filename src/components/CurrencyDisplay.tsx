@@ -8,29 +8,35 @@ interface CurrencyDisplayProps {
   currency?: 'USD' | 'KES';
   showToggle?: boolean;
   defaultCurrency?: 'USD' | 'KES';
+  // Legacy prop for backward compatibility
+  usdAmount?: number;
 }
 
 const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({ 
   amount, 
   currency,
   showToggle = true, 
-  defaultCurrency = 'KES' 
+  defaultCurrency = 'KES',
+  usdAmount // Legacy prop
 }) => {
   const { convertUSDToKES, convertKESToUSD, formatCurrency, rates, loading, refreshRates } = useExchangeRate();
   const [displayCurrency, setDisplayCurrency] = useState<'USD' | 'KES'>(defaultCurrency);
+
+  // Handle legacy usdAmount prop - convert to KES amount
+  const actualAmount = usdAmount ? convertUSDToKES(usdAmount) : (amount || 0);
 
   // If currency is specified, use that directly
   if (currency) {
     return (
       <span className="font-medium">
-        {formatCurrency(amount, currency)}
+        {formatCurrency(actualAmount, currency)}
       </span>
     );
   }
 
   // Otherwise, treat amount as KES and allow conversion
-  const usdAmount = convertKESToUSD(amount);
-  const displayAmount = displayCurrency === 'KES' ? amount : usdAmount;
+  const usdAmount_converted = convertKESToUSD(actualAmount);
+  const displayAmount = displayCurrency === 'KES' ? actualAmount : usdAmount_converted;
 
   return (
     <div className="flex items-center space-x-2">

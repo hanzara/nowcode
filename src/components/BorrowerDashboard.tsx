@@ -23,6 +23,9 @@ const BorrowerDashboard: React.FC = () => {
   const approvedApplications = userApplications.filter(app => app.status === 'approved');
   const fundedApplications = userApplications.filter(app => app.status === 'funded');
 
+  // Convert USD amounts to KES for display (approximate conversion rate)
+  const convertToKES = (usdAmount: number) => usdAmount * 130;
+
   return (
     <div className="space-y-6">
       <div>
@@ -59,7 +62,7 @@ const BorrowerDashboard: React.FC = () => {
           <CardContent>
             <div className="text-2xl font-bold">
               <CurrencyDisplay 
-                usdAmount={profile.total_borrowed || 0} 
+                amount={convertToKES(profile.total_borrowed || 0)} 
                 showToggle={false}
                 defaultCurrency="KES"
               />
@@ -90,7 +93,7 @@ const BorrowerDashboard: React.FC = () => {
                   <div className="flex justify-between items-start">
                     <div className="space-y-2">
                       <div className="flex items-center space-x-2">
-                        <CurrencyDisplay usdAmount={application.amount} />
+                        <CurrencyDisplay amount={convertToKES(application.amount)} />
                         <span className={`px-2 py-1 text-xs rounded-full ${
                           application.status === 'funded' ? 'bg-green-100 text-green-800' :
                           application.status === 'approved' ? 'bg-blue-100 text-blue-800' :
@@ -105,7 +108,7 @@ const BorrowerDashboard: React.FC = () => {
                         <p><span className="font-medium">Interest Rate:</span> {application.interest_rate}%</p>
                         {application.monthly_payment && (
                           <p><span className="font-medium">Monthly Payment:</span> 
-                            <CurrencyDisplay usdAmount={application.monthly_payment} showToggle={false} />
+                            <CurrencyDisplay amount={convertToKES(application.monthly_payment)} showToggle={false} />
                           </p>
                         )}
                         <p><span className="font-medium">Funding Progress:</span> {application.funding_progress}%</p>

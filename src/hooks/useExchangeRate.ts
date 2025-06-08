@@ -48,6 +48,11 @@ export const useExchangeRate = () => {
   };
 
   const formatCurrency = (amount: number, currency: 'USD' | 'KES' = 'KES'): string => {
+    // Handle undefined, null, or NaN values
+    if (amount === undefined || amount === null || isNaN(amount)) {
+      amount = 0;
+    }
+    
     if (currency === 'KES') {
       return `KSh ${amount.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }

@@ -50,6 +50,9 @@ const LoanOfferStatus: React.FC<LoanOfferStatusProps> = ({ loanApplicationId }) 
     }
   };
 
+  // Convert USD amounts to KES for display
+  const convertToKES = (usdAmount: number) => usdAmount * 130;
+
   if (applicationOffers.length === 0) {
     return (
       <Card>
@@ -73,7 +76,7 @@ const LoanOfferStatus: React.FC<LoanOfferStatusProps> = ({ loanApplicationId }) 
             <div className="flex justify-between items-start">
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
-                  <CurrencyDisplay usdAmount={offer.offered_amount} />
+                  <CurrencyDisplay amount={convertToKES(offer.offered_amount)} />
                   <Badge variant={
                     offer.status === 'accepted' ? 'default' :
                     offer.status === 'rejected' ? 'destructive' :
