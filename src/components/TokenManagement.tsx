@@ -52,8 +52,8 @@ const TokenManagement: React.FC = () => {
           .from('user_tokens')
           .insert({
             user_id: user.id,
-            balance: 0,
-            total_earned: 0,
+            balance: 1000, // Starting balance
+            total_earned: 1000,
             total_spent: 0
           })
           .select()
@@ -87,106 +87,44 @@ const TokenManagement: React.FC = () => {
     enabled: !!user
   });
 
-  const stakeMutation = useMutation({
-    mutationFn: async (amount: number) => {
+  const updateTokensMutation = useMutation({
+    mutationFn: async ({ amount, type, source, description }: {
+      amount: number;
+      type: 'earn' | 'spend' | 'stake' | 'unstake';
+      source: string;
+      description: string;
+    }) => {
       if (!user) throw new Error('Not authenticated');
 
-      // Check if user has enough balance
-      if (!userTokens || userTokens.balance < amount) {
+      // Check balance for spending/staking operations
+      if ((type === 'spend' || type === 'stake') && userTokens && userTokens.balance < amount) {
         throw new Error('Insufficient balance');
       }
 
-      // Create transaction record
-      const { error } = await supabase
-        .from('token_transactions')
-        .insert({
-          user_id: user.id,
-          transaction_type: 'stake',
-          amount: amount,
-          source: 'staking',
-          description: `Staked ${amount} VDO tokens`
-        });
+      // Call the edge function to update tokens
+      const { data, error } = await supabase.functions.invoke('update-user-tokens', {
+        body: {
+          p_user_id: user.id,
+          p_amount: amount,
+          p_transaction_type: type,
+          p_source: source,
+          p_description: description,
+          p_reference_id: null
+        }
+      });
 
       if (error) throw error;
-
-      // Update user token balance
-      const { error: updateError } = await supabase
-        .from('user_tokens')
-        .update({
-          balance: userTokens.balance - amount,
-          total_spent: userTokens.total_spent + amount
-        })
-        .eq('user_id', user.id);
-
-      if (updateError) throw updateError;
-
-      return amount;
+      return data;
     },
-    onSuccess: (amount) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-tokens'] });
       queryClient.invalidateQueries({ queryKey: ['token-transactions'] });
-      toast({
-        title: "Tokens Staked!",
-        description: `Successfully staked ${amount} VDO tokens`,
-      });
-      setStakeAmount('');
     },
     onError: (error: any) => {
+      console.error('Token update error:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to stake tokens",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const claimRewardsMutation = useMutation({
-    mutationFn: async () => {
-      if (!user) throw new Error('Not authenticated');
-
-      const rewardAmount = 100; // Daily reward amount
-
-      // Create transaction record
-      const { error } = await supabase
-        .from('token_transactions')
-        .insert({
-          user_id: user.id,
-          transaction_type: 'earn',
-          amount: rewardAmount,
-          source: 'daily_reward',
-          description: 'Daily login reward'
-        });
-
-      if (error) throw error;
-
-      // Update user token balance
-      const currentBalance = userTokens?.balance || 0;
-      const currentEarned = userTokens?.total_earned || 0;
-
-      const { error: updateError } = await supabase
-        .from('user_tokens')
-        .update({
-          balance: currentBalance + rewardAmount,
-          total_earned: currentEarned + rewardAmount
-        })
-        .eq('user_id', user.id);
-
-      if (updateError) throw updateError;
-
-      return rewardAmount;
-    },
-    onSuccess: (amount) => {
-      queryClient.invalidateQueries({ queryKey: ['user-tokens'] });
-      queryClient.invalidateQueries({ queryKey: ['token-transactions'] });
-      toast({
-        title: "Rewards Claimed!",
-        description: `You earned ${amount} VDO tokens`,
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to claim rewards",
+        description: error.message || "Failed to update tokens",
         variant: "destructive",
       });
     }
@@ -194,13 +132,56 @@ const TokenManagement: React.FC = () => {
 
   const handleStake = () => {
     const amount = parseFloat(stakeAmount);
-    if (amount > 0) {
-      stakeMutation.mutate(amount);
+    if (!amount || amount <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid stake amount",
+        variant: "destructive",
+      });
+      return;
     }
+
+    if (amount < 100) {
+      toast({
+        title: "Minimum Stake Required",
+        description: "Minimum stake amount is 100 VDO tokens",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    updateTokensMutation.mutate({
+      amount,
+      type: 'stake',
+      source: 'staking',
+      description: `Staked ${amount} VDO tokens`
+    }, {
+      onSuccess: () => {
+        toast({
+          title: "Tokens Staked!",
+          description: `Successfully staked ${amount} VDO tokens`,
+        });
+        setStakeAmount('');
+      }
+    });
   };
 
   const handleClaimRewards = () => {
-    claimRewardsMutation.mutate();
+    const rewardAmount = 100;
+    
+    updateTokensMutation.mutate({
+      amount: rewardAmount,
+      type: 'earn',
+      source: 'daily_reward',
+      description: 'Daily login reward'
+    }, {
+      onSuccess: () => {
+        toast({
+          title: "Rewards Claimed!",
+          description: `You earned ${rewardAmount} VDO tokens`,
+        });
+      }
+    });
   };
 
   const getTransactionIcon = (type: string) => {
@@ -223,6 +204,15 @@ const TokenManagement: React.FC = () => {
     }
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   if (!user) {
     return (
       <Card>
@@ -232,6 +222,25 @@ const TokenManagement: React.FC = () => {
           <p className="text-gray-600">Please sign in to manage your VDO tokens.</p>
         </CardContent>
       </Card>
+    );
+  }
+
+  if (tokensLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-6">
+                <div className="animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+                  <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
     );
   }
 
@@ -283,9 +292,9 @@ const TokenManagement: React.FC = () => {
               size="sm" 
               className="mt-2"
               onClick={handleClaimRewards}
-              disabled={claimRewardsMutation.isPending}
+              disabled={updateTokensMutation.isPending}
             >
-              {claimRewardsMutation.isPending ? 'Claiming...' : 'Claim Now'}
+              {updateTokensMutation.isPending ? 'Claiming...' : 'Claim Now'}
             </Button>
           </CardContent>
         </Card>
@@ -305,36 +314,57 @@ const TokenManagement: React.FC = () => {
               <CardDescription>Your latest token activity</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {transactions.map((transaction) => (
-                  <div key={transaction.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      {getTransactionIcon(transaction.transaction_type)}
-                      <div>
-                        <p className="font-medium">{transaction.description || transaction.source}</p>
-                        <p className="text-sm text-gray-500">
-                          {new Date(transaction.created_at).toLocaleDateString()}
-                        </p>
+              {transactionsLoading ? (
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="animate-pulse flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gray-200 rounded"></div>
+                        <div>
+                          <div className="h-4 bg-gray-200 rounded w-32 mb-1"></div>
+                          <div className="h-3 bg-gray-200 rounded w-20"></div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="h-4 bg-gray-200 rounded w-16 mb-1"></div>
+                        <div className="h-3 bg-gray-200 rounded w-12"></div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className={`font-bold ${getTransactionColor(transaction.transaction_type)}`}>
-                        {transaction.transaction_type === 'earn' ? '+' : '-'}{transaction.amount}
-                      </p>
-                      <Badge variant="outline" className="text-xs">
-                        {transaction.transaction_type}
-                      </Badge>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {transactions.map((transaction) => (
+                    <div key={transaction.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        {getTransactionIcon(transaction.transaction_type)}
+                        <div>
+                          <p className="font-medium">{transaction.description || transaction.source}</p>
+                          <p className="text-sm text-gray-500">
+                            {formatDate(transaction.created_at)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className={`font-bold ${getTransactionColor(transaction.transaction_type)}`}>
+                          {transaction.transaction_type === 'earn' ? '+' : '-'}{transaction.amount}
+                        </p>
+                        <Badge variant="outline" className="text-xs">
+                          {transaction.transaction_type}
+                        </Badge>
+                      </div>
                     </div>
-                  </div>
-                ))}
-                
-                {transactions.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
-                    <Clock className="h-8 w-8 mx-auto mb-2" />
-                    <p>No transactions yet</p>
-                  </div>
-                )}
-              </div>
+                  ))}
+                  
+                  {transactions.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      <Clock className="h-8 w-8 mx-auto mb-2" />
+                      <p>No transactions yet</p>
+                      <p className="text-sm">Start earning tokens by completing activities!</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -377,10 +407,10 @@ const TokenManagement: React.FC = () => {
 
                 <Button 
                   onClick={handleStake}
-                  disabled={!stakeAmount || parseFloat(stakeAmount) < 100 || stakeMutation.isPending}
+                  disabled={!stakeAmount || parseFloat(stakeAmount) < 100 || updateTokensMutation.isPending || !userTokens || userTokens.balance < parseFloat(stakeAmount || '0')}
                   className="w-full"
                 >
-                  {stakeMutation.isPending ? 'Staking...' : 'Stake Tokens'}
+                  {updateTokensMutation.isPending ? 'Staking...' : 'Stake Tokens'}
                 </Button>
               </div>
             </CardContent>
