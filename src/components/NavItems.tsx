@@ -2,7 +2,7 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from "@/lib/utils";
-import { mainNavItems, secondaryNavItems, settingsNavItems } from './NavItems';
+import { mainNavItems, secondaryNavItems, settingsNavItems } from '@/data/navigationItems';
 
 interface NavItemsProps {
   activeTab?: string;
