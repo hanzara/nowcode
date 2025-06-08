@@ -7,10 +7,19 @@ import InvestorLoanView from './InvestorLoanView';
 import BorrowerDashboard from './BorrowerDashboard';
 import DatabaseHealthCheck from './DatabaseHealthCheck';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSearchParams } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const { profile, loading } = useUserProfile();
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Get active tab from URL params or default to 'overview'
+  const activeTab = searchParams.get('tab') || 'overview';
+
+  const handleTabChange = (value: string) => {
+    setSearchParams({ tab: value });
+  };
 
   if (loading) {
     return <div className="text-center py-4">Loading...</div>;
@@ -43,14 +52,20 @@ const Dashboard: React.FC = () => {
         </p>
       </div>
 
-      <Tabs defaultValue="overview" className="w-full">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="marketplace">Marketplace</TabsTrigger>
-          <TabsTrigger value="health">System Health</TabsTrigger>
+          <TabsTrigger value="overview" className="transition-all duration-200">
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="marketplace" className="transition-all duration-200">
+            Marketplace
+          </TabsTrigger>
+          <TabsTrigger value="health" className="transition-all duration-200">
+            System Health
+          </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="overview" className="space-y-6">
+        <TabsContent value="overview" className="space-y-6 animate-fade-in">
           {profile.profile_type === 'borrower' ? (
             <BorrowerDashboard />
           ) : (
@@ -58,11 +73,11 @@ const Dashboard: React.FC = () => {
           )}
         </TabsContent>
         
-        <TabsContent value="marketplace" className="space-y-6">
+        <TabsContent value="marketplace" className="space-y-6 animate-fade-in">
           <InvestorLoanView />
         </TabsContent>
         
-        <TabsContent value="health" className="space-y-6">
+        <TabsContent value="health" className="space-y-6 animate-fade-in">
           <DatabaseHealthCheck />
         </TabsContent>
       </Tabs>

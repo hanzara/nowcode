@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,9 +5,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { FileText } from "lucide-react";
 import { useLoans } from '@/hooks/useLoans';
+import { useSearchParams } from 'react-router-dom';
 
 const MyLoans: React.FC = () => {
   const { userApplications, loading } = useLoans();
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Get active tab from URL params or default to 'all'
+  const activeTab = searchParams.get('tab') || 'all';
+
+  const handleTabChange = (value: string) => {
+    setSearchParams({ tab: value });
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -46,18 +54,24 @@ const MyLoans: React.FC = () => {
         <Button variant="outline">Filter</Button>
       </div>
 
-      <Tabs defaultValue="all" className="w-full">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="grid w-full md:w-auto grid-cols-3 md:inline-flex">
-          <TabsTrigger value="all">All Loans</TabsTrigger>
-          <TabsTrigger value="active">Active ({activeLoans.length})</TabsTrigger>
-          <TabsTrigger value="pending">Pending ({pendingLoans.length})</TabsTrigger>
+          <TabsTrigger value="all" className="transition-all duration-200">
+            All Loans
+          </TabsTrigger>
+          <TabsTrigger value="active" className="transition-all duration-200">
+            Active ({activeLoans.length})
+          </TabsTrigger>
+          <TabsTrigger value="pending" className="transition-all duration-200">
+            Pending ({pendingLoans.length})
+          </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="all" className="pt-4">
+        <TabsContent value="all" className="pt-4 animate-fade-in">
           {userApplications.length > 0 ? (
             <div className="grid gap-4">
               {userApplications.map((application) => (
-                <Card key={application.id} className="border-0 shadow-sm">
+                <Card key={application.id} className="border-0 shadow-sm hover-scale">
                   <CardHeader className="pb-2">
                     <div className="flex justify-between items-center">
                       <div>
@@ -123,11 +137,11 @@ const MyLoans: React.FC = () => {
           )}
         </TabsContent>
         
-        <TabsContent value="active" className="pt-4">
+        <TabsContent value="active" className="pt-4 animate-fade-in">
           {activeLoans.length > 0 ? (
             <div className="grid gap-4">
               {activeLoans.map((loan) => (
-                <Card key={loan.id} className="border-0 shadow-sm">
+                <Card key={loan.id} className="border-0 shadow-sm hover-scale">
                   <CardHeader className="pb-2">
                     <div className="flex justify-between items-center">
                       <div>
@@ -170,11 +184,11 @@ const MyLoans: React.FC = () => {
           )}
         </TabsContent>
         
-        <TabsContent value="pending" className="pt-4">
+        <TabsContent value="pending" className="pt-4 animate-fade-in">
           {pendingLoans.length > 0 ? (
             <div className="grid gap-4">
               {pendingLoans.map((loan) => (
-                <Card key={loan.id} className="border-0 shadow-sm">
+                <Card key={loan.id} className="border-0 shadow-sm hover-scale">
                   <CardHeader className="pb-2">
                     <div className="flex justify-between items-center">
                       <div>
