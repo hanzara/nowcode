@@ -1,25 +1,36 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useExchangeRate } from '@/hooks/useExchangeRate';
 import { RefreshCw } from 'lucide-react';
 
 interface CurrencyDisplayProps {
-  usdAmount: number;
+  amount: number;
+  currency?: 'USD' | 'KES';
   showToggle?: boolean;
   defaultCurrency?: 'USD' | 'KES';
 }
 
 const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({ 
-  usdAmount, 
+  amount, 
+  currency,
   showToggle = true, 
-  defaultCurrency = 'USD' 
+  defaultCurrency = 'KES' 
 }) => {
-  const { convertUSDToKES, formatCurrency, rates, loading, refreshRates } = useExchangeRate();
+  const { convertUSDToKES, convertKESToUSD, formatCurrency, rates, loading, refreshRates } = useExchangeRate();
   const [displayCurrency, setDisplayCurrency] = useState<'USD' | 'KES'>(defaultCurrency);
 
-  const kesAmount = convertUSDToKES(usdAmount);
-  const displayAmount = displayCurrency === 'USD' ? usdAmount : kesAmount;
+  // If currency is specified, use that directly
+  if (currency) {
+    return (
+      <span className="font-medium">
+        {formatCurrency(amount, currency)}
+      </span>
+    );
+  }
+
+  // Otherwise, treat amount as KES and allow conversion
+  const usdAmount = convertKESToUSD(amount);
+  const displayAmount = displayCurrency === 'KES' ? amount : usdAmount;
 
   return (
     <div className="flex items-center space-x-2">
@@ -31,14 +42,14 @@ const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => setDisplayCurrency(displayCurrency === 'USD' ? 'KES' : 'USD')}
+          onClick={() => setDisplayCurrency(displayCurrency === 'KES' ? 'USD' : 'KES')}
           className="text-xs h-6 px-2"
         >
-          {displayCurrency === 'USD' ? 'Show KES' : 'Show USD'}
+          {displayCurrency === 'KES' ? 'Show USD' : 'Show KES'}
         </Button>
       )}
       
-      {displayCurrency === 'KES' && (
+      {displayCurrency === 'USD' && (
         <Button
           variant="ghost"
           size="sm"

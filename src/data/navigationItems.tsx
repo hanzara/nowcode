@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   Home, 
@@ -15,7 +14,8 @@ import {
   Smartphone,
   AlertTriangle,
   Settings,
-  Coins as TokenIcon
+  Coins as TokenIcon,
+  Users
 } from 'lucide-react';
 
 export interface NavItem {
@@ -67,6 +67,12 @@ export const mainNavItems: NavItem[] = [
     label: 'Wallet',
     path: '/wallet',
     icon: <Wallet className="h-5 w-5" />
+  },
+  {
+    id: 'community',
+    label: 'Community',
+    path: '/community',
+    icon: <Users className="h-5 w-5" />
   },
   {
     id: 'education',

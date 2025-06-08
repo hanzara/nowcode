@@ -45,6 +45,9 @@ const InvestorLoanView: React.FC = () => {
     return 'Browse loan applications from borrowers seeking funding';
   };
 
+  // Convert USD amounts to KES for display
+  const convertToKES = (usdAmount: number) => usdAmount * 130;
+
   return (
     <div className="space-y-6">
       {/* Summary for Investors/Lenders */}
@@ -66,9 +69,9 @@ const InvestorLoanView: React.FC = () => {
           <CardContent>
             <div className="text-2xl font-bold">
               <CurrencyDisplay 
-                usdAmount={profile.total_funded || 0} 
+                amount={convertToKES(profile.total_funded || 0)} 
+                currency="KES" 
                 showToggle={false}
-                defaultCurrency="KES"
               />
             </div>
             <p className="text-sm text-gray-600">Lifetime funding</p>
@@ -108,7 +111,7 @@ const InvestorLoanView: React.FC = () => {
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="mb-2">
-                        <CurrencyDisplay usdAmount={application.amount} />
+                        <CurrencyDisplay amount={convertToKES(application.amount)} currency="KES" showToggle={false} />
                       </div>
                       <p className="text-sm text-gray-500">
                         {application.duration_months} months @ {application.interest_rate}%
@@ -123,13 +126,13 @@ const InvestorLoanView: React.FC = () => {
                     {application.monthly_payment && (
                       <div className="flex justify-between">
                         <span className="text-gray-500">Monthly Payment:</span>
-                        <CurrencyDisplay usdAmount={application.monthly_payment} showToggle={false} />
+                        <CurrencyDisplay amount={convertToKES(application.monthly_payment)} currency="KES" showToggle={false} />
                       </div>
                     )}
                     {application.total_payment && (
                       <div className="flex justify-between">
                         <span className="text-gray-500">Total Return:</span>
-                        <CurrencyDisplay usdAmount={application.total_payment} showToggle={false} />
+                        <CurrencyDisplay amount={convertToKES(application.total_payment)} currency="KES" showToggle={false} />
                       </div>
                     )}
                     <div className="flex justify-between">

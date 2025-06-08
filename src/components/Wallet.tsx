@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useWallet } from '@/hooks/useWallet';
 import { useToast } from "@/hooks/use-toast";
 import WalletActions from './WalletActions';
+import CurrencyDisplay from './CurrencyDisplay';
 import { format } from 'date-fns';
 
 const Wallet: React.FC = () => {
@@ -35,6 +36,10 @@ const Wallet: React.FC = () => {
     );
   }
 
+  // Convert USD amounts to KES for display
+  const balanceInKES = (wallet?.balance || 0) * 130; // Approximate conversion
+  const collateralInKES = (wallet?.locked_collateral || 0) * 130;
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -49,7 +54,9 @@ const Wallet: React.FC = () => {
             <CardTitle className="text-sm font-medium">Available Balance</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{wallet?.balance || 0} USDC</div>
+            <div className="text-2xl font-bold">
+              <CurrencyDisplay amount={balanceInKES} currency="KES" showToggle={false} />
+            </div>
             <p className="text-xs text-muted-foreground">
               Ready for investment or loan applications
             </p>
@@ -61,7 +68,9 @@ const Wallet: React.FC = () => {
             <CardTitle className="text-sm font-medium">Locked Collateral</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{wallet?.locked_collateral || 0} USDC</div>
+            <div className="text-2xl font-bold">
+              <CurrencyDisplay amount={collateralInKES} currency="KES" showToggle={false} />
+            </div>
             <p className="text-xs text-muted-foreground">
               Collateral for active loans
             </p>
@@ -125,7 +134,12 @@ const Wallet: React.FC = () => {
                     <p className={`font-semibold ${
                       transaction.amount > 0 ? 'text-green-600' : 'text-red-600'
                     }`}>
-                      {transaction.amount > 0 ? '+' : ''}{transaction.amount} {transaction.currency}
+                      {transaction.amount > 0 ? '+' : ''}
+                      <CurrencyDisplay 
+                        amount={Math.abs(transaction.amount) * 130} 
+                        currency="KES" 
+                        showToggle={false} 
+                      />
                     </p>
                     <p className="text-xs text-gray-500 capitalize">
                       {transaction.status}

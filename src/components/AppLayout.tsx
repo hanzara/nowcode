@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { cn } from "@/lib/utils";
 import { Sidebar, SidebarContent, SidebarProvider } from "@/components/ui/sidebar";
 import NavItems from '@/components/NavItems';
+import Footer from '@/components/Footer';
 import { ChevronRight, ChevronLeft, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/hooks/useAuth';
@@ -55,8 +56,11 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </div>
 
         <div className="flex-1 overflow-auto">
-          <main className="p-6 h-full">
-            {children}
+          <main className="p-6 h-full flex flex-col">
+            <div className="flex-1">
+              {children}
+            </div>
+            <Footer />
           </main>
         </div>
       </div>

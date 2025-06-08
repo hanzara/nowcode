@@ -20,6 +20,7 @@ import Disputes from '@/components/Disputes';
 import TokenManagement from '@/components/TokenManagement';
 import Settings from '@/components/Settings';
 import Education from '@/components/Education';
+import CommunityMembership from '@/components/CommunityMembership';
 import NotFound from '@/pages/NotFound';
 import './App.css';
 
@@ -60,6 +61,7 @@ function App() {
           <Route path="/insights" element={<AppLayout><InvestmentInsights /></AppLayout>} />
           <Route path="/staking" element={<AppLayout><Staking /></AppLayout>} />
           <Route path="/wallet" element={<AppLayout><Wallet /></AppLayout>} />
+          <Route path="/community" element={<AppLayout><CommunityMembership /></AppLayout>} />
           <Route path="/education" element={<AppLayout><Education /></AppLayout>} />
           <Route path="/bill-payments" element={<AppLayout><BillPayments /></AppLayout>} />
           <Route path="/savings-goals" element={<AppLayout><SavingsGoals /></AppLayout>} />
