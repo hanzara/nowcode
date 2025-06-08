@@ -1,71 +1,127 @@
 
 import React from 'react';
-import { cn } from "@/lib/utils";
 import { 
   Home, 
-  Search, 
+  ShoppingCart, 
   CreditCard, 
+  PieChart, 
   TrendingUp, 
-  Eye, 
-  Coins, 
   Wallet, 
-  AlertTriangle, 
   Settings,
-  Receipt,
-  PiggyBank,
-  QrCode,
+  BookOpen,
   BarChart3,
-  Smartphone
-} from "lucide-react";
-import { TabType } from './AppLayout';
+  Receipt,
+  Target,
+  QrCode,
+  Smartphone,
+  MessageSquare,
+  Gift
+} from 'lucide-react';
 
-interface NavItemsProps {
-  activeTab: TabType;
-  onTabChange: (tab: TabType) => void;
-  collapsed: boolean;
+export interface NavItem {
+  id: string;
+  label: string;
+  icon: React.ReactNode;
+  path: string;
 }
 
-const NavItems: React.FC<NavItemsProps> = ({ activeTab, onTabChange, collapsed }) => {
-  const navItems = [
-    { id: 'dashboard' as TabType, label: 'Dashboard', icon: Home },
-    { id: 'marketplace' as TabType, label: 'Marketplace', icon: Search },
-    { id: 'loans' as TabType, label: 'My Loans', icon: CreditCard },
-    { id: 'portfolio' as TabType, label: 'Portfolio', icon: TrendingUp },
-    { id: 'insights' as TabType, label: 'Insights', icon: Eye },
-    { id: 'staking' as TabType, label: 'Staking', icon: Coins },
-    { id: 'wallet' as TabType, label: 'Wallet', icon: Wallet },
-    { id: 'bills' as TabType, label: 'Bill Payments', icon: Receipt },
-    { id: 'savings' as TabType, label: 'Savings Goals', icon: PiggyBank },
-    { id: 'qr' as TabType, label: 'QR Payments', icon: QrCode },
-    { id: 'analytics' as TabType, label: 'Analytics', icon: BarChart3 },
-    { id: 'mobile' as TabType, label: 'Mobile Money', icon: Smartphone },
-    { id: 'disputes' as TabType, label: 'Disputes', icon: AlertTriangle },
-    { id: 'settings' as TabType, label: 'Settings', icon: Settings },
-  ];
+export const mainNavItems: NavItem[] = [
+  {
+    id: 'dashboard',
+    label: 'Dashboard',
+    icon: <Home className="h-5 w-5" />,
+    path: '/dashboard'
+  },
+  {
+    id: 'marketplace',
+    label: 'Marketplace',
+    icon: <ShoppingCart className="h-5 w-5" />,
+    path: '/marketplace'
+  },
+  {
+    id: 'my-loans',
+    label: 'My Loans',
+    icon: <CreditCard className="h-5 w-5" />,
+    path: '/my-loans'
+  },
+  {
+    id: 'portfolio',
+    label: 'Portfolio',
+    icon: <PieChart className="h-5 w-5" />,
+    path: '/portfolio'
+  },
+  {
+    id: 'staking',
+    label: 'Staking',
+    icon: <TrendingUp className="h-5 w-5" />,
+    path: '/staking'
+  },
+  {
+    id: 'wallet',
+    label: 'Wallet',
+    icon: <Wallet className="h-5 w-5" />,
+    path: '/wallet'
+  },
+  {
+    id: 'education',
+    label: 'Education',
+    icon: <BookOpen className="h-5 w-5" />,
+    path: '/education'
+  }
+];
 
-  return (
-    <nav className="flex-1 space-y-1 p-4">
-      {navItems.map((item) => {
-        const Icon = item.icon;
-        return (
-          <button
-            key={item.id}
-            onClick={() => onTabChange(item.id)}
-            className={cn(
-              "w-full flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
-              activeTab === item.id
-                ? "bg-gray-100 text-gray-900"
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
-              collapsed && "justify-center px-3"
-            )}
-          >
-            <Icon className={cn("h-5 w-5", !collapsed && "mr-3")} />
-            {!collapsed && item.label}
-          </button>
-        );
-      })}
-    </nav>
-  );
-};
+export const secondaryNavItems: NavItem[] = [
+  {
+    id: 'insights',
+    label: 'Insights',
+    icon: <BarChart3 className="h-5 w-5" />,
+    path: '/insights'
+  },
+  {
+    id: 'bill-payments',
+    label: 'Bill Payments',
+    icon: <Receipt className="h-5 w-5" />,
+    path: '/bill-payments'
+  },
+  {
+    id: 'savings-goals',
+    label: 'Savings Goals',
+    icon: <Target className="h-5 w-5" />,
+    path: '/savings-goals'
+  },
+  {
+    id: 'qr-payments',
+    label: 'QR Payments',
+    icon: <QrCode className="h-5 w-5" />,
+    path: '/qr-payments'
+  },
+  {
+    id: 'mobile-money',
+    label: 'Mobile Money',
+    icon: <Smartphone className="h-5 w-5" />,
+    path: '/mobile-money'
+  },
+  {
+    id: 'disputes',
+    label: 'Disputes',
+    icon: <MessageSquare className="h-5 w-5" />,
+    path: '/disputes'
+  },
+  {
+    id: 'token-management',
+    label: 'Tokens',
+    icon: <Gift className="h-5 w-5" />,
+    path: '/token-management'
+  }
+];
 
-export default NavItems;
+export const settingsNavItems: NavItem[] = [
+  {
+    id: 'settings',
+    label: 'Settings',
+    icon: <Settings className="h-5 w-5" />,
+    path: '/settings'
+  }
+];
+
+export const allNavItems = [...mainNavItems, ...secondaryNavItems, ...settingsNavItems];
