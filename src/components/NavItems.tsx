@@ -1,127 +1,101 @@
 
 import React from 'react';
-import { 
-  Home, 
-  ShoppingCart, 
-  CreditCard, 
-  PieChart, 
-  TrendingUp, 
-  Wallet, 
-  Settings,
-  BookOpen,
-  BarChart3,
-  Receipt,
-  Target,
-  QrCode,
-  Smartphone,
-  MessageSquare,
-  Gift
-} from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { cn } from "@/lib/utils";
+import { mainNavItems, secondaryNavItems, settingsNavItems } from './NavItems';
 
-export interface NavItem {
-  id: string;
-  label: string;
-  icon: React.ReactNode;
-  path: string;
+interface NavItemsProps {
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
+  collapsed: boolean;
 }
 
-export const mainNavItems: NavItem[] = [
-  {
-    id: 'dashboard',
-    label: 'Dashboard',
-    icon: <Home className="h-5 w-5" />,
-    path: '/dashboard'
-  },
-  {
-    id: 'marketplace',
-    label: 'Marketplace',
-    icon: <ShoppingCart className="h-5 w-5" />,
-    path: '/marketplace'
-  },
-  {
-    id: 'my-loans',
-    label: 'My Loans',
-    icon: <CreditCard className="h-5 w-5" />,
-    path: '/my-loans'
-  },
-  {
-    id: 'portfolio',
-    label: 'Portfolio',
-    icon: <PieChart className="h-5 w-5" />,
-    path: '/portfolio'
-  },
-  {
-    id: 'staking',
-    label: 'Staking',
-    icon: <TrendingUp className="h-5 w-5" />,
-    path: '/staking'
-  },
-  {
-    id: 'wallet',
-    label: 'Wallet',
-    icon: <Wallet className="h-5 w-5" />,
-    path: '/wallet'
-  },
-  {
-    id: 'education',
-    label: 'Education',
-    icon: <BookOpen className="h-5 w-5" />,
-    path: '/education'
-  }
-];
+const NavItems: React.FC<NavItemsProps> = ({ collapsed }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
 
-export const secondaryNavItems: NavItem[] = [
-  {
-    id: 'insights',
-    label: 'Insights',
-    icon: <BarChart3 className="h-5 w-5" />,
-    path: '/insights'
-  },
-  {
-    id: 'bill-payments',
-    label: 'Bill Payments',
-    icon: <Receipt className="h-5 w-5" />,
-    path: '/bill-payments'
-  },
-  {
-    id: 'savings-goals',
-    label: 'Savings Goals',
-    icon: <Target className="h-5 w-5" />,
-    path: '/savings-goals'
-  },
-  {
-    id: 'qr-payments',
-    label: 'QR Payments',
-    icon: <QrCode className="h-5 w-5" />,
-    path: '/qr-payments'
-  },
-  {
-    id: 'mobile-money',
-    label: 'Mobile Money',
-    icon: <Smartphone className="h-5 w-5" />,
-    path: '/mobile-money'
-  },
-  {
-    id: 'disputes',
-    label: 'Disputes',
-    icon: <MessageSquare className="h-5 w-5" />,
-    path: '/disputes'
-  },
-  {
-    id: 'token-management',
-    label: 'Tokens',
-    icon: <Gift className="h-5 w-5" />,
-    path: '/token-management'
-  }
-];
+  const handleNavigation = (path: string) => {
+    navigate(path);
+  };
 
-export const settingsNavItems: NavItem[] = [
-  {
-    id: 'settings',
-    label: 'Settings',
-    icon: <Settings className="h-5 w-5" />,
-    path: '/settings'
-  }
-];
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
 
-export const allNavItems = [...mainNavItems, ...secondaryNavItems, ...settingsNavItems];
+  return (
+    <div className="flex-1 overflow-auto">
+      {/* Main Navigation */}
+      <div className="px-3 py-2">
+        <div className="space-y-1">
+          {mainNavItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleNavigation(item.path)}
+              className={cn(
+                "w-full flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                isActive(item.path)
+                  ? "bg-blue-100 text-blue-700"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                collapsed && "justify-center px-2"
+              )}
+            >
+              {item.icon}
+              {!collapsed && <span className="ml-3">{item.label}</span>}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Secondary Navigation */}
+      <div className="px-3 py-2">
+        {!collapsed && (
+          <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            Services
+          </h3>
+        )}
+        <div className="mt-2 space-y-1">
+          {secondaryNavItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleNavigation(item.path)}
+              className={cn(
+                "w-full flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                isActive(item.path)
+                  ? "bg-blue-100 text-blue-700"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                collapsed && "justify-center px-2"
+              )}
+            >
+              {item.icon}
+              {!collapsed && <span className="ml-3">{item.label}</span>}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Settings Navigation */}
+      <div className="px-3 py-2">
+        <div className="space-y-1">
+          {settingsNavItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleNavigation(item.path)}
+              className={cn(
+                "w-full flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                isActive(item.path)
+                  ? "bg-blue-100 text-blue-700"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                collapsed && "justify-center px-2"
+              )}
+            >
+              {item.icon}
+              {!collapsed && <span className="ml-3">{item.label}</span>}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default NavItems;

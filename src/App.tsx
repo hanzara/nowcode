@@ -26,6 +26,11 @@ import './App.css';
 function App() {
   const { user, loading } = useAuth();
 
+  const handleSubmitApplication = () => {
+    // Handle loan application submission
+    console.log('Loan application submitted');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -45,27 +50,27 @@ function App() {
 
   return (
     <Router>
-      <AppLayout>
+      <div className="min-h-screen w-full">
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/marketplace" element={<LoanMarketplace />} />
-          <Route path="/my-loans" element={<MyLoans />} />
-          <Route path="/portfolio" element={<Portfolio />} />
-          <Route path="/insights" element={<InvestmentInsights />} />
-          <Route path="/staking" element={<Staking />} />
-          <Route path="/wallet" element={<Wallet />} />
-          <Route path="/education" element={<Education />} />
-          <Route path="/bill-payments" element={<BillPayments />} />
-          <Route path="/savings-goals" element={<SavingsGoals />} />
-          <Route path="/qr-payments" element={<QRPayments />} />
-          <Route path="/mobile-money" element={<MobileMoneySetup />} />
-          <Route path="/disputes" element={<Disputes />} />
-          <Route path="/token-management" element={<TokenManagement />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
+          <Route path="/marketplace" element={<AppLayout><LoanMarketplace onSubmitApplication={handleSubmitApplication} /></AppLayout>} />
+          <Route path="/my-loans" element={<AppLayout><MyLoans /></AppLayout>} />
+          <Route path="/portfolio" element={<AppLayout><Portfolio /></AppLayout>} />
+          <Route path="/insights" element={<AppLayout><InvestmentInsights /></AppLayout>} />
+          <Route path="/staking" element={<AppLayout><Staking /></AppLayout>} />
+          <Route path="/wallet" element={<AppLayout><Wallet /></AppLayout>} />
+          <Route path="/education" element={<AppLayout><Education /></AppLayout>} />
+          <Route path="/bill-payments" element={<AppLayout><BillPayments /></AppLayout>} />
+          <Route path="/savings-goals" element={<AppLayout><SavingsGoals /></AppLayout>} />
+          <Route path="/qr-payments" element={<AppLayout><QRPayments /></AppLayout>} />
+          <Route path="/mobile-money" element={<AppLayout><MobileMoneySetup /></AppLayout>} />
+          <Route path="/disputes" element={<AppLayout><Disputes /></AppLayout>} />
+          <Route path="/token-management" element={<AppLayout><TokenManagement /></AppLayout>} />
+          <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </AppLayout>
+      </div>
       <Toaster />
     </Router>
   );

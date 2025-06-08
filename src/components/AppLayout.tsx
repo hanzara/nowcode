@@ -3,103 +3,20 @@ import React, { useState } from 'react';
 import { cn } from "@/lib/utils";
 import { Sidebar, SidebarContent, SidebarProvider } from "@/components/ui/sidebar";
 import NavItems from '@/components/NavItems';
-import Dashboard from '@/components/Dashboard';
-import LoanMarketplace from '@/components/LoanMarketplace';
-import MyLoans from '@/components/MyLoans';
-import Portfolio from '@/components/Portfolio';
-import InvestmentInsights from '@/components/InvestmentInsights';
-import Staking from '@/components/Staking';
-import Wallet from '@/components/Wallet';
-import BillPayments from '@/components/BillPayments';
-import SavingsGoals from '@/components/SavingsGoals';
-import QRPayments from '@/components/QRPayments';
-import TransactionAnalytics from '@/components/TransactionAnalytics';
-import MobileMoneySetup from '@/components/MobileMoneySetup';
-import Disputes from '@/components/Disputes';
-import Settings from '@/components/Settings';
-import AuthPage from '@/components/AuthPage';
 import { ChevronRight, ChevronLeft, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/hooks/useAuth';
 
-export type TabType = 'dashboard' | 'marketplace' | 'loans' | 'portfolio' | 'insights' | 'staking' | 'wallet' | 'bills' | 'savings' | 'qr' | 'analytics' | 'mobile' | 'disputes' | 'settings';
+interface AppLayoutProps {
+  children: React.ReactNode;
+}
 
-const AppLayout: React.FC = () => {
-  const { user, loading, signOut } = useAuth();
-  const [activeTab, setActiveTab] = useState<TabType>('dashboard');
+const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
+  const { signOut } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
-
-  const handleTabChange = (tab: TabType) => {
-    setActiveTab(tab);
-  };
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
-  };
-
-  const handleSubmitApplication = () => {
-    setActiveTab('dashboard');
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <AuthPage />;
-  }
-
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'marketplace':
-        return <LoanMarketplace onSubmitApplication={handleSubmitApplication} />;
-      case 'loans':
-        return <MyLoans />;
-      case 'portfolio':
-        return <Portfolio />;
-      case 'insights':
-        return <InvestmentInsights />;
-      case 'staking':
-        return <Staking />;
-      case 'wallet':
-        return <Wallet />;
-      case 'bills':
-        return <BillPayments />;
-      case 'savings':
-        return <SavingsGoals />;
-      case 'qr':
-        return <QRPayments />;
-      case 'analytics':
-        return <TransactionAnalytics />;
-      case 'mobile':
-        return (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold tracking-tight">Mobile Money</h1>
-              <MobileMoneySetup />
-            </div>
-            <div className="text-center py-12">
-              <h2 className="text-xl font-semibold mb-4">Mobile Money Integration</h2>
-              <p className="text-gray-600 mb-6">
-                Connect your mobile money accounts for seamless transactions
-              </p>
-              <MobileMoneySetup />
-            </div>
-          </div>
-        );
-      case 'disputes':
-        return <Disputes />;
-      case 'settings':
-        return <Settings />;
-      default:
-        return <Dashboard />;
-    }
   };
 
   return (
@@ -121,11 +38,7 @@ const AppLayout: React.FC = () => {
                   {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
                 </button>
               </div>
-              <NavItems 
-                activeTab={activeTab} 
-                onTabChange={handleTabChange} 
-                collapsed={collapsed}
-              />
+              <NavItems collapsed={collapsed} />
               <div className="mt-auto p-4 border-t border-gray-200">
                 <Button
                   variant="outline"
@@ -143,7 +56,7 @@ const AppLayout: React.FC = () => {
 
         <div className="flex-1 overflow-auto">
           <main className="p-6 h-full">
-            {renderContent()}
+            {children}
           </main>
         </div>
       </div>
