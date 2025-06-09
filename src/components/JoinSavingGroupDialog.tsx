@@ -52,11 +52,23 @@ const JoinSavingGroupDialog: React.FC<JoinSavingGroupDialogProps> = ({ groupId, 
 
       // Update group total if there's an initial contribution
       if (initialContribution && parseFloat(initialContribution) > 0) {
+        const contributionAmount = parseFloat(initialContribution);
+        
+        // First get the current total_saved value
+        const { data: currentGroup, error: fetchError } = await supabase
+          .from('saving_groups')
+          .select('total_saved')
+          .eq('id', groupId)
+          .single();
+
+        if (fetchError) throw fetchError;
+
+        // Update with the new total
+        const newTotal = (currentGroup.total_saved || 0) + contributionAmount;
+        
         const { error: updateError } = await supabase
           .from('saving_groups')
-          .update({
-            total_saved: supabase.rpc('increment', { x: parseFloat(initialContribution) })
-          })
+          .update({ total_saved: newTotal })
           .eq('id', groupId);
 
         if (updateError) throw updateError;
