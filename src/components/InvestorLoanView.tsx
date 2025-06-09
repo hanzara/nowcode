@@ -70,7 +70,6 @@ const InvestorLoanView: React.FC = () => {
             <div className="text-2xl font-bold">
               <CurrencyDisplay 
                 amount={convertToKES(profile.total_funded || 0)} 
-                currency="KES" 
                 showToggle={false}
               />
             </div>
@@ -111,7 +110,7 @@ const InvestorLoanView: React.FC = () => {
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="mb-2">
-                        <CurrencyDisplay amount={convertToKES(application.amount)} currency="KES" showToggle={false} />
+                        <CurrencyDisplay amount={convertToKES(application.amount)} showToggle={false} />
                       </div>
                       <p className="text-sm text-gray-500">
                         {application.duration_months} months @ {application.interest_rate}%
@@ -126,13 +125,13 @@ const InvestorLoanView: React.FC = () => {
                     {application.monthly_payment && (
                       <div className="flex justify-between">
                         <span className="text-gray-500">Monthly Payment:</span>
-                        <CurrencyDisplay amount={convertToKES(application.monthly_payment)} currency="KES" showToggle={false} />
+                        <CurrencyDisplay amount={convertToKES(application.monthly_payment)} showToggle={false} />
                       </div>
                     )}
                     {application.total_payment && (
                       <div className="flex justify-between">
                         <span className="text-gray-500">Total Return:</span>
-                        <CurrencyDisplay amount={convertToKES(application.total_payment)} currency="KES" showToggle={false} />
+                        <CurrencyDisplay amount={convertToKES(application.total_payment)} showToggle={false} />
                       </div>
                     )}
                     <div className="flex justify-between">

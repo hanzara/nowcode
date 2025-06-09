@@ -55,7 +55,7 @@ const Wallet: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <CurrencyDisplay amount={balanceInKES} currency="KES" showToggle={false} />
+              <CurrencyDisplay amount={balanceInKES} showToggle={false} />
             </div>
             <p className="text-xs text-muted-foreground">
               Ready for investment or loan applications
@@ -69,7 +69,7 @@ const Wallet: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              <CurrencyDisplay amount={collateralInKES} currency="KES" showToggle={false} />
+              <CurrencyDisplay amount={collateralInKES} showToggle={false} />
             </div>
             <p className="text-xs text-muted-foreground">
               Collateral for active loans
@@ -137,7 +137,6 @@ const Wallet: React.FC = () => {
                       {transaction.amount > 0 ? '+' : ''}
                       <CurrencyDisplay 
                         amount={Math.abs(transaction.amount) * 130} 
-                        currency="KES" 
                         showToggle={false} 
                       />
                     </p>

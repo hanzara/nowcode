@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -187,7 +188,7 @@ const WalletActions: React.FC = () => {
                 </div>
                 {amount && (
                   <div className="text-sm text-gray-600">
-                    ≈ <CurrencyDisplay amount={convertToKES(parseFloat(amount))} defaultCurrency="KES" showToggle={false} />
+                    ≈ <CurrencyDisplay amount={convertToKES(parseFloat(amount))} showToggle={false} />
                   </div>
                 )}
               </div>
@@ -330,7 +331,7 @@ const WalletActions: React.FC = () => {
                 </p>
                 {amount && (
                   <div className="text-sm text-gray-600">
-                    ≈ <CurrencyDisplay amount={convertToKES(parseFloat(amount))} defaultCurrency="KES" showToggle={false} />
+                    ≈ <CurrencyDisplay amount={convertToKES(parseFloat(amount))} showToggle={false} />
                   </div>
                 )}
               </div>

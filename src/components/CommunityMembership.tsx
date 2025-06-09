@@ -160,7 +160,7 @@ const CommunityMembership: React.FC = () => {
               </div>
               <CardTitle className="text-xl">{tier.name}</CardTitle>
               <div className="text-3xl font-bold">
-                <CurrencyDisplay amount={tier.price} currency="KES" showToggle={false} />
+                <CurrencyDisplay amount={tier.price} showToggle={false} />
               </div>
               <p className="text-gray-600 text-sm">{tier.duration}</p>
             </CardHeader>

@@ -64,7 +64,6 @@ const BorrowerDashboard: React.FC = () => {
               <CurrencyDisplay 
                 amount={convertToKES(profile.total_borrowed || 0)} 
                 showToggle={false}
-                defaultCurrency="KES"
               />
             </div>
             <p className="text-sm text-gray-600">Lifetime borrowing</p>
