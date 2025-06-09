@@ -15,9 +15,12 @@ const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
 }) => {
   const [showUSD, setShowUSD] = useState(false);
   
+  // Ensure amount is a valid number
+  const validAmount = typeof amount === 'number' && !isNaN(amount) ? amount : 0;
+  
   // Convert KES to USD (approximate rate: 1 USD = 130 KES)
-  const usdAmount = amount / 130;
-  const kesAmount = amount;
+  const usdAmount = validAmount / 130;
+  const kesAmount = validAmount;
   
   const formatCurrency = (value: number, currency: 'USD' | 'KES') => {
     return new Intl.NumberFormat('en-US', {
