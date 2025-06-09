@@ -1,71 +1,54 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { useExchangeRate } from '@/hooks/useExchangeRate';
-import { RefreshCw } from 'lucide-react';
 
 interface CurrencyDisplayProps {
   amount: number;
-  currency?: 'USD' | 'KES';
   showToggle?: boolean;
-  defaultCurrency?: 'USD' | 'KES';
-  // Legacy prop for backward compatibility
-  usdAmount?: number;
+  className?: string;
 }
 
 const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({ 
   amount, 
-  currency,
   showToggle = true, 
-  defaultCurrency = 'KES',
-  usdAmount // Legacy prop
+  className = "" 
 }) => {
-  const { convertUSDToKES, convertKESToUSD, formatCurrency, rates, loading, refreshRates } = useExchangeRate();
-  const [displayCurrency, setDisplayCurrency] = useState<'USD' | 'KES'>(defaultCurrency);
+  const [showUSD, setShowUSD] = useState(false);
+  
+  // Convert KES to USD (approximate rate: 1 USD = 130 KES)
+  const usdAmount = amount / 130;
+  const kesAmount = amount;
+  
+  const formatCurrency = (value: number, currency: 'USD' | 'KES') => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+  };
 
-  // Handle legacy usdAmount prop - convert to KES amount
-  const actualAmount = usdAmount ? convertUSDToKES(usdAmount) : (amount || 0);
-
-  // If currency is specified, use that directly
-  if (currency) {
+  if (!showToggle) {
     return (
-      <span className="font-medium">
-        {formatCurrency(actualAmount, currency)}
+      <span className={className}>
+        {formatCurrency(kesAmount, 'KES')}
       </span>
     );
   }
 
-  // Otherwise, treat amount as KES and allow conversion
-  const usdAmount_converted = convertKESToUSD(actualAmount);
-  const displayAmount = displayCurrency === 'KES' ? actualAmount : usdAmount_converted;
-
   return (
-    <div className="flex items-center space-x-2">
+    <div className={`flex items-center gap-2 ${className}`}>
       <span className="font-medium">
-        {formatCurrency(displayAmount, displayCurrency)}
+        {showUSD ? formatCurrency(usdAmount, 'USD') : formatCurrency(kesAmount, 'KES')}
       </span>
-      
-      {showToggle && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setDisplayCurrency(displayCurrency === 'KES' ? 'USD' : 'KES')}
-          className="text-xs h-6 px-2"
-        >
-          {displayCurrency === 'KES' ? 'Show USD' : 'Show KES'}
-        </Button>
-      )}
-      
-      {displayCurrency === 'USD' && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={refreshRates}
-          disabled={loading}
-          className="h-6 w-6 p-0"
-        >
-          <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
-        </Button>
-      )}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setShowUSD(!showUSD)}
+        className="h-6 px-2 text-xs"
+      >
+        {showUSD ? 'KES' : 'USD'}
+      </Button>
     </div>
   );
 };

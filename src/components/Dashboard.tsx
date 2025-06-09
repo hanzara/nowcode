@@ -6,6 +6,7 @@ import CreateProfileDialog from './CreateProfileDialog';
 import InvestorLoanView from './InvestorLoanView';
 import BorrowerDashboard from './BorrowerDashboard';
 import DatabaseHealthCheck from './DatabaseHealthCheck';
+import TransactionAnalytics from './TransactionAnalytics';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSearchParams } from 'react-router-dom';
 
@@ -53,12 +54,15 @@ const Dashboard: React.FC = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview" className="transition-all duration-200">
             Overview
           </TabsTrigger>
           <TabsTrigger value="marketplace" className="transition-all duration-200">
             Marketplace
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="transition-all duration-200">
+            Analytics
           </TabsTrigger>
           <TabsTrigger value="health" className="transition-all duration-200">
             System Health
@@ -75,6 +79,10 @@ const Dashboard: React.FC = () => {
         
         <TabsContent value="marketplace" className="space-y-6 animate-fade-in">
           <InvestorLoanView />
+        </TabsContent>
+        
+        <TabsContent value="analytics" className="space-y-6 animate-fade-in">
+          <TransactionAnalytics />
         </TabsContent>
         
         <TabsContent value="health" className="space-y-6 animate-fade-in">

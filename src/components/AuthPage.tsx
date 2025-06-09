@@ -26,9 +26,13 @@ const AuthPage: React.FC = () => {
     try {
       if (isLogin) {
         console.log('Attempting to sign in with:', email);
+        
+        // Clear any previous sessions first
+        await supabase.auth.signOut();
+        
         const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
+          email: email.trim(),
+          password: password.trim(),
         });
         
         console.log('Sign in response:', { data, error });
@@ -40,29 +44,11 @@ const AuthPage: React.FC = () => {
         
         console.log('Sign in successful:', data);
         
-        // Test database connection after successful login
-        try {
-          const { data: profileData, error: profileError } = await supabase
-            .from('user_profiles')
-            .select('*')
-            .eq('user_id', data.user.id)
-            .maybeSingle();
-          
-          if (profileError) {
-            console.warn('Profile fetch warning:', profileError);
-          }
-          
-          toast({
-            title: "Welcome back!",
-            description: `Successfully logged in. ${profileData ? `Profile: ${profileData.profile_type}` : 'No profile found.'}`,
-          });
-        } catch (profileErr) {
-          console.warn('Profile check failed after login:', profileErr);
-          toast({
-            title: "Welcome back!",
-            description: "You have successfully logged in. Please check your profile setup.",
-          });
-        }
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully logged in.",
+        });
+        
       } else {
         // Validate required fields for sign up
         if (!profileType) {
@@ -94,14 +80,14 @@ const AuthPage: React.FC = () => {
 
         console.log('Attempting to sign up with:', email, 'Role:', profileType, 'Phone:', phoneNumber);
         const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
+          email: email.trim(),
+          password: password.trim(),
           options: {
-            emailRedirectTo: undefined,
+            emailRedirectTo: `${window.location.origin}/`,
             data: {
-              display_name: displayName,
+              display_name: displayName.trim(),
               profile_type: profileType,
-              phone_number: phoneNumber
+              phone_number: phoneNumber.trim()
             }
           }
         });
@@ -121,7 +107,7 @@ const AuthPage: React.FC = () => {
               .from('user_profiles')
               .insert({
                 user_id: data.user.id,
-                display_name: displayName,
+                display_name: displayName.trim(),
                 profile_type: profileType
               });
 
@@ -135,9 +121,9 @@ const AuthPage: React.FC = () => {
                 .from('profiles')
                 .upsert({
                   user_id: data.user.id,
-                  email: email,
-                  phone_number: phoneNumber,
-                  full_name: displayName
+                  email: email.trim(),
+                  phone_number: phoneNumber.trim(),
+                  full_name: displayName.trim()
                 });
 
               if (profilesError) {
@@ -145,23 +131,6 @@ const AuthPage: React.FC = () => {
               }
             } catch (profilesErr) {
               console.warn('Profiles table update failed:', profilesErr);
-            }
-
-            // Test wallet creation
-            try {
-              const { data: walletData, error: walletError } = await supabase
-                .from('user_wallets')
-                .select('*')
-                .eq('user_id', data.user.id)
-                .maybeSingle();
-
-              if (walletError) {
-                console.warn('Wallet check warning:', walletError);
-              }
-
-              console.log('User wallet status:', walletData ? 'Found' : 'Not found');
-            } catch (walletErr) {
-              console.warn('Wallet check failed:', walletErr);
             }
 
           } catch (profileErr) {
