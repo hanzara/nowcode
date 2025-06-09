@@ -123,6 +123,56 @@ export type Database = {
         }
         Relationships: []
       }
+      lender_ratings: {
+        Row: {
+          borrower_id: string
+          communication_rating: number | null
+          created_at: string
+          id: string
+          lender_id: string
+          loan_application_id: string | null
+          overall_rating: number | null
+          reliability_rating: number | null
+          review_text: string | null
+          terms_rating: number | null
+          updated_at: string
+        }
+        Insert: {
+          borrower_id: string
+          communication_rating?: number | null
+          created_at?: string
+          id?: string
+          lender_id: string
+          loan_application_id?: string | null
+          overall_rating?: number | null
+          reliability_rating?: number | null
+          review_text?: string | null
+          terms_rating?: number | null
+          updated_at?: string
+        }
+        Update: {
+          borrower_id?: string
+          communication_rating?: number | null
+          created_at?: string
+          id?: string
+          lender_id?: string
+          loan_application_id?: string | null
+          overall_rating?: number | null
+          reliability_rating?: number | null
+          review_text?: string | null
+          terms_rating?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lender_ratings_loan_application_id_fkey"
+            columns: ["loan_application_id"]
+            isOneToOne: false
+            referencedRelation: "loan_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       loan_applications: {
         Row: {
           amount: number
@@ -367,6 +417,98 @@ export type Database = {
         }
         Relationships: []
       }
+      saving_group_members: {
+        Row: {
+          group_id: string
+          id: string
+          is_active: boolean | null
+          joined_at: string
+          last_contribution_date: string | null
+          role: string | null
+          total_contributed: number | null
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          is_active?: boolean | null
+          joined_at?: string
+          last_contribution_date?: string | null
+          role?: string | null
+          total_contributed?: number | null
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          is_active?: boolean | null
+          joined_at?: string
+          last_contribution_date?: string | null
+          role?: string | null
+          total_contributed?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saving_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "saving_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saving_groups: {
+        Row: {
+          contribution_frequency: string | null
+          created_at: string
+          created_by: string
+          current_members: number | null
+          description: string | null
+          group_type: string | null
+          id: string
+          is_active: boolean | null
+          max_members: number | null
+          min_contribution: number | null
+          name: string
+          target_amount: number | null
+          total_saved: number | null
+          updated_at: string
+        }
+        Insert: {
+          contribution_frequency?: string | null
+          created_at?: string
+          created_by: string
+          current_members?: number | null
+          description?: string | null
+          group_type?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_members?: number | null
+          min_contribution?: number | null
+          name: string
+          target_amount?: number | null
+          total_saved?: number | null
+          updated_at?: string
+        }
+        Update: {
+          contribution_frequency?: string | null
+          created_at?: string
+          created_by?: string
+          current_members?: number | null
+          description?: string | null
+          group_type?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_members?: number | null
+          min_contribution?: number | null
+          name?: string
+          target_amount?: number | null
+          total_saved?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       staking_pools: {
         Row: {
           apy: number
@@ -534,6 +676,39 @@ export type Database = {
           updated_at?: string
           user_id?: string
           verification_status?: string | null
+        }
+        Relationships: []
+      }
+      user_referrals: {
+        Row: {
+          bonus_earned: number | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          referral_code: string
+          referred_id: string
+          referrer_id: string
+          status: string | null
+        }
+        Insert: {
+          bonus_earned?: number | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_id: string
+          referrer_id: string
+          status?: string | null
+        }
+        Update: {
+          bonus_earned?: number | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_id?: string
+          referrer_id?: string
+          status?: string | null
         }
         Relationships: []
       }
@@ -721,7 +896,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_referral_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_lender_average_rating: {
+        Args: { lender_user_id: string }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
