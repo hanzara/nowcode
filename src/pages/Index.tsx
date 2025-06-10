@@ -14,6 +14,9 @@ import QRPaymentsPage from '@/components/QRPaymentsPage';
 import MobileMoneyPage from '@/components/MobileMoneyPage';
 import Disputes from '@/components/Disputes';
 import TokenManagementPage from '@/components/TokenManagementPage';
+import ChamasPage from '@/components/ChamasPage';
+import MicroInvestmentsPage from '@/components/MicroInvestmentsPage';
+import TuitionWalletsPage from '@/components/TuitionWalletsPage';
 
 const Index = () => {
   const location = useLocation();
@@ -48,6 +51,12 @@ const Index = () => {
         return <Disputes />;
       case '/token-management':
         return <TokenManagementPage />;
+      case '/chamas':
+        return <ChamasPage />;
+      case '/micro-investments':
+        return <MicroInvestmentsPage />;
+      case '/tuition-wallets':
+        return <TuitionWalletsPage />;
       case '/settings':
         return <Dashboard />;
       default:

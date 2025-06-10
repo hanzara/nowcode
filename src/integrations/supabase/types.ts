@@ -9,6 +9,260 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      chama_contributions: {
+        Row: {
+          amount: number
+          chama_id: string | null
+          created_at: string | null
+          id: string
+          member_id: string | null
+          payment_method: string | null
+          status: string | null
+        }
+        Insert: {
+          amount: number
+          chama_id?: string | null
+          created_at?: string | null
+          id?: string
+          member_id?: string | null
+          payment_method?: string | null
+          status?: string | null
+        }
+        Update: {
+          amount?: number
+          chama_id?: string | null
+          created_at?: string | null
+          id?: string
+          member_id?: string | null
+          payment_method?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chama_contributions_chama_id_fkey"
+            columns: ["chama_id"]
+            isOneToOne: false
+            referencedRelation: "chamas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chama_contributions_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "chama_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chama_loans: {
+        Row: {
+          amount: number
+          approved_at: string | null
+          borrower_id: string | null
+          chama_id: string | null
+          created_at: string | null
+          due_date: string | null
+          duration_months: number
+          id: string
+          interest_rate: number | null
+          repaid_amount: number | null
+          status: string | null
+        }
+        Insert: {
+          amount: number
+          approved_at?: string | null
+          borrower_id?: string | null
+          chama_id?: string | null
+          created_at?: string | null
+          due_date?: string | null
+          duration_months: number
+          id?: string
+          interest_rate?: number | null
+          repaid_amount?: number | null
+          status?: string | null
+        }
+        Update: {
+          amount?: number
+          approved_at?: string | null
+          borrower_id?: string | null
+          chama_id?: string | null
+          created_at?: string | null
+          due_date?: string | null
+          duration_months?: number
+          id?: string
+          interest_rate?: number | null
+          repaid_amount?: number | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chama_loans_borrower_id_fkey"
+            columns: ["borrower_id"]
+            isOneToOne: false
+            referencedRelation: "chama_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chama_loans_chama_id_fkey"
+            columns: ["chama_id"]
+            isOneToOne: false
+            referencedRelation: "chamas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chama_members: {
+        Row: {
+          auto_debit_enabled: boolean | null
+          chama_id: string | null
+          id: string
+          is_active: boolean | null
+          joined_at: string | null
+          last_contribution_date: string | null
+          role: string | null
+          total_contributed: number | null
+          user_id: string
+        }
+        Insert: {
+          auto_debit_enabled?: boolean | null
+          chama_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          joined_at?: string | null
+          last_contribution_date?: string | null
+          role?: string | null
+          total_contributed?: number | null
+          user_id: string
+        }
+        Update: {
+          auto_debit_enabled?: boolean | null
+          chama_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          joined_at?: string | null
+          last_contribution_date?: string | null
+          role?: string | null
+          total_contributed?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chama_members_chama_id_fkey"
+            columns: ["chama_id"]
+            isOneToOne: false
+            referencedRelation: "chamas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chama_votes: {
+        Row: {
+          chama_id: string | null
+          created_at: string | null
+          deadline: string | null
+          description: string | null
+          id: string
+          initiated_by: string | null
+          no_votes: number | null
+          reference_id: string | null
+          status: string | null
+          title: string
+          total_eligible_voters: number | null
+          vote_type: string
+          yes_votes: number | null
+        }
+        Insert: {
+          chama_id?: string | null
+          created_at?: string | null
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          initiated_by?: string | null
+          no_votes?: number | null
+          reference_id?: string | null
+          status?: string | null
+          title: string
+          total_eligible_voters?: number | null
+          vote_type: string
+          yes_votes?: number | null
+        }
+        Update: {
+          chama_id?: string | null
+          created_at?: string | null
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          initiated_by?: string | null
+          no_votes?: number | null
+          reference_id?: string | null
+          status?: string | null
+          title?: string
+          total_eligible_voters?: number | null
+          vote_type?: string
+          yes_votes?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chama_votes_chama_id_fkey"
+            columns: ["chama_id"]
+            isOneToOne: false
+            referencedRelation: "chamas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chama_votes_initiated_by_fkey"
+            columns: ["initiated_by"]
+            isOneToOne: false
+            referencedRelation: "chama_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chamas: {
+        Row: {
+          contribution_amount: number
+          contribution_frequency: string
+          created_at: string | null
+          created_by: string
+          current_members: number | null
+          description: string | null
+          id: string
+          max_members: number | null
+          name: string
+          status: string | null
+          total_savings: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          contribution_amount: number
+          contribution_frequency?: string
+          created_at?: string | null
+          created_by: string
+          current_members?: number | null
+          description?: string | null
+          id?: string
+          max_members?: number | null
+          name: string
+          status?: string | null
+          total_savings?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          contribution_amount?: number
+          contribution_frequency?: string
+          created_at?: string | null
+          created_by?: string
+          current_members?: number | null
+          description?: string | null
+          id?: string
+          max_members?: number | null
+          name?: string
+          status?: string | null
+          total_savings?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       disputes: {
         Row: {
           created_at: string
@@ -75,6 +329,69 @@ export type Database = {
           risk_score?: number | null
           target_user_id?: string | null
           title?: string
+        }
+        Relationships: []
+      }
+      investment_projects: {
+        Row: {
+          business_owner_id: string
+          category: string
+          created_at: string | null
+          current_funding: number | null
+          description: string
+          duration_months: number
+          funding_deadline: string | null
+          id: string
+          location: string | null
+          minimum_investment: number | null
+          project_start_date: string | null
+          projected_roi: number
+          risk_score: number | null
+          status: string | null
+          target_amount: number
+          title: string
+          updated_at: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          business_owner_id: string
+          category: string
+          created_at?: string | null
+          current_funding?: number | null
+          description: string
+          duration_months: number
+          funding_deadline?: string | null
+          id?: string
+          location?: string | null
+          minimum_investment?: number | null
+          project_start_date?: string | null
+          projected_roi: number
+          risk_score?: number | null
+          status?: string | null
+          target_amount: number
+          title: string
+          updated_at?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          business_owner_id?: string
+          category?: string
+          created_at?: string | null
+          current_funding?: number | null
+          description?: string
+          duration_months?: number
+          funding_deadline?: string | null
+          id?: string
+          location?: string | null
+          minimum_investment?: number | null
+          project_start_date?: string | null
+          projected_roi?: number
+          risk_score?: number | null
+          status?: string | null
+          target_amount?: number
+          title?: string
+          updated_at?: string | null
+          verified_at?: string | null
         }
         Relationships: []
       }
@@ -417,6 +734,44 @@ export type Database = {
         }
         Relationships: []
       }
+      project_updates: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          image_url: string | null
+          project_id: string | null
+          title: string
+          update_type: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          project_id?: string | null
+          title: string
+          update_type?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          project_id?: string | null
+          title?: string
+          update_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_updates_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "investment_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saving_group_members: {
         Row: {
           group_id: string
@@ -509,6 +864,41 @@ export type Database = {
         }
         Relationships: []
       }
+      sponsor_contributions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          message: string | null
+          payment_method: string | null
+          sponsor_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          payment_method?: string | null
+          sponsor_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          payment_method?: string | null
+          sponsor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sponsor_contributions_sponsor_id_fkey"
+            columns: ["sponsor_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_sponsors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       staking_pools: {
         Row: {
           apy: number
@@ -548,6 +938,45 @@ export type Database = {
         }
         Relationships: []
       }
+      student_wallets: {
+        Row: {
+          balance: number | null
+          class_level: string | null
+          created_at: string | null
+          id: string
+          parent_id: string
+          school_name: string | null
+          student_name: string
+          target_amount: number | null
+          target_deadline: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          balance?: number | null
+          class_level?: string | null
+          created_at?: string | null
+          id?: string
+          parent_id: string
+          school_name?: string | null
+          student_name: string
+          target_amount?: number | null
+          target_deadline?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          balance?: number | null
+          class_level?: string | null
+          created_at?: string | null
+          id?: string
+          parent_id?: string
+          school_name?: string | null
+          student_name?: string
+          target_amount?: number | null
+          target_deadline?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       token_transactions: {
         Row: {
           amount: number
@@ -580,6 +1009,100 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      tuition_payments: {
+        Row: {
+          academic_year: string | null
+          amount: number
+          created_at: string | null
+          id: string
+          payment_type: string
+          receipt_number: string | null
+          school_paybill: string | null
+          status: string | null
+          term: string | null
+          wallet_id: string | null
+        }
+        Insert: {
+          academic_year?: string | null
+          amount: number
+          created_at?: string | null
+          id?: string
+          payment_type: string
+          receipt_number?: string | null
+          school_paybill?: string | null
+          status?: string | null
+          term?: string | null
+          wallet_id?: string | null
+        }
+        Update: {
+          academic_year?: string | null
+          amount?: number
+          created_at?: string | null
+          id?: string
+          payment_type?: string
+          receipt_number?: string | null
+          school_paybill?: string | null
+          status?: string | null
+          term?: string | null
+          wallet_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tuition_payments_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "student_wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_investments: {
+        Row: {
+          amount_invested: number
+          created_at: string | null
+          exit_date: string | null
+          id: string
+          investor_id: string
+          last_return_date: string | null
+          project_id: string | null
+          returns_earned: number | null
+          shares_percentage: number
+          status: string | null
+        }
+        Insert: {
+          amount_invested: number
+          created_at?: string | null
+          exit_date?: string | null
+          id?: string
+          investor_id: string
+          last_return_date?: string | null
+          project_id?: string | null
+          returns_earned?: number | null
+          shares_percentage: number
+          status?: string | null
+        }
+        Update: {
+          amount_invested?: number
+          created_at?: string | null
+          exit_date?: string | null
+          id?: string
+          investor_id?: string
+          last_return_date?: string | null
+          project_id?: string | null
+          returns_earned?: number | null
+          shares_percentage?: number
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_investments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "investment_projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_learning_progress: {
         Row: {
@@ -857,6 +1380,50 @@ export type Database = {
           wallet_address?: string | null
         }
         Relationships: []
+      }
+      wallet_sponsors: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          relationship: string | null
+          sponsor_email: string | null
+          sponsor_name: string
+          sponsor_phone: string | null
+          total_contributed: number | null
+          wallet_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          relationship?: string | null
+          sponsor_email?: string | null
+          sponsor_name: string
+          sponsor_phone?: string | null
+          total_contributed?: number | null
+          wallet_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          relationship?: string | null
+          sponsor_email?: string | null
+          sponsor_name?: string
+          sponsor_phone?: string | null
+          total_contributed?: number | null
+          wallet_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_sponsors_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "student_wallets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       wallet_transactions: {
         Row: {
