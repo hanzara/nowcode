@@ -1945,6 +1945,18 @@ export type Database = {
         Args: { lender_user_id: string }
         Returns: number
       }
+      is_chama_admin: {
+        Args: { chama_id_to_check: string }
+        Returns: boolean
+      }
+      is_chama_admin_or_treasurer: {
+        Args: { chama_id_to_check: string }
+        Returns: boolean
+      }
+      is_chama_member: {
+        Args: { chama_id_to_check: string }
+        Returns: boolean
+      }
       update_chama_metrics: {
         Args: { target_chama_id: string }
         Returns: undefined
