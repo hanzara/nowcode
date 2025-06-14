@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -155,7 +154,7 @@ export const CreateP2POfferDialog: React.FC<CreateP2POfferDialogProps> = ({ exis
           </div>
           <DialogFooter>
             <Button type="submit" className="w-full" loading={loading} disabled={loading || duplicate}>
-              {duplicate ? "You already have an active offer" : loading ? "Posting..." : "Create Offer"}
+              {duplicate ? "You already have an active offer" : "Create Offer"}
             </Button>
             <DialogClose asChild>
               <Button type="button" variant="ghost" className="w-full">Cancel</Button>
