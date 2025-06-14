@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useLoans } from '@/hooks/useLoans';
 import { useUserProfile } from '@/hooks/useUserProfile';
@@ -6,6 +5,7 @@ import InvestorLoanView from './InvestorLoanView';
 import LoanApplicationForm from './LoanApplicationForm';
 import LoanSummaryCard from './LoanSummaryCard';
 import MarketplaceLoansDisplay from './MarketplaceLoansDisplay';
+import MonetizationInfo from './MonetizationInfo';
 
 interface LoanMarketplaceProps {
   onSubmitApplication: () => void;
@@ -47,13 +47,15 @@ const LoanMarketplace: React.FC<LoanMarketplaceProps> = ({ onSubmitApplication }
       {/* Available Loans Section */}
       <MarketplaceLoansDisplay marketplaceLoans={marketplaceLoans} loading={loading} />
 
-      {/* Loan Application Form - Only for borrowers */}
+      {/* Monetization Info and Loan Application Form for Borrowers */}
       {profile?.profile_type === 'borrower' && (
         <div className="grid md:grid-cols-3 gap-6">
+          <div className="md:col-span-3">
+            <MonetizationInfo />
+          </div>
           <div className="md:col-span-2">
             <LoanApplicationForm onSubmitApplication={onSubmitApplication} />
           </div>
-
           <div>
             <LoanSummaryCard
               loanAmount={loanAmount}
