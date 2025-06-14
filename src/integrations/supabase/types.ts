@@ -9,6 +9,51 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      chama_activities: {
+        Row: {
+          activity_type: string
+          amount: number | null
+          chama_id: string | null
+          created_at: string | null
+          description: string
+          id: string
+          member_id: string | null
+        }
+        Insert: {
+          activity_type: string
+          amount?: number | null
+          chama_id?: string | null
+          created_at?: string | null
+          description: string
+          id?: string
+          member_id?: string | null
+        }
+        Update: {
+          activity_type?: string
+          amount?: number | null
+          chama_id?: string | null
+          created_at?: string | null
+          description?: string
+          id?: string
+          member_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chama_activities_chama_id_fkey"
+            columns: ["chama_id"]
+            isOneToOne: false
+            referencedRelation: "chamas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chama_activities_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "chama_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chama_contributions: {
         Row: {
           amount: number
@@ -50,6 +95,44 @@ export type Database = {
             columns: ["member_id"]
             isOneToOne: false
             referencedRelation: "chama_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chama_loan_repayments: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          loan_id: string | null
+          payment_date: string | null
+          payment_method: string | null
+          status: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          loan_id?: string | null
+          payment_date?: string | null
+          payment_method?: string | null
+          status?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          loan_id?: string | null
+          payment_date?: string | null
+          payment_method?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chama_loan_repayments_loan_id_fkey"
+            columns: ["loan_id"]
+            isOneToOne: false
+            referencedRelation: "chama_loans"
             referencedColumns: ["id"]
           },
         ]
@@ -150,6 +233,130 @@ export type Database = {
             foreignKeyName: "chama_members_chama_id_fkey"
             columns: ["chama_id"]
             isOneToOne: false
+            referencedRelation: "chamas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chama_messages: {
+        Row: {
+          chama_id: string | null
+          id: string
+          message: string
+          sender_id: string | null
+          sent_at: string | null
+        }
+        Insert: {
+          chama_id?: string | null
+          id?: string
+          message: string
+          sender_id?: string | null
+          sent_at?: string | null
+        }
+        Update: {
+          chama_id?: string | null
+          id?: string
+          message?: string
+          sender_id?: string | null
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chama_messages_chama_id_fkey"
+            columns: ["chama_id"]
+            isOneToOne: false
+            referencedRelation: "chamas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chama_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "chama_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chama_metrics: {
+        Row: {
+          average_repayment_performance: number | null
+          calculated_at: string | null
+          chama_id: string | null
+          created_at: string | null
+          id: string
+          net_worth: number | null
+          pending_votes_count: number | null
+          roi_percentage: number | null
+          upcoming_contributions_count: number | null
+        }
+        Insert: {
+          average_repayment_performance?: number | null
+          calculated_at?: string | null
+          chama_id?: string | null
+          created_at?: string | null
+          id?: string
+          net_worth?: number | null
+          pending_votes_count?: number | null
+          roi_percentage?: number | null
+          upcoming_contributions_count?: number | null
+        }
+        Update: {
+          average_repayment_performance?: number | null
+          calculated_at?: string | null
+          chama_id?: string | null
+          created_at?: string | null
+          id?: string
+          net_worth?: number | null
+          pending_votes_count?: number | null
+          roi_percentage?: number | null
+          upcoming_contributions_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chama_metrics_chama_id_fkey"
+            columns: ["chama_id"]
+            isOneToOne: false
+            referencedRelation: "chamas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chama_settings: {
+        Row: {
+          chama_id: string | null
+          created_at: string | null
+          id: string
+          late_payment_penalty: number | null
+          loan_interest_rate: number | null
+          max_loan_amount: number | null
+          updated_at: string | null
+          voting_threshold: number | null
+        }
+        Insert: {
+          chama_id?: string | null
+          created_at?: string | null
+          id?: string
+          late_payment_penalty?: number | null
+          loan_interest_rate?: number | null
+          max_loan_amount?: number | null
+          updated_at?: string | null
+          voting_threshold?: number | null
+        }
+        Update: {
+          chama_id?: string | null
+          created_at?: string | null
+          id?: string
+          late_payment_penalty?: number | null
+          loan_interest_rate?: number | null
+          max_loan_amount?: number | null
+          updated_at?: string | null
+          voting_threshold?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chama_settings_chama_id_fkey"
+            columns: ["chama_id"]
+            isOneToOne: true
             referencedRelation: "chamas"
             referencedColumns: ["id"]
           },
@@ -490,6 +697,71 @@ export type Database = {
           },
         ]
       }
+      loan_agreements: {
+        Row: {
+          borrower_id: string
+          created_at: string | null
+          duration_months: number
+          end_date: string | null
+          id: string
+          interest_rate: number
+          investor_id: string
+          loan_offer_id: string | null
+          monthly_payment: number
+          principal_amount: number
+          repayment_schedule: Json | null
+          signed_at: string | null
+          start_date: string | null
+          status: string | null
+          terms_and_conditions: string | null
+          total_payment: number
+        }
+        Insert: {
+          borrower_id: string
+          created_at?: string | null
+          duration_months: number
+          end_date?: string | null
+          id?: string
+          interest_rate: number
+          investor_id: string
+          loan_offer_id?: string | null
+          monthly_payment: number
+          principal_amount: number
+          repayment_schedule?: Json | null
+          signed_at?: string | null
+          start_date?: string | null
+          status?: string | null
+          terms_and_conditions?: string | null
+          total_payment: number
+        }
+        Update: {
+          borrower_id?: string
+          created_at?: string | null
+          duration_months?: number
+          end_date?: string | null
+          id?: string
+          interest_rate?: number
+          investor_id?: string
+          loan_offer_id?: string | null
+          monthly_payment?: number
+          principal_amount?: number
+          repayment_schedule?: Json | null
+          signed_at?: string | null
+          start_date?: string | null
+          status?: string | null
+          terms_and_conditions?: string | null
+          total_payment?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loan_agreements_loan_offer_id_fkey"
+            columns: ["loan_offer_id"]
+            isOneToOne: false
+            referencedRelation: "loan_offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       loan_applications: {
         Row: {
           amount: number
@@ -590,6 +862,56 @@ export type Database = {
           },
         ]
       }
+      loan_payments: {
+        Row: {
+          agreement_id: string | null
+          amount: number
+          created_at: string | null
+          due_date: string
+          id: string
+          interest_amount: number
+          paid_date: string | null
+          payment_method: string | null
+          payment_number: number
+          principal_amount: number
+          status: string | null
+        }
+        Insert: {
+          agreement_id?: string | null
+          amount: number
+          created_at?: string | null
+          due_date: string
+          id?: string
+          interest_amount: number
+          paid_date?: string | null
+          payment_method?: string | null
+          payment_number: number
+          principal_amount: number
+          status?: string | null
+        }
+        Update: {
+          agreement_id?: string | null
+          amount?: number
+          created_at?: string | null
+          due_date?: string
+          id?: string
+          interest_amount?: number
+          paid_date?: string | null
+          payment_method?: string | null
+          payment_number?: number
+          principal_amount?: number
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loan_payments_agreement_id_fkey"
+            columns: ["agreement_id"]
+            isOneToOne: false
+            referencedRelation: "loan_agreements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       loans: {
         Row: {
           amount: number
@@ -625,6 +947,60 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      member_reputation: {
+        Row: {
+          chama_id: string | null
+          contribution_score: number | null
+          created_at: string | null
+          id: string
+          last_calculated: string | null
+          member_id: string | null
+          overall_score: number | null
+          participation_score: number | null
+          repayment_score: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          chama_id?: string | null
+          contribution_score?: number | null
+          created_at?: string | null
+          id?: string
+          last_calculated?: string | null
+          member_id?: string | null
+          overall_score?: number | null
+          participation_score?: number | null
+          repayment_score?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          chama_id?: string | null
+          contribution_score?: number | null
+          created_at?: string | null
+          id?: string
+          last_calculated?: string | null
+          member_id?: string | null
+          overall_score?: number | null
+          participation_score?: number | null
+          repayment_score?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_reputation_chama_id_fkey"
+            columns: ["chama_id"]
+            isOneToOne: false
+            referencedRelation: "chamas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_reputation_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "chama_members"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       mobile_money_accounts: {
         Row: {
@@ -695,6 +1071,56 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_requests: {
+        Row: {
+          amount: number
+          borrower_id: string
+          created_at: string | null
+          id: string
+          investor_id: string
+          loan_offer_id: string | null
+          payment_details: Json | null
+          payment_method: string
+          processed_at: string | null
+          requested_at: string | null
+          status: string | null
+        }
+        Insert: {
+          amount: number
+          borrower_id: string
+          created_at?: string | null
+          id?: string
+          investor_id: string
+          loan_offer_id?: string | null
+          payment_details?: Json | null
+          payment_method: string
+          processed_at?: string | null
+          requested_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          amount?: number
+          borrower_id?: string
+          created_at?: string | null
+          id?: string
+          investor_id?: string
+          loan_offer_id?: string | null
+          payment_details?: Json | null
+          payment_method?: string
+          processed_at?: string | null
+          requested_at?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_requests_loan_offer_id_fkey"
+            columns: ["loan_offer_id"]
+            isOneToOne: false
+            referencedRelation: "loan_offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           country: string | null
@@ -705,6 +1131,7 @@ export type Database = {
           id: string
           loan_eligibility: number | null
           phone_number: string | null
+          preferred_language: string | null
           updated_at: string
           user_id: string
         }
@@ -717,6 +1144,7 @@ export type Database = {
           id?: string
           loan_eligibility?: number | null
           phone_number?: string | null
+          preferred_language?: string | null
           updated_at?: string
           user_id: string
         }
@@ -729,6 +1157,7 @@ export type Database = {
           id?: string
           loan_eligibility?: number | null
           phone_number?: string | null
+          preferred_language?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1381,6 +1810,38 @@ export type Database = {
         }
         Relationships: []
       }
+      vote_responses: {
+        Row: {
+          created_at: string | null
+          id: string
+          response: boolean
+          vote_id: string | null
+          voter_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          response: boolean
+          vote_id?: string | null
+          voter_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          response?: boolean
+          vote_id?: string | null
+          voter_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vote_responses_vote_id_fkey"
+            columns: ["vote_id"]
+            isOneToOne: false
+            referencedRelation: "chama_votes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wallet_sponsors: {
         Row: {
           created_at: string | null
@@ -1463,6 +1924,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_loan_schedule: {
+        Args: {
+          principal: number
+          interest_rate: number
+          duration_months: number
+          start_date: string
+        }
+        Returns: Json
+      }
+      calculate_member_reputation: {
+        Args: { member_chama_id: string; member_user_id: string }
+        Returns: undefined
+      }
       generate_referral_code: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1470,6 +1944,10 @@ export type Database = {
       get_lender_average_rating: {
         Args: { lender_user_id: string }
         Returns: number
+      }
+      update_chama_metrics: {
+        Args: { target_chama_id: string }
+        Returns: undefined
       }
     }
     Enums: {

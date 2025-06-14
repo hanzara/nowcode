@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,9 +8,14 @@ import { useToast } from "@/hooks/use-toast";
 import { Users, Plus, Calendar, DollarSign, TrendingUp } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CurrencyDisplay from '@/components/CurrencyDisplay';
+import ChamaActivities from "./ChamaActivities";
+import ChamaChat from "./ChamaChat";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const ChamasPage: React.FC = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newChama, setNewChama] = useState({
     name: '',
@@ -21,8 +25,40 @@ const ChamasPage: React.FC = () => {
     maxMembers: '20'
   });
 
+  // Add membership mapping to find membership ID for chat
+  const [myChamasDB, setMyChamasDB] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (user) {
+      // Fetch chamas from DB this user is a member of
+      supabase
+        .from("chama_members")
+        .select(`
+          id, chama_id, role,
+          chamas (
+            id, name, description, contribution_amount, contribution_frequency, max_members, current_members, total_savings, status
+          )
+        `)
+        .eq("user_id", user.id)
+        .then(({ data, error }) => {
+          if (error || !data) return setMyChamasDB([]);
+          // Map DB data into clean objects for rendering
+          setMyChamasDB(
+            data.map((m) => ({
+              memberId: m.id,
+              chamaId: m.chama_id,
+              role: m.role,
+              ...m.chamas,
+            })).filter((c: any) => !!c.chamaId)
+          );
+        });
+    } else {
+      setMyChamasDB([]);
+    }
+  }, [user]);
+
   // Mock data - will be replaced with actual Supabase queries
-  const myChamas = [
+  const myChamas = myChamasDB.length > 0 ? myChamasDB : [
     {
       id: '1',
       name: 'Unity Savings Group',
@@ -33,7 +69,8 @@ const ChamasPage: React.FC = () => {
       contributionFrequency: 'monthly',
       totalSavings: 240000,
       role: 'admin',
-      nextContribution: '2024-01-15'
+      nextContribution: '2024-01-15',
+      memberId: '1'
     },
     {
       id: '2',
@@ -45,7 +82,8 @@ const ChamasPage: React.FC = () => {
       contributionFrequency: 'monthly',
       totalSavings: 96000,
       role: 'member',
-      nextContribution: '2024-01-12'
+      nextContribution: '2024-01-12',
+      memberId: '2'
     }
   ];
 
@@ -173,7 +211,7 @@ const ChamasPage: React.FC = () => {
 
           <div className="grid gap-4">
             {myChamas.map((chama) => (
-              <Card key={chama.id}>
+              <Card key={chama.chamaId || chama.id}>
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div>
@@ -200,16 +238,26 @@ const ChamasPage: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <DollarSign className="h-4 w-4 text-muted-foreground" />
-                      <CurrencyDisplay amount={chama.contributionAmount} showToggle={false} className="text-sm" />
+                      <CurrencyDisplay amount={chama.contributionAmount || chama.contribution_amount} showToggle={false} className="text-sm" />
                     </div>
                     <div className="flex items-center gap-2">
                       <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                      <CurrencyDisplay amount={chama.totalSavings} showToggle={false} className="text-sm" />
+                      <CurrencyDisplay amount={chama.totalSavings || chama.total_savings} showToggle={false} className="text-sm" />
                     </div>
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">Next: {chama.nextContribution}</span>
+                      <span className="text-sm">
+                        Next: {chama.nextContribution || "---"}
+                      </span>
                     </div>
+                  </div>
+                  {/* Show activities and chat widgets */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <ChamaActivities chamaId={chama.chamaId || chama.id} />
+                    <ChamaChat
+                      chamaId={chama.chamaId || chama.id}
+                      memberId={chama.memberId || null}
+                    />
                   </div>
                 </CardContent>
               </Card>
