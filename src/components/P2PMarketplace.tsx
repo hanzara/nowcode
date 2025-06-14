@@ -25,7 +25,7 @@ export interface P2PListing {
   user_profiles: {
     display_name: string | null;
     avatar_url: string | null;
-  };
+  } | null;
 }
 
 const P2PMarketplace: React.FC = () => {
@@ -37,7 +37,7 @@ const P2PMarketplace: React.FC = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("p2p_listings")
-        .select("*, user_profiles!inner(display_name, avatar_url)")
+        .select("*, user_profiles(display_name, avatar_url)")
         .eq("is_active", true)
         .order("created_at", { ascending: false });
       if (error) {
@@ -100,11 +100,11 @@ const P2PMarketplace: React.FC = () => {
               <CardHeader>
                 <div className="flex items-center gap-3 mb-4">
                   <Avatar className="h-10 w-10 border">
-                    <AvatarImage src={listing.user_profiles.avatar_url || ''} alt={listing.user_profiles.display_name || 'User'} />
-                    <AvatarFallback>{(listing.user_profiles.display_name || 'U').charAt(0)}</AvatarFallback>
+                    <AvatarImage src={listing.user_profiles?.avatar_url || ''} alt={listing.user_profiles?.display_name || 'User'} />
+                    <AvatarFallback>{(listing.user_profiles?.display_name || 'U').charAt(0)}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-semibold text-sm">{listing.user_profiles.display_name || 'Anonymous User'}</p>
+                    <p className="font-semibold text-sm">{listing.user_profiles?.display_name || 'Anonymous User'}</p>
                     <p className="text-xs text-muted-foreground">98% Completion • 25 Trades</p>
                   </div>
                 </div>
