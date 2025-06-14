@@ -1,4 +1,3 @@
-
 import React, { useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -66,6 +65,7 @@ const P2PMarketplace: React.FC = () => {
         <CreateP2POfferDialog onCreated={handleOfferCreated} />
       </div>
       {isLoading ? (
+        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
             <Card key={i}>
