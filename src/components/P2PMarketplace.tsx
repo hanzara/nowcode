@@ -1,11 +1,12 @@
 
-import React from "react";
+import React, { useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CreateP2POfferDialog } from "./CreateP2POfferDialog";
 
 export interface P2PListing {
   id: string;
@@ -23,6 +24,7 @@ export interface P2PListing {
 
 const P2PMarketplace: React.FC = () => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const { data: listings = [], isLoading } = useQuery({
     queryKey: ["p2p-listings"],
@@ -38,6 +40,11 @@ const P2PMarketplace: React.FC = () => {
     enabled: !!user,
   });
 
+  // Refresh listings on new offer
+  const handleOfferCreated = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ["p2p-listings"] });
+  }, [queryClient]);
+
   return (
     <div className="space-y-6">
       <div>
@@ -45,6 +52,9 @@ const P2PMarketplace: React.FC = () => {
         <p className="text-muted-foreground">
           Buy or sell crypto safely with escrow and in-app chat. Create your own offer or respond to existing ones.
         </p>
+      </div>
+      <div className="mb-2">
+        <CreateP2POfferDialog existingListings={listings} onCreated={handleOfferCreated} />
       </div>
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -80,7 +90,7 @@ const P2PMarketplace: React.FC = () => {
                       {listing.amount} {listing.asset}
                     </span>
                   </CardTitle>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-muted-foreground font-semibold">
                     {listing.currency} {listing.price_per_unit}/unit
                   </span>
                 </div>
