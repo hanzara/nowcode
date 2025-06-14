@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -84,7 +83,7 @@ const ChamaChat: React.FC<ChamaChatProps> = ({ chamaId, memberId }) => {
         <CardTitle>Chama Group Chat</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col h-56 overflow-y-auto space-y-2 border p-2 mb-2 bg-background rounded">
+        <div className="flex flex-col h-80 overflow-y-auto space-y-2 border p-2 mb-2 bg-background rounded">
           {loading ? (
             <span>Loading...</span>
           ) : messages.length === 0 ? (
