@@ -47,6 +47,7 @@ const AppContent = () => {
         <Route path="/disputes" element={<Index />} />
         <Route path="/token-management" element={<Index />} />
         <Route path="/settings" element={<Index />} />
+        <Route path="/p2p-marketplace" element={<Index />} /> {/* Add this line for P2P Marketplace */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
