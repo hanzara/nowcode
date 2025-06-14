@@ -1,3 +1,4 @@
+
 import React, { useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -21,7 +22,7 @@ export interface P2PListing {
   description?: string;
   is_active: boolean;
   created_at: string;
-  user_profiles: {
+  user_profiles?: {
     display_name: string | null;
     avatar_url: string | null;
   } | null;
@@ -36,14 +37,19 @@ const P2PMarketplace: React.FC = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("p2p_listings")
-        .select("*, user_profiles(display_name, avatar_url)")
+        .select(`
+          *,
+          user_profiles!inner(display_name, avatar_url)
+        `)
         .eq("is_active", true)
         .order("created_at", { ascending: false });
+      
       if (error) {
         console.error("Error fetching p2p listings with profiles", error);
         throw error;
       }
-      return data as P2PListing[];
+      
+      return (data || []) as P2PListing[];
     },
     enabled: !!user,
   });
@@ -65,7 +71,6 @@ const P2PMarketplace: React.FC = () => {
         <CreateP2POfferDialog onCreated={handleOfferCreated} />
       </div>
       {isLoading ? (
-        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
             <Card key={i}>
