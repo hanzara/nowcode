@@ -39,6 +39,12 @@ export const mainNavItems: NavItem[] = [
     icon: <Search className="h-5 w-5" />
   },
   {
+    id: "p2p-marketplace",
+    label: "P2P Trading",
+    path: "/p2p-marketplace",
+    icon: <TrendingUp className="h-5 w-5" />
+  },
+  {
     id: 'my-loans',
     label: 'My Loans',
     path: '/my-loans',

@@ -1216,6 +1216,204 @@ export type Database = {
         }
         Relationships: []
       }
+      p2p_chats: {
+        Row: {
+          created_at: string | null
+          escrow_id: string
+          id: string
+          message: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          escrow_id: string
+          id?: string
+          message: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string | null
+          escrow_id?: string
+          id?: string
+          message?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "p2p_chats_escrow_id_fkey"
+            columns: ["escrow_id"]
+            isOneToOne: false
+            referencedRelation: "p2p_escrows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      p2p_escrows: {
+        Row: {
+          amount: number
+          asset: string
+          buyer_id: string
+          created_at: string | null
+          currency: string
+          id: string
+          listing_id: string
+          payment_confirmed: boolean
+          released_at: string | null
+          seller_id: string
+          status: string
+        }
+        Insert: {
+          amount: number
+          asset: string
+          buyer_id: string
+          created_at?: string | null
+          currency: string
+          id?: string
+          listing_id: string
+          payment_confirmed?: boolean
+          released_at?: string | null
+          seller_id: string
+          status?: string
+        }
+        Update: {
+          amount?: number
+          asset?: string
+          buyer_id?: string
+          created_at?: string | null
+          currency?: string
+          id?: string
+          listing_id?: string
+          payment_confirmed?: boolean
+          released_at?: string | null
+          seller_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "p2p_escrows_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "p2p_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      p2p_listings: {
+        Row: {
+          amount: number
+          asset: string
+          created_at: string | null
+          currency: string
+          description: string | null
+          id: string
+          is_active: boolean
+          payment_method: string
+          price_per_unit: number
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          asset: string
+          created_at?: string | null
+          currency: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          payment_method: string
+          price_per_unit: number
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          asset?: string
+          created_at?: string | null
+          currency?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          payment_method?: string
+          price_per_unit?: number
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      p2p_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string | null
+          escrow_id: string
+          id: string
+          ratee_id: string
+          rater_id: string
+          rating: number
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string | null
+          escrow_id: string
+          id?: string
+          ratee_id: string
+          rater_id: string
+          rating: number
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string | null
+          escrow_id?: string
+          id?: string
+          ratee_id?: string
+          rater_id?: string
+          rating?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "p2p_ratings_escrow_id_fkey"
+            columns: ["escrow_id"]
+            isOneToOne: false
+            referencedRelation: "p2p_escrows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      p2p_verifications: {
+        Row: {
+          created_at: string | null
+          email_verified: boolean
+          id: string
+          id_document_url: string | null
+          phone_verified: boolean
+          selfie_url: string | null
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email_verified?: boolean
+          id?: string
+          id_document_url?: string | null
+          phone_verified?: boolean
+          selfie_url?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email_verified?: boolean
+          id?: string
+          id_document_url?: string | null
+          phone_verified?: boolean
+          selfie_url?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       payment_requests: {
         Row: {
           amount: number

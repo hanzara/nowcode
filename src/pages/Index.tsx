@@ -18,6 +18,7 @@ import MicroInvestmentsPage from '@/components/MicroInvestmentsPage';
 import TuitionWalletsPage from '@/components/TuitionWalletsPage';
 import MyLoans from '@/components/MyLoans';
 import LoanMarketplace from '@/components/LoanMarketplace';
+import P2PMarketplace from "@/components/P2PMarketplace";
 
 const Index = () => {
   const location = useLocation();
@@ -33,6 +34,8 @@ const Index = () => {
         return <Dashboard />;
       case '/marketplace':
         return <LoanMarketplace onSubmitApplication={handleLoanApplicationSubmit} />;
+      case "/p2p-marketplace":
+        return <P2PMarketplace />;
       case '/my-loans':
         return <MyLoans />;
       case '/portfolio':
