@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
 import Dashboard from '@/components/Dashboard';
 import Portfolio from '@/components/Portfolio';
@@ -17,18 +16,25 @@ import TokenManagementPage from '@/components/TokenManagementPage';
 import ChamasPage from '@/components/ChamasPage';
 import MicroInvestmentsPage from '@/components/MicroInvestmentsPage';
 import TuitionWalletsPage from '@/components/TuitionWalletsPage';
+import MyLoans from '@/components/MyLoans';
+import LoanMarketplace from '@/components/LoanMarketplace';
 
 const Index = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLoanApplicationSubmit = () => {
+    navigate('/my-loans?tab=pending');
+  };
 
   const renderContent = () => {
     switch (location.pathname) {
       case '/dashboard':
         return <Dashboard />;
       case '/marketplace':
-        return <Dashboard />;
+        return <LoanMarketplace onSubmitApplication={handleLoanApplicationSubmit} />;
       case '/my-loans':
-        return <Dashboard />;
+        return <MyLoans />;
       case '/portfolio':
         return <Portfolio />;
       case '/insights':
