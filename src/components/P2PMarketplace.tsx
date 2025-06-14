@@ -1,4 +1,3 @@
-
 import React, { useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -39,7 +38,7 @@ const P2PMarketplace: React.FC = () => {
         .from("p2p_listings")
         .select(`
           *,
-          user_profiles!inner(display_name, avatar_url)
+          user_profiles(display_name, avatar_url)
         `)
         .eq("is_active", true)
         .order("created_at", { ascending: false });
@@ -49,7 +48,7 @@ const P2PMarketplace: React.FC = () => {
         throw error;
       }
       
-      return (data || []) as P2PListing[];
+      return (data || []);
     },
     enabled: !!user,
   });
