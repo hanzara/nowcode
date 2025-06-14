@@ -15,6 +15,7 @@ export interface Loan {
 
 export interface LoanApplication {
   id: string;
+  borrower_id: string;
   loan_id: string | null;
   amount: number;
   interest_rate: number;
@@ -25,6 +26,15 @@ export interface LoanApplication {
   total_payment: number | null;
   funding_progress: number;
   created_at: string;
+  updated_at: string;
+  purpose: string | null;
+  repayment_method: string | null;
+  guarantors: any; // JSONB
+  documents: any; // JSONB
+  eligibility_score: number | null;
+  rejection_reason: string | null;
+  disbursed_at: string | null;
+  next_payment_due: string | null;
 }
 
 export const useLoans = () => {

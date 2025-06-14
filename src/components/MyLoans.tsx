@@ -102,6 +102,18 @@ const MyLoans: React.FC = () => {
                         <p className="font-medium">{application.funding_progress}%</p>
                       </div>
                     </div>
+                    {application.purpose && (
+                      <div className="mb-4">
+                        <p className="text-sm text-gray-500 mb-1">Purpose</p>
+                        <p className="text-sm font-medium">{application.purpose}</p>
+                      </div>
+                    )}
+                    {application.status === 'rejected' && application.rejection_reason && (
+                      <div className="my-2 p-3 bg-red-50 border border-red-200 text-red-800 rounded-lg">
+                        <p className="text-sm font-semibold">Rejection Reason</p>
+                        <p className="text-sm">{application.rejection_reason}</p>
+                      </div>
+                    )}
                     <div className="space-y-4">
                       <div>
                         <div className="flex justify-between mb-2">
@@ -169,7 +181,9 @@ const MyLoans: React.FC = () => {
                       </div>
                       <div>
                         <p className="text-sm text-gray-500 mb-1">Next Payment</p>
-                        <p className="font-medium">Due in 15 days</p>
+                        <p className="font-medium">
+                          {loan.next_payment_due ? new Date(loan.next_payment_due).toLocaleDateString() : 'N/A'}
+                        </p>
                       </div>
                     </div>
                   </CardContent>
@@ -219,6 +233,12 @@ const MyLoans: React.FC = () => {
                         <p className="font-medium">{loan.funding_progress}%</p>
                       </div>
                     </div>
+                     {loan.purpose && (
+                      <div className="mb-4">
+                        <p className="text-sm text-gray-500 mb-1">Purpose</p>
+                        <p className="text-sm font-medium">{loan.purpose}</p>
+                      </div>
+                    )}
                     <div className="space-y-4">
                       <div>
                         <div className="flex justify-between mb-2">

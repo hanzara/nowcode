@@ -768,12 +768,20 @@ export type Database = {
           borrower_id: string
           collateral: string | null
           created_at: string
+          disbursed_at: string | null
+          documents: Json | null
           duration_months: number
+          eligibility_score: number | null
           funding_progress: number | null
+          guarantors: Json | null
           id: string
           interest_rate: number
           loan_id: string | null
           monthly_payment: number | null
+          next_payment_due: string | null
+          purpose: string | null
+          rejection_reason: string | null
+          repayment_method: string | null
           status: string | null
           total_payment: number | null
           updated_at: string
@@ -783,12 +791,20 @@ export type Database = {
           borrower_id: string
           collateral?: string | null
           created_at?: string
+          disbursed_at?: string | null
+          documents?: Json | null
           duration_months: number
+          eligibility_score?: number | null
           funding_progress?: number | null
+          guarantors?: Json | null
           id?: string
           interest_rate: number
           loan_id?: string | null
           monthly_payment?: number | null
+          next_payment_due?: string | null
+          purpose?: string | null
+          rejection_reason?: string | null
+          repayment_method?: string | null
           status?: string | null
           total_payment?: number | null
           updated_at?: string
@@ -798,12 +814,20 @@ export type Database = {
           borrower_id?: string
           collateral?: string | null
           created_at?: string
+          disbursed_at?: string | null
+          documents?: Json | null
           duration_months?: number
+          eligibility_score?: number | null
           funding_progress?: number | null
+          guarantors?: Json | null
           id?: string
           interest_rate?: number
           loan_id?: string | null
           monthly_payment?: number | null
+          next_payment_due?: string | null
+          purpose?: string | null
+          rejection_reason?: string | null
+          repayment_method?: string | null
           status?: string | null
           total_payment?: number | null
           updated_at?: string
@@ -814,6 +838,53 @@ export type Database = {
             columns: ["loan_id"]
             isOneToOne: false
             referencedRelation: "loans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loan_notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          loan_application_id: string | null
+          message: string
+          notification_type: string
+          scheduled_for: string | null
+          sent_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          loan_application_id?: string | null
+          message: string
+          notification_type: string
+          scheduled_for?: string | null
+          sent_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          loan_application_id?: string | null
+          message?: string
+          notification_type?: string
+          scheduled_for?: string | null
+          sent_at?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loan_notifications_loan_application_id_fkey"
+            columns: ["loan_application_id"]
+            isOneToOne: false
+            referencedRelation: "loan_applications"
             referencedColumns: ["id"]
           },
         ]
@@ -908,6 +979,80 @@ export type Database = {
             columns: ["agreement_id"]
             isOneToOne: false
             referencedRelation: "loan_agreements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loan_policies: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          policy_type: string
+          policy_value: Json
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          policy_type: string
+          policy_value: Json
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          policy_type?: string
+          policy_value?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      loan_repayments: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          late_fee: number | null
+          loan_application_id: string | null
+          payment_date: string | null
+          payment_method: string
+          payment_reference: string | null
+          proof_of_payment_url: string | null
+          status: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          late_fee?: number | null
+          loan_application_id?: string | null
+          payment_date?: string | null
+          payment_method: string
+          payment_reference?: string | null
+          proof_of_payment_url?: string | null
+          status?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          late_fee?: number | null
+          loan_application_id?: string | null
+          payment_date?: string | null
+          payment_method?: string
+          payment_reference?: string | null
+          proof_of_payment_url?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loan_repayments_loan_application_id_fkey"
+            columns: ["loan_application_id"]
+            isOneToOne: false
+            referencedRelation: "loan_applications"
             referencedColumns: ["id"]
           },
         ]
@@ -1924,6 +2069,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_loan_eligibility: {
+        Args: { user_id_param: string; requested_amount: number }
+        Returns: number
+      }
       calculate_loan_schedule: {
         Args: {
           principal: number
