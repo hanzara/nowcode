@@ -1,4 +1,3 @@
-
 import React, { useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -35,21 +34,14 @@ const P2PMarketplace: React.FC = () => {
   const { data: listings = [], isLoading } = useQuery({
     queryKey: ["p2p-listings"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("p2p_listings")
-        .select(`
-          *,
-          user_profiles!p2p_listings_user_id_fkey(display_name, avatar_url)
-        `)
-        .eq("is_active", true)
-        .order("created_at", { ascending: false });
+      const { data, error } = await supabase.rpc('get_p2p_listings_with_profiles');
       
       if (error) {
         console.error("Error fetching p2p listings with profiles", error);
         throw error;
       }
       
-      return (data || []);
+      return (data || []) as P2PListing[];
     },
     enabled: !!user,
   });

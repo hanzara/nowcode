@@ -2292,6 +2292,10 @@ export type Database = {
         Args: { lender_user_id: string }
         Returns: number
       }
+      get_p2p_listings_with_profiles: {
+        Args: Record<PropertyKey, never>
+        Returns: Database["public"]["CompositeTypes"]["p2p_listing_with_profile"][]
+      }
       is_chama_admin: {
         Args: { chama_id_to_check: string }
         Returns: boolean
@@ -2313,7 +2317,20 @@ export type Database = {
       [_ in never]: never
     }
     CompositeTypes: {
-      [_ in never]: never
+      p2p_listing_with_profile: {
+        id: string | null
+        user_id: string | null
+        type: string | null
+        asset: string | null
+        amount: number | null
+        price_per_unit: number | null
+        currency: string | null
+        payment_method: string | null
+        description: string | null
+        is_active: boolean | null
+        created_at: string | null
+        user_profiles: Json | null
+      }
     }
   }
 }
