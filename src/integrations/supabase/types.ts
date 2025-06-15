@@ -99,6 +99,60 @@ export type Database = {
           },
         ]
       }
+      chama_contributions_new: {
+        Row: {
+          amount: number
+          chama_id: string | null
+          contribution_date: string
+          created_at: string | null
+          id: string
+          member_id: string | null
+          notes: string | null
+          payment_method: string | null
+          payment_reference: string | null
+          status: string | null
+        }
+        Insert: {
+          amount: number
+          chama_id?: string | null
+          contribution_date?: string
+          created_at?: string | null
+          id?: string
+          member_id?: string | null
+          notes?: string | null
+          payment_method?: string | null
+          payment_reference?: string | null
+          status?: string | null
+        }
+        Update: {
+          amount?: number
+          chama_id?: string | null
+          contribution_date?: string
+          created_at?: string | null
+          id?: string
+          member_id?: string | null
+          notes?: string | null
+          payment_method?: string | null
+          payment_reference?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chama_contributions_new_chama_id_fkey"
+            columns: ["chama_id"]
+            isOneToOne: false
+            referencedRelation: "chamas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chama_contributions_new_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "chama_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chama_loan_repayments: {
         Row: {
           amount: number
@@ -2296,6 +2350,16 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_chama_contribution_summary: {
+        Args: { p_chama_id: string }
+        Returns: {
+          member_id: string
+          member_email: string
+          total_contributed: number
+          last_contribution_date: string
+          contribution_count: number
+        }[]
+      }
       get_lender_average_rating: {
         Args: { lender_user_id: string }
         Returns: number
@@ -2319,6 +2383,16 @@ export type Database = {
       is_chama_member: {
         Args: { chama_id_to_check: string }
         Returns: boolean
+      }
+      make_chama_contribution: {
+        Args: {
+          p_chama_id: string
+          p_amount: number
+          p_payment_method?: string
+          p_payment_reference?: string
+          p_notes?: string
+        }
+        Returns: string
       }
       reject_chama_member: {
         Args: { member_id_to_reject: string }
