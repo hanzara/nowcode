@@ -3,10 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { History, Search, Filter, ArrowUpRight, ArrowDownLeft, Clock } from 'lucide-react';
+import { History, Search, Filter, ArrowUpRight, ArrowDownLeft, Clock, CheckCircle, AlertCircle, XCircle } from 'lucide-react';
 import { useWallet } from '@/hooks/useWallet';
 import CurrencyDisplay from './CurrencyDisplay';
 import { format } from 'date-fns';
+import { Badge } from "@/components/ui/badge";
 
 interface Transaction {
   id: string;
@@ -46,9 +47,9 @@ const MobileMoneyHistory: React.FC = () => {
 
   const getTransactionIcon = (type: string, amount: number) => {
     if (type === 'mobile_money_transfer' || amount < 0) {
-      return <ArrowUpRight className="h-4 w-4 text-red-500" />;
+      return <ArrowUpRight className="h-5 w-5 text-red-500" />;
     }
-    return <ArrowDownLeft className="h-4 w-4 text-green-500" />;
+    return <ArrowDownLeft className="h-5 w-5 text-green-500" />;
   };
 
   const getTransactionColor = (type: string, amount: number) => {
@@ -58,45 +59,76 @@ const MobileMoneyHistory: React.FC = () => {
     return 'text-green-600';
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'completed':
-        return 'bg-green-100 text-green-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'failed':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      completed: { 
+        icon: CheckCircle, 
+        className: 'bg-green-100 text-green-800 border-green-200',
+        label: 'Completed'
+      },
+      pending: { 
+        icon: Clock, 
+        className: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+        label: 'Pending'
+      },
+      failed: { 
+        icon: XCircle, 
+        className: 'bg-red-100 text-red-800 border-red-200',
+        label: 'Failed'
+      }
+    };
+
+    const config = statusConfig[status.toLowerCase() as keyof typeof statusConfig] || statusConfig.pending;
+    const IconComponent = config.icon;
+
+    return (
+      <Badge className={`${config.className} flex items-center gap-1 font-medium`}>
+        <IconComponent className="h-3 w-3" />
+        {config.label}
+      </Badge>
+    );
+  };
+
+  const getTransactionTypeDisplay = (type: string) => {
+    const typeMap: Record<string, string> = {
+      'mobile_money_transfer': 'Transfer',
+      'deposit': 'Deposit',
+      'withdrawal': 'Withdrawal'
+    };
+    return typeMap[type] || type.replace('_', ' ');
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <History className="h-5 w-5" />
-          Transaction History
-        </CardTitle>
-        <CardDescription>
-          View your mobile money and wallet transaction history
-        </CardDescription>
+    <Card className="border-0 shadow-lg">
+      <CardHeader className="pb-6">
+        <div className="flex items-center gap-3">
+          <div className="p-3 bg-blue-100 rounded-xl">
+            <History className="h-6 w-6 text-blue-600" />
+          </div>
+          <div>
+            <CardTitle className="text-2xl font-bold text-gray-900">Transaction History</CardTitle>
+            <CardDescription className="text-gray-600 mt-1">
+              View and manage your mobile money and wallet transaction history
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Search and Filter Controls */}
-        <div className="flex gap-4">
+      
+      <CardContent className="space-y-6">
+        {/* Enhanced Search and Filter Controls */}
+        <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <Input
               placeholder="Search transactions..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-12 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500 bg-gray-50 focus:bg-white transition-colors"
             />
           </div>
           <Select value={filterType} onValueChange={(value: any) => setFilterType(value)}>
-            <SelectTrigger className="w-40">
-              <Filter className="h-4 w-4 mr-2" />
+            <SelectTrigger className="w-full sm:w-48 h-12 border-gray-200 focus:border-blue-500 bg-gray-50 focus:bg-white">
+              <Filter className="h-4 w-4 mr-2 text-gray-500" />
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -108,49 +140,83 @@ const MobileMoneyHistory: React.FC = () => {
           </Select>
         </div>
 
-        {/* Transaction List */}
-        <div className="space-y-3">
+        {/* Enhanced Transaction List */}
+        <div className="space-y-4">
           {filteredTransactions.length === 0 ? (
-            <div className="text-center py-8">
-              <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">No transactions found</p>
-              <p className="text-sm text-gray-400 mt-2">
-                Your mobile money transactions will appear here
+            <div className="text-center py-12">
+              <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Clock className="h-10 w-10 text-gray-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No transactions found</h3>
+              <p className="text-gray-500 mb-4">
+                {searchTerm || filterType !== 'all' 
+                  ? 'Try adjusting your search or filter criteria'
+                  : 'Your mobile money transactions will appear here'
+                }
               </p>
+              {searchTerm && (
+                <button 
+                  onClick={() => setSearchTerm('')}
+                  className="text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  Clear search
+                </button>
+              )}
             </div>
           ) : (
-            filteredTransactions.map((transaction) => (
-              <div key={transaction.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gray-100 rounded-full">
-                    {getTransactionIcon(transaction.type, transaction.amount)}
-                  </div>
-                  <div>
-                    <p className="font-medium capitalize">
-                      {transaction.type.replace('_', ' ')}
-                    </p>
-                    <p className="text-sm text-gray-500 max-w-64 truncate">
-                      {transaction.description || 'No description'}
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      {format(new Date(transaction.created_at), 'MMM dd, yyyy • HH:mm')}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className={`font-semibold ${getTransactionColor(transaction.type, transaction.amount)}`}>
-                    {transaction.amount > 0 ? '+' : ''}
-                    <CurrencyDisplay 
-                      amount={Math.abs(transaction.amount) * 130} 
-                      showToggle={false} 
-                    />
-                  </p>
-                  <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(transaction.status)}`}>
-                    {transaction.status}
-                  </span>
+            <>
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-sm text-gray-600">
+                  Showing {filteredTransactions.length} transaction{filteredTransactions.length !== 1 ? 's' : ''}
+                </p>
+                <div className="text-sm text-gray-500">
+                  Latest transactions first
                 </div>
               </div>
-            ))
+              
+              <div className="space-y-3">
+                {filteredTransactions.map((transaction) => (
+                  <Card key={transaction.id} className="border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all duration-200 bg-white">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="p-3 bg-gray-50 rounded-xl border">
+                            {getTransactionIcon(transaction.type, transaction.amount)}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h4 className="font-semibold text-gray-900">
+                                {getTransactionTypeDisplay(transaction.type)}
+                              </h4>
+                              {getStatusBadge(transaction.status)}
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2 max-w-md">
+                              {transaction.description || 'No description provided'}
+                            </p>
+                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                              <Clock className="h-3 w-3" />
+                              {format(new Date(transaction.created_at), 'MMM dd, yyyy • HH:mm')}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className={`text-xl font-bold ${getTransactionColor(transaction.type, transaction.amount)}`}>
+                            {transaction.amount > 0 ? '+' : ''}
+                            <CurrencyDisplay 
+                              amount={Math.abs(transaction.amount) * 130} 
+                              showToggle={false} 
+                            />
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Transaction ID: {transaction.id.slice(-8)}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </CardContent>
