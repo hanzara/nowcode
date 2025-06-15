@@ -2267,6 +2267,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_chama_member: {
+        Args: { member_id_to_approve: string }
+        Returns: undefined
+      }
       calculate_loan_eligibility: {
         Args: { user_id_param: string; requested_amount: number }
         Returns: number
@@ -2300,6 +2304,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["CompositeTypes"]["p2p_listing_with_profile"][]
       }
+      get_pending_chama_members: {
+        Args: { p_chama_id: string }
+        Returns: Database["public"]["CompositeTypes"]["pending_member_info"][]
+      }
       is_chama_admin: {
         Args: { chama_id_to_check: string }
         Returns: boolean
@@ -2311,6 +2319,10 @@ export type Database = {
       is_chama_member: {
         Args: { chama_id_to_check: string }
         Returns: boolean
+      }
+      reject_chama_member: {
+        Args: { member_id_to_reject: string }
+        Returns: undefined
       }
       update_chama_metrics: {
         Args: { target_chama_id: string }
@@ -2334,6 +2346,12 @@ export type Database = {
         is_active: boolean | null
         created_at: string | null
         user_profiles: Json | null
+      }
+      pending_member_info: {
+        id: string | null
+        user_id: string | null
+        joined_at: string | null
+        email: string | null
       }
     }
   }

@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CurrencyDisplay from '@/components/CurrencyDisplay';
 import ChamaActivities from "./ChamaActivities";
 import ChamaChat from "./ChamaChat";
+import ChamaMemberManagement from "./ChamaMemberManagement";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -481,12 +482,16 @@ const ChamasPage: React.FC = () => {
                         </div>
                       </div>
                       
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        <ChamaActivities chamaId={chama.chamaId || chama.id} />
-                        <ChamaChat
-                          chamaId={chama.chamaId || chama.id}
-                          memberId={chama.memberId || null}
-                        />
+                      <div className="space-y-4">
+                        <ChamaMemberManagement chamaId={chama.chamaId || chama.id} />
+                        
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                          <ChamaActivities chamaId={chama.chamaId || chama.id} />
+                          <ChamaChat
+                            chamaId={chama.chamaId || chama.id}
+                            memberId={chama.memberId || null}
+                          />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
