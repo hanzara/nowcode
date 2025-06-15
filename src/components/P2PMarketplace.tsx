@@ -1,3 +1,4 @@
+
 import React, { useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { CreateP2POfferDialog } from "./CreateP2POfferDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 export interface P2PListing {
   id: string;
@@ -30,6 +32,7 @@ export interface P2PListing {
 const P2PMarketplace: React.FC = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data: listings = [], isLoading } = useQuery({
     queryKey: ["p2p-listings"],
@@ -50,6 +53,51 @@ const P2PMarketplace: React.FC = () => {
   const handleOfferCreated = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ["p2p-listings"] });
   }, [queryClient]);
+
+  // Handle trade creation
+  const handleCreateTrade = useCallback(async (listingId: string, listing: P2PListing) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to create a trade.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.rpc('create_p2p_trade', {
+        p_listing_id: listingId
+      });
+
+      if (error) {
+        console.error("Error creating trade:", error);
+        toast({
+          title: "Trade Creation Failed",
+          description: error.message || "Unable to create trade. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Show success message
+      const tradeAction = listing.type === "buy" ? "sell" : "buy";
+      toast({
+        title: "Trade Created Successfully!",
+        description: `You are now in a trade to ${tradeAction} ${listing.amount} ${listing.asset}. Check your escrow section for details.`,
+      });
+
+      // Refresh the listings to remove the completed one
+      queryClient.invalidateQueries({ queryKey: ["p2p-listings"] });
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      toast({
+        title: "Unexpected Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [user, toast, queryClient]);
 
   return (
     <div className="space-y-6">
@@ -135,11 +183,26 @@ const P2PMarketplace: React.FC = () => {
                   <span className="text-muted-foreground">Payment</span>
                   <span className="font-medium">{listing.payment_method}</span>
                 </div>
+                {listing.description && (
+                  <div className="pt-2">
+                    <p className="text-xs text-muted-foreground">{listing.description}</p>
+                  </div>
+                )}
               </CardContent>
               <CardFooter>
-                <Button variant={listing.type === 'buy' ? 'default' : 'destructive'} className="w-full" disabled>
-                  {listing.type === "buy" ? "Sell" : "Buy"} {listing.asset}
-                </Button>
+                {listing.user_id === user?.id ? (
+                  <Button variant="outline" className="w-full" disabled>
+                    Your Listing
+                  </Button>
+                ) : (
+                  <Button 
+                    variant={listing.type === 'buy' ? 'default' : 'destructive'} 
+                    className="w-full"
+                    onClick={() => handleCreateTrade(listing.id, listing)}
+                  >
+                    {listing.type === "buy" ? "Sell" : "Buy"} {listing.asset}
+                  </Button>
+                )}
               </CardFooter>
             </Card>
           ))}

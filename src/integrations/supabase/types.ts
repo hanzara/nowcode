@@ -2284,6 +2284,10 @@ export type Database = {
         Args: { member_chama_id: string; member_user_id: string }
         Returns: undefined
       }
+      create_p2p_trade: {
+        Args: { p_listing_id: string }
+        Returns: string
+      }
       generate_referral_code: {
         Args: Record<PropertyKey, never>
         Returns: string
