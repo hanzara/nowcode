@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,6 +28,9 @@ const ChamasPage: React.FC = () => {
 
   const [myChamasDB, setMyChamasDB] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [discoverableChamas, setDiscoverableChamas] = useState<any[]>([]);
+  const [loadingDiscover, setLoadingDiscover] = useState(true);
+  const [joiningChamaId, setJoiningChamaId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMyChamas = async () => {
@@ -81,7 +83,51 @@ const ChamasPage: React.FC = () => {
       }
     };
 
+    const fetchDiscoverableChamas = async () => {
+      if (!user) return;
+
+      setLoadingDiscover(true);
+      try {
+        const { data: memberData, error: memberError } = await supabase
+          .from('chama_members')
+          .select('chama_id')
+          .eq('user_id', user.id);
+
+        if (memberError) {
+          throw memberError;
+        }
+        
+        const myChamaIds = memberData.map(m => m.chama_id);
+
+        let query = supabase
+          .from('chamas')
+          .select('*')
+          .eq('status', 'active');
+        
+        if (myChamaIds.length > 0) {
+          query = query.not('id', 'in', `(${myChamaIds.join(',')})`);
+        }
+        
+        const { data, error } = await query;
+
+        if (error) throw error;
+        
+        setDiscoverableChamas(data || []);
+
+      } catch (error) {
+        console.error("Error fetching discoverable chamas:", error);
+        toast({
+            title: "Error",
+            description: "Failed to load discoverable chamas.",
+            variant: "destructive",
+        });
+      } finally {
+        setLoadingDiscover(false);
+      }
+    };
+
     fetchMyChamas();
+    fetchDiscoverableChamas();
   }, [user, toast]);
 
   const handleCreateChama = async () => {
@@ -188,19 +234,74 @@ const ChamasPage: React.FC = () => {
     }
   };
 
-  const handleJoinChama = (chamaId: string, chamaName: string) => {
-    toast({
-      title: "Join Request Sent",
-      description: `Your request to join ${chamaName} has been sent`,
-    });
-  };
+  const handleJoinChama = async (chamaId: string, chamaName: string) => {
+    if (!user) {
+      toast({ title: "Error", description: "You must be logged in", variant: "destructive" });
+      return;
+    }
+    setJoiningChamaId(chamaId);
 
-  // Mock data for discovery section
-  const discoverableChamas = [
-    { id: '3', name: 'Tech Entrepreneurs Chama', members: 15, maxMembers: 25, contribution: 10000 },
-    { id: '4', name: 'Women in Business', members: 20, maxMembers: 30, contribution: 7500 },
-    { id: '5', name: 'Youth Development Fund', members: 8, maxMembers: 20, contribution: 2500 }
-  ];
+    try {
+        const { data: existing, error: checkError } = await supabase
+            .from('chama_members')
+            .select('id, is_active')
+            .eq('user_id', user.id)
+            .eq('chama_id', chamaId)
+            .maybeSingle();
+
+        if (checkError) throw checkError;
+
+        if (existing) {
+            toast({
+                title: existing.is_active ? "Already a Member" : "Request Pending",
+                description: existing.is_active 
+                    ? `You are already an active member of ${chamaName}.`
+                    : `Your request to join ${chamaName} is pending approval.`,
+            });
+            return;
+        }
+
+        const { data: newMember, error: insertError } = await supabase
+            .from('chama_members')
+            .insert({
+                chama_id: chamaId,
+                user_id: user.id,
+                role: 'member',
+                is_active: false, // Pending approval
+            })
+            .select('id')
+            .single();
+
+        if (insertError) throw insertError;
+        if (!newMember) throw new Error("Failed to create membership record.");
+
+        await supabase
+          .from("chama_activities")
+          .insert({
+            chama_id: chamaId,
+            member_id: newMember.id,
+            activity_type: 'join_request',
+            description: `${user.email || 'A new user'} requested to join the chama.`,
+          });
+
+        toast({
+            title: "Request Sent",
+            description: `Your request to join ${chamaName} has been sent for approval.`,
+        });
+
+        setDiscoverableChamas(prev => prev.filter(chama => chama.id !== chamaId));
+
+    } catch (error: any) {
+        console.error("Error joining chama:", error);
+        toast({
+            title: "Error",
+            description: error.message || "Failed to send join request.",
+            variant: "destructive",
+        });
+    } finally {
+        setJoiningChamaId(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -400,26 +501,42 @@ const ChamasPage: React.FC = () => {
             <CardHeader>
               <CardTitle>Discover Chamas</CardTitle>
               <CardDescription>
-                Find and join existing chamas in your area
+                Find and join public chamas
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {discoverableChamas.map((chama) => (
-                  <div key={chama.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h3 className="font-medium">{chama.name}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {chama.members}/{chama.maxMembers} members • 
-                        <CurrencyDisplay amount={chama.contribution} showToggle={false} className="ml-1" />
-                      </p>
-                    </div>
-                    <Button onClick={() => handleJoinChama(chama.id, chama.name)}>
-                      Request to Join
-                    </Button>
-                  </div>
-                ))}
-              </div>
+              {loadingDiscover ? (
+                <div className="flex items-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+                  <span>Loading discoverable chamas...</span>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {discoverableChamas.length === 0 ? (
+                     <p className="text-sm text-muted-foreground text-center">No new chamas to discover at the moment.</p>
+                  ) : (
+                    discoverableChamas.map((chama) => (
+                      <div key={chama.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div>
+                          <h3 className="font-medium">{chama.name}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {chama.current_members}/{chama.max_members} members • 
+                            <CurrencyDisplay amount={chama.contribution_amount} showToggle={false} className="ml-1" />
+                            / {chama.contribution_frequency}
+                          </p>
+                           <p className="text-sm text-muted-foreground mt-1">{chama.description}</p>
+                        </div>
+                        <Button 
+                          onClick={() => handleJoinChama(chama.id, chama.name)}
+                          disabled={joiningChamaId === chama.id}
+                        >
+                          {joiningChamaId === chama.id ? 'Requesting...' : 'Request to Join'}
+                        </Button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
