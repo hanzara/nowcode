@@ -71,7 +71,7 @@ const ChamaManagement: React.FC = () => {
         .from('chamas')
         .select('*')
         .eq('status', 'active')
-        .lt('current_members', supabase.rpc('max_members'))
+        .filter('current_members', 'lt', 'max_members')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -84,7 +84,7 @@ const ChamaManagement: React.FC = () => {
   });
 
   const joinChamaMutation = useMutation({
-    mutationFn: async (chamaId: string) => {
+    mutationFn: async ({ chamaId, message }: { chamaId: string; message: string }) => {
       if (!user) throw new Error('Not authenticated');
 
       const { error } = await supabase
@@ -250,12 +250,21 @@ const ChamaManagement: React.FC = () => {
           ) : availableChamas.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {availableChamas.map((chama) => (
-                <ChamaCard
-                  key={chama.id}
-                  chama={chama}
-                  onJoin={(chamaId) => joinChamaMutation.mutate(chamaId)}
-                  isJoining={joinChamaMutation.isPending}
-                />
+                <div key={chama.id}>
+                  <ChamaCard
+                    chama={chama}
+                    onJoin={(chamaId) => joinChamaMutation.mutate({ chamaId, message: '' })}
+                    isJoining={joinChamaMutation.isPending}
+                  />
+                  <div className="mt-2">
+                    <JoinChamaDialog
+                      chamaId={chama.id}
+                      chamaName={chama.name}
+                      onJoin={(chamaId, message) => joinChamaMutation.mutate({ chamaId, message })}
+                      isJoining={joinChamaMutation.isPending}
+                    />
+                  </div>
+                </div>
               ))}
             </div>
           ) : (
