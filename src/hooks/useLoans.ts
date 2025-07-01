@@ -69,10 +69,11 @@ export const useLoans = () => {
 
   const fetchUserApplications = async () => {
     try {
-      // Fetch all loan applications for the current view
+      // Fetch all loan applications for the current user
       const { data, error } = await supabase
         .from('loan_applications')
         .select('*')
+        .eq('borrower_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -91,20 +92,45 @@ export const useLoans = () => {
     total_payment: number;
   }) => {
     try {
-      const { error } = await supabase
+      if (!user) {
+        throw new Error('User must be authenticated to submit loan application');
+      }
+
+      const { data, error } = await supabase
         .from('loan_applications')
         .insert({
-          borrower_id: user?.id,
-          ...applicationData
-        });
+          borrower_id: user.id,
+          amount: applicationData.amount,
+          interest_rate: applicationData.interest_rate,
+          duration_months: applicationData.duration_months,
+          collateral: applicationData.collateral,
+          monthly_payment: applicationData.monthly_payment,
+          total_payment: applicationData.total_payment,
+          status: 'pending',
+          funding_progress: 0
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error submitting loan application:', error);
+        throw error;
+      }
+
+      console.log('Loan application submitted successfully:', data);
       await fetchUserApplications();
+      return data;
     } catch (error) {
       console.error('Error submitting loan application:', error);
       throw error;
     }
   };
 
-  return { marketplaceLoans, userApplications, loading, submitLoanApplication };
+  return { 
+    marketplaceLoans, 
+    userApplications, 
+    loading, 
+    submitLoanApplication,
+    refetch: fetchUserApplications
+  };
 };

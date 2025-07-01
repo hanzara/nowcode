@@ -9,6 +9,7 @@ import LoanCalculator from './LoanCalculator';
 import LoanPolicies from './LoanPolicies';
 import LoanApplicationCard from './LoanApplicationCard';
 import ActiveLoanCard from './ActiveLoanCard';
+import LoanApplicationDialog from './LoanApplicationDialog';
 
 const MyLoans: React.FC = () => {
   const { userApplications, loading } = useLoans();
@@ -82,9 +83,11 @@ const MyLoans: React.FC = () => {
                   </div>
                   <h3 className="font-medium text-lg mb-2">No Loan History</h3>
                   <p className="text-gray-500 dark:text-gray-400 mb-4">You haven't applied for any loans yet.</p>
-                  <Button variant="default" className="bg-loan-primary hover:bg-blue-600">
-                    Apply for a Loan
-                  </Button>
+                  <LoanApplicationDialog>
+                    <Button variant="default" className="bg-loan-primary hover:bg-blue-600">
+                      Apply for a Loan
+                    </Button>
+                  </LoanApplicationDialog>
                 </div>
               )}
             </TabsContent>

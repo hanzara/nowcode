@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import CreateSavingGroupDialog from './CreateSavingGroupDialog';
 import JoinSavingGroupDialog from './JoinSavingGroupDialog';
 import ReferralManagement from './ReferralManagement';
+import ChamaManagement from './ChamaManagement';
 
 interface SavingGroup {
   id: string;
@@ -178,12 +179,17 @@ const CommunityHub: React.FC = () => {
         </Card>
       </div>
 
-      <Tabs defaultValue="groups" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+      <Tabs defaultValue="chamas" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="chamas">Chamas</TabsTrigger>
           <TabsTrigger value="groups">Saving Groups</TabsTrigger>
           <TabsTrigger value="my-groups">My Groups</TabsTrigger>
           <TabsTrigger value="referrals">Referrals</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="chamas" className="space-y-6">
+          <ChamaManagement />
+        </TabsContent>
 
         <TabsContent value="groups" className="space-y-6">
           <div className="flex justify-between items-center">

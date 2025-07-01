@@ -896,6 +896,185 @@ export type Database = {
           },
         ]
       }
+      loan_applications_new: {
+        Row: {
+          approved_at: string | null
+          bank_account_number: string | null
+          bank_branch: string | null
+          bank_name: string | null
+          borrower_id: string
+          collateral: Json | null
+          created_at: string | null
+          credit_check_consent: boolean | null
+          credit_score: number | null
+          data_sharing_consent: boolean | null
+          date_of_birth: string
+          email_address: string
+          employer_address: string | null
+          employer_business_name: string | null
+          employment_length_months: number | null
+          employment_status: string
+          full_name: string
+          funded_at: string | null
+          funding_progress: number | null
+          gender: string | null
+          guarantors: Json | null
+          id: string
+          interest_rate: number | null
+          job_title_business_type: string | null
+          loan_amount: number
+          loan_purpose: string
+          loan_term_months: number
+          marital_status: string | null
+          monthly_income: number
+          monthly_payment: number | null
+          mpesa_number: string | null
+          national_id: string
+          nationality: string | null
+          phone_number: string
+          physical_address: string
+          postal_address: string | null
+          repayment_frequency: string | null
+          repayment_source: string | null
+          risk_rating: string | null
+          status: string | null
+          terms_accepted: boolean | null
+          total_amount: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          bank_account_number?: string | null
+          bank_branch?: string | null
+          bank_name?: string | null
+          borrower_id: string
+          collateral?: Json | null
+          created_at?: string | null
+          credit_check_consent?: boolean | null
+          credit_score?: number | null
+          data_sharing_consent?: boolean | null
+          date_of_birth: string
+          email_address: string
+          employer_address?: string | null
+          employer_business_name?: string | null
+          employment_length_months?: number | null
+          employment_status: string
+          full_name: string
+          funded_at?: string | null
+          funding_progress?: number | null
+          gender?: string | null
+          guarantors?: Json | null
+          id?: string
+          interest_rate?: number | null
+          job_title_business_type?: string | null
+          loan_amount: number
+          loan_purpose: string
+          loan_term_months: number
+          marital_status?: string | null
+          monthly_income: number
+          monthly_payment?: number | null
+          mpesa_number?: string | null
+          national_id: string
+          nationality?: string | null
+          phone_number: string
+          physical_address: string
+          postal_address?: string | null
+          repayment_frequency?: string | null
+          repayment_source?: string | null
+          risk_rating?: string | null
+          status?: string | null
+          terms_accepted?: boolean | null
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          bank_account_number?: string | null
+          bank_branch?: string | null
+          bank_name?: string | null
+          borrower_id?: string
+          collateral?: Json | null
+          created_at?: string | null
+          credit_check_consent?: boolean | null
+          credit_score?: number | null
+          data_sharing_consent?: boolean | null
+          date_of_birth?: string
+          email_address?: string
+          employer_address?: string | null
+          employer_business_name?: string | null
+          employment_length_months?: number | null
+          employment_status?: string
+          full_name?: string
+          funded_at?: string | null
+          funding_progress?: number | null
+          gender?: string | null
+          guarantors?: Json | null
+          id?: string
+          interest_rate?: number | null
+          job_title_business_type?: string | null
+          loan_amount?: number
+          loan_purpose?: string
+          loan_term_months?: number
+          marital_status?: string | null
+          monthly_income?: number
+          monthly_payment?: number | null
+          mpesa_number?: string | null
+          national_id?: string
+          nationality?: string | null
+          phone_number?: string
+          physical_address?: string
+          postal_address?: string | null
+          repayment_frequency?: string | null
+          repayment_source?: string | null
+          risk_rating?: string | null
+          status?: string | null
+          terms_accepted?: boolean | null
+          total_amount?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      loan_investments: {
+        Row: {
+          created_at: string | null
+          expected_return: number
+          id: string
+          investment_amount: number
+          investment_date: string | null
+          investor_id: string
+          loan_application_id: string
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          expected_return: number
+          id?: string
+          investment_amount: number
+          investment_date?: string | null
+          investor_id: string
+          loan_application_id: string
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          expected_return?: number
+          id?: string
+          investment_amount?: number
+          investment_date?: string | null
+          investor_id?: string
+          loan_application_id?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loan_investments_loan_application_id_fkey"
+            columns: ["loan_application_id"]
+            isOneToOne: false
+            referencedRelation: "loan_applications_new"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       loan_notifications: {
         Row: {
           created_at: string | null
@@ -2061,6 +2240,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_primary: boolean | null
+          role: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          role: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          role?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_stakes: {
         Row: {
           amount: number
@@ -2341,6 +2547,15 @@ export type Database = {
       calculate_member_reputation: {
         Args: { member_chama_id: string; member_user_id: string }
         Returns: undefined
+      }
+      calculate_risk_rating: {
+        Args: {
+          income: number
+          loan_amount: number
+          employment_months: number
+          has_collateral?: boolean
+        }
+        Returns: string
       }
       create_p2p_trade: {
         Args: { p_listing_id: string }
