@@ -23,18 +23,59 @@ export const useLoanOffers = () => {
   useEffect(() => {
     if (user) {
       fetchOffers();
+      
+      // Set up real-time subscription for loan offers
+      const channel = supabase
+        .channel('loan-offers-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'loan_offers'
+          },
+          (payload) => {
+            console.log('Loan offer change detected:', payload);
+            fetchOffers(); // Refresh offers when changes occur
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user]);
 
   const fetchOffers = async () => {
     try {
+      // Fetch offers that are either made by the current user (investor) 
+      // or on loan applications owned by the current user (borrower)
       const { data, error } = await supabase
         .from('loan_offers')
-        .select('*')
+        .select(`
+          *,
+          loan_applications!inner(borrower_id)
+        `)
+        .or(`investor_id.eq.${user?.id},loan_applications.borrower_id.eq.${user?.id}`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setOffers(data || []);
+      
+      // Transform the data to flatten the structure
+      const transformedData = data?.map(offer => ({
+        id: offer.id,
+        loan_application_id: offer.loan_application_id,
+        investor_id: offer.investor_id,
+        offered_amount: offer.offered_amount,
+        offered_interest_rate: offer.offered_interest_rate,
+        message: offer.message,
+        status: offer.status,
+        created_at: offer.created_at,
+        updated_at: offer.updated_at
+      })) || [];
+
+      setOffers(transformedData);
     } catch (error) {
       console.error('Error fetching loan offers:', error);
     } finally {
@@ -49,14 +90,21 @@ export const useLoanOffers = () => {
     message?: string;
   }) => {
     try {
+      if (!user) {
+        throw new Error('User must be authenticated to create offers');
+      }
+
       const { error } = await supabase
         .from('loan_offers')
         .insert({
-          investor_id: user?.id,
-          ...offerData
+          investor_id: user.id,
+          ...offerData,
+          status: 'pending'
         });
 
       if (error) throw error;
+      
+      // Refresh offers after creating
       await fetchOffers();
     } catch (error) {
       console.error('Error creating loan offer:', error);
@@ -68,10 +116,15 @@ export const useLoanOffers = () => {
     try {
       const { error } = await supabase
         .from('loan_offers')
-        .update({ status })
+        .update({ 
+          status,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', offerId);
 
       if (error) throw error;
+      
+      // Refresh offers after updating
       await fetchOffers();
     } catch (error) {
       console.error('Error updating offer status:', error);
@@ -79,5 +132,11 @@ export const useLoanOffers = () => {
     }
   };
 
-  return { offers, loading, createOffer, updateOfferStatus };
+  return { 
+    offers, 
+    loading, 
+    createOffer, 
+    updateOfferStatus,
+    refetch: fetchOffers
+  };
 };

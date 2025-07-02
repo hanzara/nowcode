@@ -44,9 +44,34 @@ export const useLoans = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchMarketplaceLoans();
     if (user) {
+      fetchMarketplaceLoans();
       fetchUserApplications();
+      
+      // Set up real-time subscription for loan applications
+      const channel = supabase
+        .channel('loan-applications-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'loan_applications'
+          },
+          (payload) => {
+            console.log('Loan application change detected:', payload);
+            fetchMarketplaceLoans();
+            fetchUserApplications();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    } else {
+      // If no user, still fetch marketplace loans for public viewing
+      fetchMarketplaceLoans();
     }
   }, [user]);
 
@@ -69,11 +94,13 @@ export const useLoans = () => {
   };
 
   const fetchUserApplications = async () => {
+    if (!user) return;
+    
     try {
       const { data, error } = await supabase
         .from('loan_applications')
         .select('*')
-        .eq('borrower_id', user?.id)
+        .eq('borrower_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -122,8 +149,13 @@ export const useLoans = () => {
       }
 
       console.log('Loan application submitted successfully:', data);
-      await fetchUserApplications();
-      await fetchMarketplaceLoans(); // Refresh marketplace to show new application
+      
+      // Refresh both user applications and marketplace
+      await Promise.all([
+        fetchUserApplications(),
+        fetchMarketplaceLoans()
+      ]);
+      
       return data;
     } catch (error) {
       console.error('Error submitting loan application:', error);
@@ -131,14 +163,46 @@ export const useLoans = () => {
     }
   };
 
+  const updateApplicationStatus = async (applicationId: string, status: string, additionalData?: any) => {
+    try {
+      const updateData = {
+        status,
+        updated_at: new Date().toISOString(),
+        ...additionalData
+      };
+
+      const { error } = await supabase
+        .from('loan_applications')
+        .update(updateData)
+        .eq('id', applicationId);
+
+      if (error) throw error;
+      
+      // Refresh data after update
+      await Promise.all([
+        fetchUserApplications(),
+        fetchMarketplaceLoans()
+      ]);
+    } catch (error) {
+      console.error('Error updating application status:', error);
+      throw error;
+    }
+  };
+
+  const refetch = async () => {
+    setLoading(true);
+    await Promise.all([
+      fetchMarketplaceLoans(),
+      user ? fetchUserApplications() : Promise.resolve()
+    ]);
+  };
+
   return { 
     marketplaceLoans, 
     userApplications, 
     loading, 
     submitLoanApplication,
-    refetch: () => {
-      fetchUserApplications();
-      fetchMarketplaceLoans();
-    }
+    updateApplicationStatus,
+    refetch
   };
 };
