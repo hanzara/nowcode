@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Plus, Calendar, DollarSign, TrendingUp } from 'lucide-react';
+import { Users, Plus, Calendar, DollarSign, TrendingUp, Settings, ArrowRight } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CurrencyDisplay from '@/components/CurrencyDisplay';
 import ChamaActivities from "./ChamaActivities";
@@ -13,10 +14,12 @@ import ChamaChat from "./ChamaChat";
 import ChamaMemberManagement from "./ChamaMemberManagement";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from 'react-router-dom';
 
 const ChamasPage: React.FC = () => {
   const { toast } = useToast();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [creating, setCreating] = useState(false);
   const [newChama, setNewChama] = useState({
@@ -208,7 +211,7 @@ const ChamasPage: React.FC = () => {
 
       toast({
         title: "Success",
-        description: `${newChama.name} has been created successfully`,
+        description: `${newChama.name} has been created successfully! You can now manage it.`,
       });
 
       // Reset form and refresh data
@@ -304,60 +307,62 @@ const ChamasPage: React.FC = () => {
     }
   };
 
+  const handleNavigateToChama = (chamaId: string, chamaName: string) => {
+    // For now, we'll show expanded details inline
+    // In the future, you could navigate to a dedicated chama page
+    toast({
+      title: "Chama Details",
+      description: `Viewing details for ${chamaName}`,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold tracking-tight">Digital Chamas</h1>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Digital Chamas</h1>
+          <p className="text-gray-600">Create and manage your savings groups</p>
+        </div>
         <Button 
           onClick={() => setShowCreateForm(true)} 
           className="flex items-center gap-2"
           disabled={creating}
         >
           <Plus className="h-4 w-4" />
-          Create Chama
+          Create New Chama
         </Button>
       </div>
 
       <Tabs defaultValue="my-chamas" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="my-chamas">My Chamas</TabsTrigger>
-          <TabsTrigger value="discover">Discover</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="my-chamas">My Chamas ({myChamasDB.length})</TabsTrigger>
+          <TabsTrigger value="discover">Discover ({discoverableChamas.length})</TabsTrigger>
+          <TabsTrigger value="analytics">Overview</TabsTrigger>
         </TabsList>
 
         <TabsContent value="my-chamas" className="space-y-4">
           {showCreateForm && (
-            <Card>
+            <Card className="border-green-200 bg-green-50">
               <CardHeader>
-                <CardTitle>Create New Chama</CardTitle>
-                <CardDescription>
-                  Set up a new savings group with your friends or community
+                <CardTitle className="text-green-800">Create New Chama</CardTitle>
+                <CardDescription className="text-green-700">
+                  Set up a new savings group and start your financial journey together
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="name">Chama Name *</Label>
-                  <Input
-                    id="name"
-                    value={newChama.name}
-                    onChange={(e) => setNewChama({...newChama, name: e.target.value})}
-                    placeholder="Enter chama name"
-                    disabled={creating}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="description">Description</Label>
-                  <Input
-                    id="description"
-                    value={newChama.description}
-                    onChange={(e) => setNewChama({...newChama, description: e.target.value})}
-                    placeholder="What is this chama for?"
-                    disabled={creating}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="amount">Contribution Amount (KES) *</Label>
+                    <Label htmlFor="name">Chama Name *</Label>
+                    <Input
+                      id="name"
+                      value={newChama.name}
+                      onChange={(e) => setNewChama({...newChama, name: e.target.value})}
+                      placeholder="e.g., Sunrise Savings Group"
+                      disabled={creating}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="amount">Monthly Contribution (KES) *</Label>
                     <Input
                       id="amount"
                       type="number"
@@ -367,8 +372,22 @@ const ChamasPage: React.FC = () => {
                       disabled={creating}
                     />
                   </div>
+                </div>
+                
+                <div>
+                  <Label htmlFor="description">Description</Label>
+                  <Input
+                    id="description"
+                    value={newChama.description}
+                    onChange={(e) => setNewChama({...newChama, description: e.target.value})}
+                    placeholder="What is this chama for? (e.g., Emergency fund, Investment goals)"
+                    disabled={creating}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="frequency">Frequency</Label>
+                    <Label htmlFor="frequency">Contribution Frequency</Label>
                     <select
                       id="frequency"
                       value={newChama.contributionFrequency}
@@ -381,22 +400,24 @@ const ChamasPage: React.FC = () => {
                       <option value="quarterly">Quarterly</option>
                     </select>
                   </div>
+                  <div>
+                    <Label htmlFor="maxMembers">Maximum Members</Label>
+                    <Input
+                      id="maxMembers"
+                      type="number"
+                      value={newChama.maxMembers}
+                      onChange={(e) => setNewChama({...newChama, maxMembers: e.target.value})}
+                      placeholder="20"
+                      disabled={creating}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="maxMembers">Maximum Members</Label>
-                  <Input
-                    id="maxMembers"
-                    type="number"
-                    value={newChama.maxMembers}
-                    onChange={(e) => setNewChama({...newChama, maxMembers: e.target.value})}
-                    placeholder="20"
-                    disabled={creating}
-                  />
-                </div>
-                <div className="flex gap-2">
+                
+                <div className="flex gap-2 pt-2">
                   <Button 
                     onClick={handleCreateChama} 
                     disabled={creating}
+                    className="bg-green-600 hover:bg-green-700"
                   >
                     {creating ? "Creating..." : "Create Chama"}
                   </Button>
@@ -424,16 +445,22 @@ const ChamasPage: React.FC = () => {
           ) : (
             <div className="grid gap-4">
               {myChamasDB.length === 0 ? (
-                <Card>
-                  <CardContent className="p-6 text-center">
-                    <CardDescription>
-                      You haven't joined any chamas yet. Create one or join an existing chama to get started!
+                <Card className="border-dashed">
+                  <CardContent className="p-8 text-center">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                    <h3 className="text-lg font-semibold mb-2">No Chamas Yet</h3>
+                    <CardDescription className="mb-4">
+                      You haven't joined any chamas yet. Create your first one to start saving with others!
                     </CardDescription>
+                    <Button onClick={() => setShowCreateForm(true)} className="bg-blue-600 hover:bg-blue-700">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Your First Chama
+                    </Button>
                   </CardContent>
                 </Card>
               ) : (
                 myChamasDB.map((chama) => (
-                  <Card key={chama.chamaId || chama.id}>
+                  <Card key={chama.chamaId || chama.id} className="hover:shadow-md transition-shadow">
                     <CardHeader>
                       <div className="flex justify-between items-start">
                         <div>
@@ -445,9 +472,16 @@ const ChamasPage: React.FC = () => {
                           </CardTitle>
                           <CardDescription>{chama.description}</CardDescription>
                         </div>
-                        <Button variant="outline" size="sm">
-                          View Details
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleNavigateToChama(chama.chamaId || chama.id, chama.name)}
+                          >
+                            <ArrowRight className="h-4 w-4 mr-1" />
+                            Manage
+                          </Button>
+                        </div>
                       </div>
                     </CardHeader>
                     <CardContent>
@@ -476,7 +510,7 @@ const ChamasPage: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm">
+                          <span className="text-sm capitalize">
                             {chama.contribution_frequency}
                           </span>
                         </div>
@@ -504,38 +538,48 @@ const ChamasPage: React.FC = () => {
         <TabsContent value="discover" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Discover Chamas</CardTitle>
+              <CardTitle>Discover & Join Chamas</CardTitle>
               <CardDescription>
-                Find and join public chamas
+                Find public chamas that match your savings goals
               </CardDescription>
             </CardHeader>
             <CardContent>
               {loadingDiscover ? (
                 <div className="flex items-center space-x-2">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
-                  <span>Loading discoverable chamas...</span>
+                  <span>Loading available chamas...</span>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {discoverableChamas.length === 0 ? (
-                     <p className="text-sm text-muted-foreground text-center">No new chamas to discover at the moment.</p>
+                     <div className="text-center py-8">
+                       <Users className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                       <p className="text-sm text-muted-foreground">No new chamas to discover at the moment.</p>
+                       <p className="text-xs text-muted-foreground mt-1">Create your own or check back later!</p>
+                     </div>
                   ) : (
                     discoverableChamas.map((chama) => (
-                      <div key={chama.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div>
-                          <h3 className="font-medium">{chama.name}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {chama.current_members}/{chama.max_members} members • 
-                            <CurrencyDisplay amount={chama.contribution_amount} showToggle={false} className="ml-1" />
-                            / {chama.contribution_frequency}
-                          </p>
-                           <p className="text-sm text-muted-foreground mt-1">{chama.description}</p>
+                      <div key={chama.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-medium">{chama.name}</h3>
+                            <Badge variant="outline">{chama.status}</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-2">{chama.description}</p>
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <span>{chama.current_members}/{chama.max_members} members</span>
+                            <span>•</span>
+                            <CurrencyDisplay amount={chama.contribution_amount} showToggle={false} className="text-xs" />
+                            <span>per {chama.contribution_frequency}</span>
+                          </div>
                         </div>
                         <Button 
                           onClick={() => handleJoinChama(chama.id, chama.name)}
-                          disabled={joiningChamaId === chama.id}
+                          disabled={joiningChamaId === chama.id || chama.current_members >= chama.max_members}
+                          className="ml-4"
                         >
-                          {joiningChamaId === chama.id ? 'Requesting...' : 'Request to Join'}
+                          {joiningChamaId === chama.id ? 'Requesting...' : 
+                           chama.current_members >= chama.max_members ? 'Full' : 'Request to Join'}
                         </Button>
                       </div>
                     ))

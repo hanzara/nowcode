@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import CreateSavingGroupDialog from './CreateSavingGroupDialog';
 import JoinSavingGroupDialog from './JoinSavingGroupDialog';
 import ReferralManagement from './ReferralManagement';
-import ChamaManagement from './ChamaManagement';
+import SimpleChamaManagement from './SimpleChamaManagement';
 
 interface SavingGroup {
   id: string;
@@ -188,7 +188,7 @@ const CommunityHub: React.FC = () => {
         </TabsList>
 
         <TabsContent value="chamas" className="space-y-6">
-          <ChamaManagement />
+          <SimpleChamaManagement />
         </TabsContent>
 
         <TabsContent value="groups" className="space-y-6">
