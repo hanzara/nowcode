@@ -29,8 +29,8 @@ export interface LoanApplication {
   updated_at: string;
   purpose: string | null;
   repayment_method: string | null;
-  guarantors: any; // JSONB
-  documents: any; // JSONB
+  guarantors: any;
+  documents: any;
   eligibility_score: number | null;
   rejection_reason: string | null;
   disbursed_at: string | null;
@@ -39,7 +39,7 @@ export interface LoanApplication {
 
 export const useLoans = () => {
   const { user } = useAuth();
-  const [marketplaceLoans, setMarketplaceLoans] = useState<Loan[]>([]);
+  const [marketplaceLoans, setMarketplaceLoans] = useState<LoanApplication[]>([]);
   const [userApplications, setUserApplications] = useState<LoanApplication[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -52,10 +52,11 @@ export const useLoans = () => {
 
   const fetchMarketplaceLoans = async () => {
     try {
+      // Fetch all pending loan applications for the marketplace
       const { data, error } = await supabase
-        .from('loans')
+        .from('loan_applications')
         .select('*')
-        .eq('status', 'available')
+        .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -69,7 +70,6 @@ export const useLoans = () => {
 
   const fetchUserApplications = async () => {
     try {
-      // Fetch all loan applications for the current user
       const { data, error } = await supabase
         .from('loan_applications')
         .select('*')
@@ -90,6 +90,8 @@ export const useLoans = () => {
     collateral: string;
     monthly_payment: number;
     total_payment: number;
+    purpose?: string;
+    repayment_method?: string;
   }) => {
     try {
       if (!user) {
@@ -106,6 +108,8 @@ export const useLoans = () => {
           collateral: applicationData.collateral,
           monthly_payment: applicationData.monthly_payment,
           total_payment: applicationData.total_payment,
+          purpose: applicationData.purpose || null,
+          repayment_method: applicationData.repayment_method || 'wallet',
           status: 'pending',
           funding_progress: 0
         })
@@ -119,6 +123,7 @@ export const useLoans = () => {
 
       console.log('Loan application submitted successfully:', data);
       await fetchUserApplications();
+      await fetchMarketplaceLoans(); // Refresh marketplace to show new application
       return data;
     } catch (error) {
       console.error('Error submitting loan application:', error);
@@ -131,6 +136,9 @@ export const useLoans = () => {
     userApplications, 
     loading, 
     submitLoanApplication,
-    refetch: fetchUserApplications
+    refetch: () => {
+      fetchUserApplications();
+      fetchMarketplaceLoans();
+    }
   };
 };

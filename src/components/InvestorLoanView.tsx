@@ -9,7 +9,7 @@ import CurrencyDisplay from './CurrencyDisplay';
 import { format } from 'date-fns';
 
 const InvestorLoanView: React.FC = () => {
-  const { userApplications: loanApplications, loading } = useLoans();
+  const { marketplaceLoans, loading } = useLoans();
   const { profile, canLend } = useUserProfile();
 
   if (!profile || !canLend()) {
@@ -28,8 +28,6 @@ const InvestorLoanView: React.FC = () => {
   if (loading) {
     return <div className="text-center py-4">Loading loan applications...</div>;
   }
-
-  const pendingApplications = loanApplications.filter(app => app.status === 'pending');
 
   const getTitle = () => {
     if (profile.profile_type === 'lender') {
@@ -57,7 +55,7 @@ const InvestorLoanView: React.FC = () => {
             <CardTitle className="text-lg">Available Opportunities</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{pendingApplications.length}</div>
+            <div className="text-3xl font-bold">{marketplaceLoans.length}</div>
             <p className="text-sm text-gray-600">Loan applications</p>
           </CardContent>
         </Card>
@@ -96,7 +94,7 @@ const InvestorLoanView: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {pendingApplications.length === 0 ? (
+          {marketplaceLoans.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-500">No loan applications available for {profile.profile_type === 'lender' ? 'lending' : 'investment'}.</p>
               <p className="text-sm text-gray-400 mt-2">
@@ -105,7 +103,7 @@ const InvestorLoanView: React.FC = () => {
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {pendingApplications.map((application) => (
+              {marketplaceLoans.map((application) => (
                 <div key={application.id} className="border rounded-lg p-4 space-y-3">
                   <div className="flex justify-between items-start">
                     <div>
@@ -116,24 +114,33 @@ const InvestorLoanView: React.FC = () => {
                         {application.duration_months} months @ {application.interest_rate}%
                       </p>
                     </div>
-                    <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
                       {application.status}
                     </span>
                   </div>
 
                   <div className="space-y-2 text-sm">
+                    {application.purpose && (
+                      <div>
+                        <span className="font-medium text-gray-700">Purpose:</span>
+                        <p className="text-gray-600">{application.purpose}</p>
+                      </div>
+                    )}
+                    
                     {application.monthly_payment && (
                       <div className="flex justify-between">
                         <span className="text-gray-500">Monthly Payment:</span>
                         <CurrencyDisplay amount={convertToKES(application.monthly_payment)} showToggle={false} />
                       </div>
                     )}
+                    
                     {application.total_payment && (
                       <div className="flex justify-between">
                         <span className="text-gray-500">Total Return:</span>
                         <CurrencyDisplay amount={convertToKES(application.total_payment)} showToggle={false} />
                       </div>
                     )}
+                    
                     <div className="flex justify-between">
                       <span className="text-gray-500">Funding Progress:</span>
                       <span className="font-medium">{application.funding_progress || 0}%</span>
@@ -142,8 +149,8 @@ const InvestorLoanView: React.FC = () => {
 
                   {application.collateral && (
                     <div className="p-2 bg-gray-50 rounded text-sm">
-                      <span className="text-gray-500">Collateral:</span>
-                      <p className="font-medium">{application.collateral}</p>
+                      <span className="font-medium text-gray-700">Collateral:</span>
+                      <p className="text-gray-600">{application.collateral}</p>
                     </div>
                   )}
 

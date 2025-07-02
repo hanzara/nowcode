@@ -10,6 +10,7 @@ import LoanPolicies from './LoanPolicies';
 import LoanApplicationCard from './LoanApplicationCard';
 import ActiveLoanCard from './ActiveLoanCard';
 import LoanApplicationDialog from './LoanApplicationDialog';
+import LoanOfferStatus from './LoanOfferStatus';
 
 const MyLoans: React.FC = () => {
   const { userApplications, loading } = useLoans();
@@ -70,11 +71,16 @@ const MyLoans: React.FC = () => {
             <TabsContent value="all" className="pt-4">
               {userApplications.length > 0 ? (
                 <div className="grid gap-4">
-                  {userApplications.map((app) => 
-                    app.status === 'active' 
-                    ? <ActiveLoanCard key={app.id} loan={app} />
-                    : <LoanApplicationCard key={app.id} application={app} />
-                  )}
+                  {userApplications.map((app) => (
+                    <div key={app.id} className="space-y-4">
+                      {app.status === 'active' 
+                        ? <ActiveLoanCard loan={app} />
+                        : <LoanApplicationCard application={app} />
+                      }
+                      {/* Show loan offers for each application */}
+                      <LoanOfferStatus loanApplicationId={app.id} />
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="text-center py-12 border rounded-lg bg-gray-50 dark:bg-gray-800/50 dark:border-gray-700">
@@ -95,7 +101,12 @@ const MyLoans: React.FC = () => {
             <TabsContent value="active" className="pt-4">
               {activeLoans.length > 0 ? (
                 <div className="grid gap-4">
-                  {activeLoans.map((loan) => <ActiveLoanCard key={loan.id} loan={loan} />)}
+                  {activeLoans.map((loan) => (
+                    <div key={loan.id} className="space-y-4">
+                      <ActiveLoanCard loan={loan} />
+                      <LoanOfferStatus loanApplicationId={loan.id} />
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="text-center py-12 border rounded-lg bg-gray-50 dark:bg-gray-800/50 dark:border-gray-700">
@@ -108,7 +119,12 @@ const MyLoans: React.FC = () => {
             <TabsContent value="pending" className="pt-4">
               {pendingLoans.length > 0 ? (
                 <div className="grid gap-4">
-                  {pendingLoans.map((loan) => <LoanApplicationCard key={loan.id} application={loan} />)}
+                  {pendingLoans.map((loan) => (
+                    <div key={loan.id} className="space-y-4">
+                      <LoanApplicationCard application={loan} />
+                      <LoanOfferStatus loanApplicationId={loan.id} />
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="text-center py-12 border rounded-lg bg-gray-50 dark:bg-gray-800/50 dark:border-gray-700">

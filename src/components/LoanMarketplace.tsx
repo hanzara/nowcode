@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useLoans } from '@/hooks/useLoans';
 import { useUserProfile } from '@/hooks/useUserProfile';
@@ -8,7 +9,7 @@ import MarketplaceLoansDisplay from './MarketplaceLoansDisplay';
 import MonetizationInfo from './MonetizationInfo';
 
 interface LoanMarketplaceProps {
-  onSubmitApplication: () => void;
+  onSubmitApplication?: () => void;
 }
 
 const LoanMarketplace: React.FC<LoanMarketplaceProps> = ({ onSubmitApplication }) => {
@@ -26,7 +27,7 @@ const LoanMarketplace: React.FC<LoanMarketplaceProps> = ({ onSubmitApplication }
     return monthlyPayment.toFixed(2);
   };
 
-  // If user is an investor, show the investor view
+  // If user is an investor, show the investor view with loan applications
   if (profile?.profile_type === 'investor') {
     return (
       <div className="space-y-6">
@@ -38,31 +39,34 @@ const LoanMarketplace: React.FC<LoanMarketplaceProps> = ({ onSubmitApplication }
     );
   }
 
+  // For borrowers, show marketplace loans and application form
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold tracking-tight">Loan Marketplace</h1>
       </div>
 
-      {/* Available Loans Section */}
+      {/* Display available loan opportunities */}
       <MarketplaceLoansDisplay marketplaceLoans={marketplaceLoans} loading={loading} />
 
-      {/* Monetization Info and Loan Application Form for Borrowers */}
+      {/* Loan Application Form for Borrowers */}
       {profile?.profile_type === 'borrower' && (
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="md:col-span-3">
+        <div>
+          <div className="mb-6">
             <MonetizationInfo />
           </div>
-          <div className="md:col-span-2">
-            <LoanApplicationForm onSubmitApplication={onSubmitApplication} />
-          </div>
-          <div>
-            <LoanSummaryCard
-              loanAmount={loanAmount}
-              interestRate={interestRate}
-              duration={duration}
-              calculateMonthlyPayment={calculateMonthlyPayment}
-            />
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="md:col-span-2">
+              <LoanApplicationForm onSubmitApplication={onSubmitApplication} />
+            </div>
+            <div>
+              <LoanSummaryCard
+                loanAmount={loanAmount}
+                interestRate={interestRate}
+                duration={duration}
+                calculateMonthlyPayment={calculateMonthlyPayment}
+              />
+            </div>
           </div>
         </div>
       )}

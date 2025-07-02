@@ -1326,6 +1326,53 @@ export type Database = {
         }
         Relationships: []
       }
+      member_invitations: {
+        Row: {
+          accepted_at: string | null
+          chama_id: string
+          created_at: string
+          email: string | null
+          expires_at: string
+          id: string
+          invitation_token: string
+          invited_by: string
+          phone_number: string | null
+          status: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          chama_id: string
+          created_at?: string
+          email?: string | null
+          expires_at?: string
+          id?: string
+          invitation_token?: string
+          invited_by: string
+          phone_number?: string | null
+          status?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          chama_id?: string
+          created_at?: string
+          email?: string | null
+          expires_at?: string
+          id?: string
+          invitation_token?: string
+          invited_by?: string
+          phone_number?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_invitations_chama_id_fkey"
+            columns: ["chama_id"]
+            isOneToOne: false
+            referencedRelation: "chamas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       member_reputation: {
         Row: {
           chama_id: string | null
@@ -2527,6 +2574,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_chama_invitation: {
+        Args: { invitation_token: string }
+        Returns: Json
+      }
       approve_chama_member: {
         Args: { member_id_to_approve: string }
         Returns: undefined
