@@ -4,62 +4,26 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import CommunityPage from "./pages/CommunityPage";
-import AuthPage from "./components/AuthPage";
+import ChamaDetailsPage from "./pages/ChamaDetailsPage";
 
 const queryClient = new QueryClient();
-
-const AppContent = () => {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <AuthPage />;
-  }
-
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/dashboard" element={<Index />} />
-        <Route path="/marketplace" element={<Index />} />
-        <Route path="/my-loans" element={<Index />} />
-        <Route path="/portfolio" element={<Index />} />
-        <Route path="/insights" element={<Index />} />
-        <Route path="/staking" element={<Index />} />
-        <Route path="/wallet" element={<Index />} />
-        <Route path="/community" element={<CommunityPage />} />
-        <Route path="/education" element={<Index />} />
-        <Route path="/bill-payments" element={<Index />} />
-        <Route path="/savings-goals" element={<Index />} />
-        <Route path="/qr-payments" element={<Index />} />
-        <Route path="/mobile-money" element={<Index />} />
-        <Route path="/disputes" element={<Index />} />
-        <Route path="/token-management" element={<Index />} />
-        <Route path="/settings" element={<Index />} />
-        <Route path="/p2p-marketplace" element={<Index />} /> {/* Add this line for P2P Marketplace */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </BrowserRouter>
-  );
-};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <AppContent />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/community" element={<CommunityPage />} />
+          <Route path="/chama/:chamaId" element={<ChamaDetailsPage />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );

@@ -3,11 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Plus, TrendingUp, Clock, MessageSquare } from 'lucide-react';
+import { Users, Plus, TrendingUp, Clock, MessageSquare, ArrowRight } from 'lucide-react';
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from 'react-router-dom';
 import CreateChamaDialog from './CreateChamaDialog';
 import JoinChamaDialog from './JoinChamaDialog';
 import CurrencyDisplay from './CurrencyDisplay';
@@ -34,6 +35,7 @@ interface MyChamaData extends Chama {
 const SimpleChamaManagement: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [joiningChamaId, setJoiningChamaId] = useState<string | null>(null);
 
   const { data: myChamas = [], isLoading: myLoading } = useQuery({
@@ -129,6 +131,10 @@ const SimpleChamaManagement: React.FC = () => {
     } finally {
       setJoiningChamaId(null);
     }
+  };
+
+  const handleNavigateToChama = (chamaId: string) => {
+    navigate(`/chama/${chamaId}`);
   };
 
   if (!user) {
@@ -251,7 +257,7 @@ const SimpleChamaManagement: React.FC = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
                       <div>
                         <p className="text-gray-500">Members</p>
                         <p className="font-medium">{chama.current_members}/{chama.max_members}</p>
@@ -274,6 +280,16 @@ const SimpleChamaManagement: React.FC = () => {
                         <p className="text-gray-500">Joined</p>
                         <p className="font-medium">{formatDate(chama.joined_at)}</p>
                       </div>
+                    </div>
+                    
+                    <div className="flex justify-end">
+                      <Button 
+                        onClick={() => handleNavigateToChama(chama.id)}
+                        className="flex items-center gap-2"
+                      >
+                        View Details
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
