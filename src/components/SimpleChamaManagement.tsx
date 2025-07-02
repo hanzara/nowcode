@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -82,7 +81,7 @@ const SimpleChamaManagement: React.FC = () => {
         .from('chamas')
         .select('*')
         .eq('status', 'active')
-        .lt('current_members', supabase.raw('max_members'));
+        .filter('current_members', 'lt', 'max_members');
       
       if (excludeIds.length > 0) {
         query = query.not('id', 'in', `(${excludeIds.join(',')})`);
