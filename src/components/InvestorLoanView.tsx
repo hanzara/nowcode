@@ -200,7 +200,7 @@ const InvestorLoanView: React.FC = () => {
                 <SelectItem value="all">All Amounts</SelectItem>
                 <SelectItem value="small">≤ $5,000</SelectItem>
                 <SelectItem value="medium">$5,001 - $20,000</SelectItem>
-                <SelectItem value="large">> $20,000</SelectItem>
+                <SelectItem value="large">&gt; $20,000</SelectItem>
               </SelectContent>
             </Select>
           </div>
