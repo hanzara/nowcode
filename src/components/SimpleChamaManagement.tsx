@@ -133,8 +133,13 @@ const SimpleChamaManagement: React.FC = () => {
     }
   };
 
-  const handleNavigateToChama = (chamaId: string) => {
+  const handleViewDetails = (chamaId: string) => {
+    console.log('Navigating to chama details:', chamaId);
     navigate(`/chama/${chamaId}`);
+    toast({
+      title: "Opening Chama Details",
+      description: "Loading your chama dashboard...",
+    });
   };
 
   if (!user) {
@@ -284,8 +289,8 @@ const SimpleChamaManagement: React.FC = () => {
                     
                     <div className="flex justify-end">
                       <Button 
-                        onClick={() => handleNavigateToChama(chama.id)}
-                        className="flex items-center gap-2"
+                        onClick={() => handleViewDetails(chama.id)}
+                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
                       >
                         View Details
                         <ArrowRight className="h-4 w-4" />
