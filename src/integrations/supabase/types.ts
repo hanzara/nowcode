@@ -49,6 +49,13 @@ export type Database = {
             foreignKeyName: "chama_activities_member_id_fkey"
             columns: ["member_id"]
             isOneToOne: false
+            referencedRelation: "chama_leaderboard"
+            referencedColumns: ["member_id"]
+          },
+          {
+            foreignKeyName: "chama_activities_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
             referencedRelation: "chama_members"
             referencedColumns: ["id"]
           },
@@ -89,6 +96,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "chamas"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chama_contributions_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "chama_leaderboard"
+            referencedColumns: ["member_id"]
           },
           {
             foreignKeyName: "chama_contributions_member_id_fkey"
@@ -148,6 +162,13 @@ export type Database = {
             foreignKeyName: "chama_contributions_new_member_id_fkey"
             columns: ["member_id"]
             isOneToOne: false
+            referencedRelation: "chama_leaderboard"
+            referencedColumns: ["member_id"]
+          },
+          {
+            foreignKeyName: "chama_contributions_new_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
             referencedRelation: "chama_members"
             referencedColumns: ["id"]
           },
@@ -187,6 +208,93 @@ export type Database = {
             columns: ["loan_id"]
             isOneToOne: false
             referencedRelation: "chama_loans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chama_loan_requests: {
+        Row: {
+          amount: number
+          approved_at: string | null
+          approved_by: string | null
+          borrower_id: string | null
+          chama_id: string | null
+          created_at: string | null
+          duration_months: number
+          id: string
+          interest_rate: number | null
+          monthly_payment: number | null
+          purpose: string
+          status: string | null
+          total_repayment: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          approved_at?: string | null
+          approved_by?: string | null
+          borrower_id?: string | null
+          chama_id?: string | null
+          created_at?: string | null
+          duration_months: number
+          id?: string
+          interest_rate?: number | null
+          monthly_payment?: number | null
+          purpose: string
+          status?: string | null
+          total_repayment?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          borrower_id?: string | null
+          chama_id?: string | null
+          created_at?: string | null
+          duration_months?: number
+          id?: string
+          interest_rate?: number | null
+          monthly_payment?: number | null
+          purpose?: string
+          status?: string | null
+          total_repayment?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chama_loan_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "chama_leaderboard"
+            referencedColumns: ["member_id"]
+          },
+          {
+            foreignKeyName: "chama_loan_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "chama_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chama_loan_requests_borrower_id_fkey"
+            columns: ["borrower_id"]
+            isOneToOne: false
+            referencedRelation: "chama_leaderboard"
+            referencedColumns: ["member_id"]
+          },
+          {
+            foreignKeyName: "chama_loan_requests_borrower_id_fkey"
+            columns: ["borrower_id"]
+            isOneToOne: false
+            referencedRelation: "chama_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chama_loan_requests_chama_id_fkey"
+            columns: ["chama_id"]
+            isOneToOne: false
+            referencedRelation: "chamas"
             referencedColumns: ["id"]
           },
         ]
@@ -232,6 +340,13 @@ export type Database = {
           status?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "chama_loans_borrower_id_fkey"
+            columns: ["borrower_id"]
+            isOneToOne: false
+            referencedRelation: "chama_leaderboard"
+            referencedColumns: ["member_id"]
+          },
           {
             foreignKeyName: "chama_loans_borrower_id_fkey"
             columns: ["borrower_id"]
@@ -326,6 +441,13 @@ export type Database = {
             foreignKeyName: "chama_messages_sender_id_fkey"
             columns: ["sender_id"]
             isOneToOne: false
+            referencedRelation: "chama_leaderboard"
+            referencedColumns: ["member_id"]
+          },
+          {
+            foreignKeyName: "chama_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
             referencedRelation: "chama_members"
             referencedColumns: ["id"]
           },
@@ -371,6 +493,67 @@ export type Database = {
             columns: ["chama_id"]
             isOneToOne: false
             referencedRelation: "chamas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chama_savings_goals: {
+        Row: {
+          chama_id: string | null
+          created_at: string | null
+          current_amount: number | null
+          goal_name: string
+          id: string
+          member_id: string | null
+          status: string | null
+          target_amount: number
+          target_date: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          chama_id?: string | null
+          created_at?: string | null
+          current_amount?: number | null
+          goal_name: string
+          id?: string
+          member_id?: string | null
+          status?: string | null
+          target_amount: number
+          target_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          chama_id?: string | null
+          created_at?: string | null
+          current_amount?: number | null
+          goal_name?: string
+          id?: string
+          member_id?: string | null
+          status?: string | null
+          target_amount?: number
+          target_date?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chama_savings_goals_chama_id_fkey"
+            columns: ["chama_id"]
+            isOneToOne: false
+            referencedRelation: "chamas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chama_savings_goals_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "chama_leaderboard"
+            referencedColumns: ["member_id"]
+          },
+          {
+            foreignKeyName: "chama_savings_goals_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "chama_members"
             referencedColumns: ["id"]
           },
         ]
@@ -469,6 +652,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "chamas"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chama_votes_initiated_by_fkey"
+            columns: ["initiated_by"]
+            isOneToOne: false
+            referencedRelation: "chama_leaderboard"
+            referencedColumns: ["member_id"]
           },
           {
             foreignKeyName: "chama_votes_initiated_by_fkey"
@@ -1326,6 +1516,78 @@ export type Database = {
         }
         Relationships: []
       }
+      member_credentials: {
+        Row: {
+          chama_id: string | null
+          created_at: string | null
+          created_by: string | null
+          credential_type: string
+          credential_value: string
+          id: string
+          is_used: boolean | null
+          member_id: string | null
+          used_at: string | null
+        }
+        Insert: {
+          chama_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          credential_type: string
+          credential_value: string
+          id?: string
+          is_used?: boolean | null
+          member_id?: string | null
+          used_at?: string | null
+        }
+        Update: {
+          chama_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          credential_type?: string
+          credential_value?: string
+          id?: string
+          is_used?: boolean | null
+          member_id?: string | null
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_credentials_chama_id_fkey"
+            columns: ["chama_id"]
+            isOneToOne: false
+            referencedRelation: "chamas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_credentials_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "chama_leaderboard"
+            referencedColumns: ["member_id"]
+          },
+          {
+            foreignKeyName: "member_credentials_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "chama_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_credentials_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "chama_leaderboard"
+            referencedColumns: ["member_id"]
+          },
+          {
+            foreignKeyName: "member_credentials_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "chama_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       member_invitations: {
         Row: {
           accepted_at: string | null
@@ -1417,6 +1679,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "chamas"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_reputation_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "chama_leaderboard"
+            referencedColumns: ["member_id"]
           },
           {
             foreignKeyName: "member_reputation_member_id_fkey"
@@ -2571,7 +2840,29 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      chama_leaderboard: {
+        Row: {
+          chama_id: string | null
+          contribution_count: number | null
+          joined_at: string | null
+          last_contribution_date: string | null
+          member_email: string | null
+          member_id: string | null
+          rank: number | null
+          role: string | null
+          total_contributed: number | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chama_members_chama_id_fkey"
+            columns: ["chama_id"]
+            isOneToOne: false
+            referencedRelation: "chamas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       accept_chama_invitation: {
@@ -2581,6 +2872,14 @@ export type Database = {
       approve_chama_member: {
         Args: { member_id_to_approve: string }
         Returns: undefined
+      }
+      assign_role_with_credential: {
+        Args: {
+          p_chama_id: string
+          p_credential_value: string
+          p_credential_type: string
+        }
+        Returns: Json
       }
       calculate_loan_eligibility: {
         Args: { user_id_param: string; requested_amount: number }
@@ -2608,6 +2907,14 @@ export type Database = {
         }
         Returns: string
       }
+      create_member_credential: {
+        Args: {
+          p_chama_id: string
+          p_credential_type: string
+          p_credential_value: string
+        }
+        Returns: Json
+      }
       create_p2p_trade: {
         Args: { p_listing_id: string }
         Returns: string
@@ -2623,6 +2930,19 @@ export type Database = {
           member_email: string
           total_contributed: number
           last_contribution_date: string
+          contribution_count: number
+        }[]
+      }
+      get_chama_leaderboard: {
+        Args: { p_chama_id: string }
+        Returns: {
+          member_id: string
+          member_email: string
+          total_contributed: number
+          last_contribution_date: string
+          role: string
+          joined_at: string
+          rank: number
           contribution_count: number
         }[]
       }

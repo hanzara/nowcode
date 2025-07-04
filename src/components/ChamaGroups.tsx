@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import ChamaContributions from './ChamaContributions';
 import ChamaMemberManagement from './ChamaMemberManagement';
 import ChamaActivities from './ChamaActivities';
+import ChamaLeaderboard from './ChamaLeaderboard';
 
 interface ChamaGroupsProps {
   chamaData: any;
@@ -74,14 +75,19 @@ const ChamaGroups: React.FC<ChamaGroupsProps> = ({ chamaData, isTreasurer, chama
       </div>
 
       {/* Group Management Tabs */}
-      <Tabs defaultValue="balances" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+      <Tabs defaultValue="leaderboard" className="w-full">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
           <TabsTrigger value="balances">Balances</TabsTrigger>
           <TabsTrigger value="contributions">Contributions</TabsTrigger>
           <TabsTrigger value="loans">Loans</TabsTrigger>
           <TabsTrigger value="members">Members</TabsTrigger>
           <TabsTrigger value="activity">Activity</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="leaderboard">
+          <ChamaLeaderboard chamaId={chamaId} />
+        </TabsContent>
 
         <TabsContent value="balances">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +20,9 @@ import ChamaGroups from './ChamaGroups';
 import ChamaWallet from './ChamaWallet';
 import ChamaLoansAndSavings from './ChamaLoansAndSavings';
 import ChamaProfile from './ChamaProfile';
+import ChamaLeaderboard from './ChamaLeaderboard';
+import RoleAssignmentDialog from './RoleAssignmentDialog';
+import CredentialManagement from './CredentialManagement';
 
 const ChamaDetails: React.FC = () => {
   const { chamaId } = useParams<{ chamaId: string }>();
@@ -91,6 +95,7 @@ const ChamaDetails: React.FC = () => {
   };
 
   const isTreasurer = chamaData.role === 'treasurer' || chamaData.role === 'admin';
+  const isAdmin = chamaData.role === 'admin';
 
   return (
     <div className="space-y-6">
@@ -114,6 +119,9 @@ const ChamaDetails: React.FC = () => {
             </div>
             <p className="text-gray-600">{chamaData.description}</p>
           </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <RoleAssignmentDialog chamaId={chamaId!} />
         </div>
       </div>
 
@@ -147,11 +155,24 @@ const ChamaDetails: React.FC = () => {
         </TabsList>
 
         <TabsContent value="dashboard">
-          <ChamaDashboard 
-            chamaData={chamaData} 
-            isTreasurer={isTreasurer}
-            chamaId={chamaId!}
-          />
+          <div className="space-y-6">
+            <ChamaDashboard 
+              chamaData={chamaData} 
+              isTreasurer={isTreasurer}
+              chamaId={chamaId!}
+            />
+            
+            {/* Add Leaderboard to Dashboard */}
+            <ChamaLeaderboard chamaId={chamaId!} />
+            
+            {/* Admin-only credential management */}
+            {isAdmin && (
+              <CredentialManagement 
+                chamaId={chamaId!} 
+                isAdmin={isAdmin}
+              />
+            )}
+          </div>
         </TabsContent>
 
         <TabsContent value="groups">
