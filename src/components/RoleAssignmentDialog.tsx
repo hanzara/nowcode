@@ -26,6 +26,11 @@ interface RoleAssignmentDialogProps {
   chamaId: string;
 }
 
+interface RpcResponse {
+  success: boolean;
+  message: string;
+}
+
 const RoleAssignmentDialog: React.FC<RoleAssignmentDialogProps> = ({ chamaId }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -38,6 +43,10 @@ const RoleAssignmentDialog: React.FC<RoleAssignmentDialogProps> = ({ chamaId }) 
       credentialValue: '',
     },
   });
+
+  const isRpcResponse = (data: any): data is RpcResponse => {
+    return data && typeof data === 'object' && 'success' in data && 'message' in data;
+  };
 
   const onSubmit = async (values: z.infer<typeof roleAssignmentSchema>) => {
     setLoading(true);
@@ -59,7 +68,7 @@ const RoleAssignmentDialog: React.FC<RoleAssignmentDialogProps> = ({ chamaId }) 
         return;
       }
 
-      if (data && data.success) {
+      if (isRpcResponse(data) && data.success) {
         toast({
           title: "Success",
           description: data.message,
@@ -72,7 +81,7 @@ const RoleAssignmentDialog: React.FC<RoleAssignmentDialogProps> = ({ chamaId }) 
       } else {
         toast({
           title: "Error", 
-          description: data?.message || "Failed to assign role",
+          description: isRpcResponse(data) ? data.message : "Failed to assign role",
           variant: "destructive",
         });
       }

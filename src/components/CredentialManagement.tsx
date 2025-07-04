@@ -38,6 +38,11 @@ interface Credential {
   used_at: string | null;
 }
 
+interface RpcResponse {
+  success: boolean;
+  message: string;
+}
+
 const CredentialManagement: React.FC<CredentialManagementProps> = ({ chamaId, isAdmin }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -89,6 +94,10 @@ const CredentialManagement: React.FC<CredentialManagementProps> = ({ chamaId, is
     });
   };
 
+  const isRpcResponse = (data: any): data is RpcResponse => {
+    return data && typeof data === 'object' && 'success' in data && 'message' in data;
+  };
+
   const onSubmit = async (values: z.infer<typeof credentialSchema>) => {
     setLoading(true);
     
@@ -109,7 +118,7 @@ const CredentialManagement: React.FC<CredentialManagementProps> = ({ chamaId, is
         return;
       }
 
-      if (data && data.success) {
+      if (isRpcResponse(data) && data.success) {
         toast({
           title: "Success",
           description: data.message,
@@ -120,7 +129,7 @@ const CredentialManagement: React.FC<CredentialManagementProps> = ({ chamaId, is
       } else {
         toast({
           title: "Error",
-          description: data?.message || "Failed to create credential",
+          description: isRpcResponse(data) ? data.message : "Failed to create credential",
           variant: "destructive",
         });
       }
