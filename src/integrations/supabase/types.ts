@@ -669,6 +669,70 @@ export type Database = {
           },
         ]
       }
+      chama_wallet_transactions: {
+        Row: {
+          amount: number
+          chama_id: string
+          created_at: string | null
+          description: string | null
+          id: string
+          payment_method: string | null
+          payment_reference: string | null
+          processed_by: string | null
+          status: string | null
+          transaction_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          chama_id: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          payment_method?: string | null
+          payment_reference?: string | null
+          processed_by?: string | null
+          status?: string | null
+          transaction_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          chama_id?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          payment_method?: string | null
+          payment_reference?: string | null
+          processed_by?: string | null
+          status?: string | null
+          transaction_type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chama_wallet_transactions_chama_id_fkey"
+            columns: ["chama_id"]
+            isOneToOne: false
+            referencedRelation: "chamas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chama_wallet_transactions_processed_by_fkey"
+            columns: ["processed_by"]
+            isOneToOne: false
+            referencedRelation: "chama_leaderboard"
+            referencedColumns: ["member_id"]
+          },
+          {
+            foreignKeyName: "chama_wallet_transactions_processed_by_fkey"
+            columns: ["processed_by"]
+            isOneToOne: false
+            referencedRelation: "chama_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chamas: {
         Row: {
           contribution_amount: number
@@ -2923,6 +2987,20 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_admin_analytics: {
+        Args: { p_chama_id: string }
+        Returns: {
+          total_members: number
+          active_members: number
+          pending_members: number
+          total_contributions: number
+          monthly_contributions: number
+          total_loans: number
+          active_loans: number
+          average_contribution: number
+          contribution_rate: number
+        }[]
+      }
       get_chama_contribution_summary: {
         Args: { p_chama_id: string }
         Returns: {
@@ -2963,6 +3041,16 @@ export type Database = {
           email: string
         }[]
       }
+      get_pending_contributions: {
+        Args: { p_chama_id: string }
+        Returns: {
+          member_id: string
+          member_email: string
+          last_contribution_date: string
+          days_overdue: number
+          expected_amount: number
+        }[]
+      }
       is_chama_admin: {
         Args: { chama_id_to_check: string }
         Returns: boolean
@@ -2982,6 +3070,26 @@ export type Database = {
           p_payment_method?: string
           p_payment_reference?: string
           p_notes?: string
+        }
+        Returns: string
+      }
+      process_payment: {
+        Args: {
+          p_chama_id: string
+          p_amount: number
+          p_payment_method?: string
+          p_payment_reference?: string
+          p_description?: string
+        }
+        Returns: string
+      }
+      record_manual_deposit: {
+        Args: {
+          p_chama_id: string
+          p_amount: number
+          p_payment_method?: string
+          p_payment_reference?: string
+          p_description?: string
         }
         Returns: string
       }
