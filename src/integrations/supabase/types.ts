@@ -2956,7 +2956,12 @@ export type Database = {
       }
       get_pending_chama_members: {
         Args: { p_chama_id: string }
-        Returns: Database["public"]["CompositeTypes"]["pending_member_info"][]
+        Returns: {
+          id: string
+          user_id: string
+          joined_at: string
+          email: string
+        }[]
       }
       is_chama_admin: {
         Args: { chama_id_to_check: string }

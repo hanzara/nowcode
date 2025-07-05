@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import PendingMembersCard from './PendingMembersCard';
 
 interface ChamaDashboardProps {
   chamaData: any;
@@ -76,6 +77,8 @@ const ChamaDashboard: React.FC<ChamaDashboardProps> = ({ chamaData, isTreasurer,
       description: "Opening loan requests for review",
     });
   };
+
+  const isAdmin = chamaData.role === 'admin';
 
   return (
     <div className="space-y-6">
@@ -157,6 +160,11 @@ const ChamaDashboard: React.FC<ChamaDashboardProps> = ({ chamaData, isTreasurer,
           </div>
         </CardContent>
       </Card>
+
+      {/* Admin-specific pending members section */}
+      {isAdmin && (
+        <PendingMembersCard chamaId={chamaId} />
+      )}
 
       {/* Treasurer-specific sections */}
       {isTreasurer && (
