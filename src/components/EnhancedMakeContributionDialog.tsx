@@ -77,7 +77,7 @@ const EnhancedMakeContributionDialog: React.FC<EnhancedMakeContributionDialogPro
     try {
       const selectedMethod = paymentMethods.find(m => m.id === selectedPaymentMethod);
       
-      const { data, error } = await supabase.rpc('make_chama_contribution_with_approval', {
+      const { data, error } = await supabase.rpc('make_chama_contribution_with_approval' as any, {
         p_chama_id: chamaId,
         p_amount: parseFloat(amount),
         p_payment_method: selectedMethod?.method_type || 'mobile_money',

@@ -47,7 +47,7 @@ export const useContributionApprovals = (chamaId: string) => {
 
   const fetchPendingApprovals = async () => {
     try {
-      const { data, error } = await supabase.rpc('get_pending_contribution_approvals', {
+      const { data, error } = await supabase.rpc('get_pending_contribution_approvals' as any, {
         p_chama_id: chamaId
       });
 
@@ -57,7 +57,7 @@ export const useContributionApprovals = (chamaId: string) => {
         return;
       }
 
-      setPendingApprovals(data || []);
+      setPendingApprovals((data as any) || []);
     } catch (error) {
       console.error('Unexpected error fetching pending approvals:', error);
       setError('An unexpected error occurred');
@@ -67,7 +67,7 @@ export const useContributionApprovals = (chamaId: string) => {
   const fetchContributionReport = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.rpc('get_chama_contribution_report', {
+      const { data, error } = await supabase.rpc('get_chama_contribution_report' as any, {
         p_chama_id: chamaId
       });
 
@@ -77,7 +77,7 @@ export const useContributionApprovals = (chamaId: string) => {
         return;
       }
 
-      setContributionReport(data || []);
+      setContributionReport((data as any) || []);
     } catch (error) {
       console.error('Unexpected error fetching contribution report:', error);
       setError('An unexpected error occurred');
@@ -88,7 +88,7 @@ export const useContributionApprovals = (chamaId: string) => {
 
   const approveContribution = async (approvalId: string, approved: boolean, rejectionReason?: string) => {
     try {
-      const { data, error } = await supabase.rpc('approve_contribution', {
+      const { data, error } = await supabase.rpc('approve_contribution' as any, {
         p_approval_id: approvalId,
         p_approved: approved,
         p_rejection_reason: rejectionReason || null
