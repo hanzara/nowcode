@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusCircle, CreditCard, Users, AlertCircle } from 'lucide-react';
+import { PlusCircle, CreditCard, Users, AlertCircle, CheckCircle, FileBarChart } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useAdminAnalytics } from '@/hooks/useAdminAnalytics';
+import { useContributionApprovals } from '@/hooks/useContributionApprovals';
 
 interface TreasurerActionsProps {
   chamaId: string;
@@ -18,6 +19,7 @@ interface TreasurerActionsProps {
 const TreasurerActions: React.FC<TreasurerActionsProps> = ({ chamaId }) => {
   const { toast } = useToast();
   const { recordManualDeposit, processPayment, pendingContributions } = useAdminAnalytics(chamaId);
+  const { pendingApprovals } = useContributionApprovals(chamaId);
   
   const [depositDialogOpen, setDepositDialogOpen] = useState(false);
   const [withdrawalDialogOpen, setWithdrawalDialogOpen] = useState(false);
@@ -125,7 +127,61 @@ const TreasurerActions: React.FC<TreasurerActionsProps> = ({ chamaId }) => {
 
   return (
     <div className="space-y-6">
-      {/* Quick Actions */}
+      {/* Quick Status Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              Pending Approvals
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {pendingApprovals.length}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Contributions awaiting approval
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 text-orange-600" />
+              Overdue Contributions
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">
+              {pendingContributions.length}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Members with overdue payments
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <FileBarChart className="h-4 w-4 text-blue-600" />
+              Total Managed
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">
+              {pendingApprovals.reduce((sum, approval) => sum + approval.amount, 0)}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              KES pending approval
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Treasurer Actions */}
       <Card>
         <CardHeader>
           <CardTitle>Treasurer Actions</CardTitle>
@@ -264,7 +320,7 @@ const TreasurerActions: React.FC<TreasurerActionsProps> = ({ chamaId }) => {
             <DialogTrigger asChild>
               <Button variant="outline" className="h-20 flex-col gap-2">
                 <AlertCircle className="h-6 w-6" />
-                View Pending
+                View Overdue
                 {pendingContributions.length > 0 && (
                   <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1">
                     {pendingContributions.length}
@@ -274,7 +330,7 @@ const TreasurerActions: React.FC<TreasurerActionsProps> = ({ chamaId }) => {
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
-                <DialogTitle>Pending Contributions</DialogTitle>
+                <DialogTitle>Overdue Contributions</DialogTitle>
                 <DialogDescription>Members with overdue contributions</DialogDescription>
               </DialogHeader>
               <div className="space-y-4 max-h-96 overflow-y-auto">
