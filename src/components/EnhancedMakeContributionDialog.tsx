@@ -1,17 +1,18 @@
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Plus, Copy, Phone, CreditCard, Building } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PlusCircle, Smartphone, CreditCard, Wallet } from 'lucide-react';
+import { useChamaContributions } from '@/hooks/useChamaContributions';
 import { usePaymentMethods } from '@/hooks/usePaymentMethods';
+import { useMpesa } from '@/hooks/useMpesa';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import MpesaPayment from './MpesaPayment';
 
 interface EnhancedMakeContributionDialogProps {
   chamaId: string;
@@ -22,267 +23,244 @@ const EnhancedMakeContributionDialog: React.FC<EnhancedMakeContributionDialogPro
   chamaId,
   onContributionMade
 }) => {
+  const { makeContribution } = useChamaContributions(chamaId);
+  const { paymentMethods } = usePaymentMethods(chamaId);
   const { toast } = useToast();
-  const { paymentMethods, loading: methodsLoading, error: methodsError } = usePaymentMethods(chamaId);
-  const [open, setOpen] = useState(false);
-  const [amount, setAmount] = useState('');
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
-  const [paymentReference, setPaymentReference] = useState('');
-  const [notes, setNotes] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-
-  const getPaymentMethodIcon = (type: string) => {
-    switch (type) {
-      case 'phone':
-        return <Phone className="h-4 w-4" />;
-      case 'till':
-        return <CreditCard className="h-4 w-4" />;
-      case 'paybill':
-        return <Building className="h-4 w-4" />;
-      default:
-        return <CreditCard className="h-4 w-4" />;
-    }
-  };
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast({
-      title: "Copied!",
-      description: "Payment details copied to clipboard",
-    });
-  };
+  const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    amount: '',
+    paymentMethod: 'mobile_money',
+    paymentReference: '',
+    notes: ''
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!amount || parseFloat(amount) <= 0) {
+    if (!formData.amount) {
       toast({
         title: "Error",
-        description: "Please enter a valid amount",
+        description: "Please enter contribution amount",
         variant: "destructive",
       });
       return;
     }
 
-    if (!selectedPaymentMethod) {
-      toast({
-        title: "Error",
-        description: "Please select a payment method",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setSubmitting(true);
+    setLoading(true);
     try {
-      const selectedMethod = paymentMethods.find(m => m.id === selectedPaymentMethod);
+      await makeContribution(
+        parseFloat(formData.amount),
+        formData.paymentMethod,
+        formData.paymentReference,
+        formData.notes
+      );
       
-      const { data, error } = await supabase.rpc('make_chama_contribution_with_approval' as any, {
-        p_chama_id: chamaId,
-        p_amount: parseFloat(amount),
-        p_payment_method: selectedMethod?.method_type || 'mobile_money',
-        p_payment_reference: paymentReference || undefined,
-        p_notes: notes || undefined,
-        p_payment_method_id: selectedPaymentMethod
+      setIsOpen(false);
+      setFormData({
+        amount: '',
+        paymentMethod: 'mobile_money',
+        paymentReference: '',
+        notes: ''
       });
-
-      if (error) {
-        console.error('Error making contribution:', error);
-        toast({
-          title: "Error",
-          description: "Failed to submit contribution",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const result = data as { success: boolean; message: string; treasurer_phone?: string };
-      
-      if (result.success) {
-        toast({
-          title: "Success",
-          description: result.message,
-        });
-        
-        setOpen(false);
-        // Reset form
-        setAmount('');
-        setSelectedPaymentMethod('');
-        setPaymentReference('');
-        setNotes('');
-        
-        onContributionMade?.();
-      } else {
-        toast({
-          title: "Error",
-          description: result.message,
-          variant: "destructive",
-        });
-      }
+      onContributionMade?.();
     } catch (error) {
-      console.error('Unexpected error making contribution:', error);
+      console.error('Error making contribution:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMpesaSuccess = async (transactionId: string) => {
+    try {
+      // Create contribution record with M-Pesa reference
+      await makeContribution(
+        parseFloat(formData.amount),
+        'mpesa',
+        transactionId,
+        formData.notes || 'M-Pesa contribution'
+      );
+      
+      setIsOpen(false);
+      setFormData({
+        amount: '',
+        paymentMethod: 'mobile_money',
+        paymentReference: '',
+        notes: ''
+      });
+      onContributionMade?.();
+      
+      toast({
+        title: "Contribution Successful",
+        description: "Your M-Pesa contribution has been recorded successfully.",
+      });
+    } catch (error) {
+      console.error('Error recording M-Pesa contribution:', error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: "Payment successful but failed to record contribution. Please contact support.",
         variant: "destructive",
       });
-    } finally {
-      setSubmitting(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
+        <Button className="bg-blue-600 hover:bg-blue-700">
+          <PlusCircle className="h-4 w-4 mr-2" />
           Make Contribution
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Make Contribution</DialogTitle>
           <DialogDescription>
-            Choose a payment method and submit your contribution for treasurer approval
+            Contribute to the chama using various payment methods
           </DialogDescription>
         </DialogHeader>
 
-        {methodsLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin" />
-          </div>
-        ) : methodsError ? (
-          <div className="text-center text-red-600 py-4">
-            Error loading payment methods
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Amount Input */}
-            <div className="space-y-2">
-              <Label htmlFor="amount">Amount (KES)</Label>
-              <Input
-                id="amount"
-                type="number"
-                placeholder="Enter amount"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                min="1"
-                step="0.01"
-                required
-              />
-            </div>
+        <Tabs defaultValue="manual" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="manual">Manual Entry</TabsTrigger>
+            <TabsTrigger value="mpesa">M-Pesa Pay</TabsTrigger>
+            <TabsTrigger value="wallet">From Wallet</TabsTrigger>
+          </TabsList>
 
-            {/* Payment Methods */}
-            <div className="space-y-4">
-              <Label>Choose Payment Method</Label>
-              <div className="grid gap-3">
-                {paymentMethods.map((method) => (
-                  <Card 
-                    key={method.id}
-                    className={`cursor-pointer transition-colors ${
-                      selectedPaymentMethod === method.id 
-                        ? 'border-primary bg-primary/5' 
-                        : 'hover:border-primary/50'
-                    }`}
-                    onClick={() => setSelectedPaymentMethod(method.id)}
-                  >
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          {getPaymentMethodIcon(method.method_type)}
-                          <div>
-                            <CardTitle className="text-base">{method.method_name}</CardTitle>
-                            <CardDescription className="flex items-center gap-2">
-                              {method.method_number}
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 w-6 p-0"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  copyToClipboard(method.method_number);
-                                }}
-                              >
-                                <Copy className="h-3 w-3" />
-                              </Button>
-                            </CardDescription>
-                          </div>
-                        </div>
-                        <Badge variant="outline" className="capitalize">
-                          {method.method_type}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    {selectedPaymentMethod === method.id && (
-                      <CardContent className="pt-0">
-                        <div className="p-3 bg-blue-50 rounded-lg">
-                          <p className="text-sm text-blue-800">
-                            Send KES {amount || '___'} to <strong>{method.method_number}</strong>
-                            {method.method_type === 'paybill' && (
-                              <span> (Account: Your Phone Number)</span>
-                            )}
-                          </p>
-                        </div>
-                      </CardContent>
-                    )}
-                  </Card>
-                ))}
+          <TabsContent value="manual" className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="amount">Amount (KES)</Label>
+                <Input
+                  id="amount"
+                  type="number"
+                  step="0.01"
+                  value={formData.amount}
+                  onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
+                  placeholder="Enter amount"
+                  required
+                />
               </div>
-            </div>
 
-            {/* Payment Reference */}
-            <div className="space-y-2">
-              <Label htmlFor="payment-reference">Payment Reference</Label>
-              <Input
-                id="payment-reference"
-                placeholder="M-Pesa confirmation code (e.g., QEI2547XYZ)"
-                value={paymentReference}
-                onChange={(e) => setPaymentReference(e.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">
-                Enter the confirmation code you received after making the payment
+              <div className="space-y-2">
+                <Label htmlFor="payment-method">Payment Method</Label>
+                <Select 
+                  value={formData.paymentMethod} 
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, paymentMethod: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="mobile_money">
+                      <div className="flex items-center gap-2">
+                        <Smartphone className="h-4 w-4" />
+                        Mobile Money
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="bank_transfer">
+                      <div className="flex items-center gap-2">
+                        <CreditCard className="h-4 w-4" />
+                        Bank Transfer
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="cash">Cash</SelectItem>
+                    {paymentMethods.map((method) => (
+                      <SelectItem key={method.id} value={method.method_type}>
+                        {method.method_name} - {method.method_number}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="payment-reference">Payment Reference (Optional)</Label>
+                <Input
+                  id="payment-reference"
+                  value={formData.paymentReference}
+                  onChange={(e) => setFormData(prev => ({ ...prev, paymentReference: e.target.value }))}
+                  placeholder="Transaction ID, Receipt number, etc."
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="notes">Notes (Optional)</Label>
+                <Textarea
+                  id="notes"
+                  value={formData.notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                  placeholder="Additional notes about this contribution"
+                  rows={3}
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? 'Recording...' : 'Record Contribution'}
+                </Button>
+              </div>
+            </form>
+          </TabsContent>
+
+          <TabsContent value="mpesa" className="space-y-4">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="mpesa-amount">Amount (KES)</Label>
+                <Input
+                  id="mpesa-amount"
+                  type="number"
+                  step="0.01"
+                  value={formData.amount}
+                  onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
+                  placeholder="Enter contribution amount"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="mpesa-notes">Notes (Optional)</Label>
+                <Textarea
+                  id="mpesa-notes"
+                  value={formData.notes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                  placeholder="Additional notes"
+                  rows={2}
+                />
+              </div>
+
+              {formData.amount && (
+                <MpesaPayment
+                  amount={parseFloat(formData.amount)}
+                  onSuccess={handleMpesaSuccess}
+                  onError={(error) => {
+                    toast({
+                      title: "Payment Failed",
+                      description: error,
+                      variant: "destructive",
+                    });
+                  }}
+                  accountReference="Chama Contribution"
+                  transactionDesc={`Contribution to chama - KES ${formData.amount}`}
+                />
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="wallet" className="space-y-4">
+            <div className="bg-yellow-50 p-4 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <Wallet className="h-5 w-5 text-yellow-600" />
+                <span className="font-medium text-yellow-800">Wallet Payment</span>
+              </div>
+              <p className="text-sm text-yellow-700">
+                This feature allows you to contribute directly from your wallet balance. 
+                Coming soon!
               </p>
             </div>
-
-            {/* Notes */}
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes (Optional)</Label>
-              <Textarea
-                id="notes"
-                placeholder="Add any additional notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={3}
-              />
-            </div>
-
-            <div className="flex gap-2 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setOpen(false)}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={submitting || !amount || parseFloat(amount) <= 0 || !selectedPaymentMethod}
-                className="flex-1"
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Submitting...
-                  </>
-                ) : (
-                  'Submit for Approval'
-                )}
-              </Button>
-            </div>
-          </form>
-        )}
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );

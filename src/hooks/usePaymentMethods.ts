@@ -9,6 +9,7 @@ export interface PaymentMethod {
   method_type: 'till' | 'paybill' | 'phone';
   method_name: string;
   method_number: string;
+  account_number?: string;
   is_active: boolean;
   created_at: string;
 }
@@ -27,38 +28,20 @@ export const usePaymentMethods = (chamaId: string) => {
 
   const fetchPaymentMethods = async () => {
     try {
-      // For now, create default payment methods since the table doesn't exist in types yet
-      const defaultPaymentMethods: PaymentMethod[] = [
-        {
-          id: '1',
-          chama_id: chamaId,
-          method_type: 'phone',
-          method_name: 'Treasurer M-Pesa',
-          method_number: '0705448355',
-          is_active: true,
-          created_at: new Date().toISOString()
-        },
-        {
-          id: '2',
-          chama_id: chamaId,
-          method_type: 'till',
-          method_name: 'Chama Till',
-          method_number: '123456',
-          is_active: true,
-          created_at: new Date().toISOString()
-        },
-        {
-          id: '3',
-          chama_id: chamaId,
-          method_type: 'paybill',
-          method_name: 'Chama Paybill',
-          method_number: '400200',
-          is_active: true,
-          created_at: new Date().toISOString()
-        }
-      ];
+      const { data, error } = await supabase
+        .from('chama_mpesa_methods')
+        .select('*')
+        .eq('chama_id', chamaId)
+        .eq('is_active', true)
+        .order('created_at', { ascending: true });
 
-      setPaymentMethods(defaultPaymentMethods);
+      if (error) {
+        console.error('Error fetching payment methods:', error);
+        setError('Failed to load payment methods');
+        return;
+      }
+
+      setPaymentMethods(data || []);
     } catch (error) {
       console.error('Unexpected error fetching payment methods:', error);
       setError('An unexpected error occurred');
@@ -67,10 +50,72 @@ export const usePaymentMethods = (chamaId: string) => {
     }
   };
 
+  const addPaymentMethod = async (method: Omit<PaymentMethod, 'id' | 'created_at' | 'is_active'>) => {
+    try {
+      const { data, error } = await supabase
+        .from('chama_mpesa_methods')
+        .insert([{ ...method, chama_id: chamaId }])
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      await fetchPaymentMethods();
+      return data;
+    } catch (error) {
+      console.error('Error adding payment method:', error);
+      throw error;
+    }
+  };
+
+  const updatePaymentMethod = async (id: string, updates: Partial<PaymentMethod>) => {
+    try {
+      const { data, error } = await supabase
+        .from('chama_mpesa_methods')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      await fetchPaymentMethods();
+      return data;
+    } catch (error) {
+      console.error('Error updating payment method:', error);
+      throw error;
+    }
+  };
+
+  const deletePaymentMethod = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('chama_mpesa_methods')
+        .update({ is_active: false })
+        .eq('id', id);
+
+      if (error) {
+        throw error;
+      }
+
+      await fetchPaymentMethods();
+    } catch (error) {
+      console.error('Error deleting payment method:', error);
+      throw error;
+    }
+  };
+
   return {
     paymentMethods,
     loading,
     error,
+    addPaymentMethod,
+    updatePaymentMethod,
+    deletePaymentMethod,
     refetch: fetchPaymentMethods
   };
 };

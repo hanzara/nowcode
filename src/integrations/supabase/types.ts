@@ -497,6 +497,50 @@ export type Database = {
           },
         ]
       }
+      chama_mpesa_methods: {
+        Row: {
+          account_number: string | null
+          chama_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          method_name: string
+          method_number: string
+          method_type: string
+          updated_at: string
+        }
+        Insert: {
+          account_number?: string | null
+          chama_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          method_name: string
+          method_number: string
+          method_type: string
+          updated_at?: string
+        }
+        Update: {
+          account_number?: string | null
+          chama_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          method_name?: string
+          method_number?: string
+          method_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chama_mpesa_methods_chama_id_fkey"
+            columns: ["chama_id"]
+            isOneToOne: false
+            referencedRelation: "chamas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chama_savings_goals: {
         Row: {
           chama_id: string | null
@@ -1796,6 +1840,60 @@ export type Database = {
         }
         Relationships: []
       }
+      mpesa_transactions: {
+        Row: {
+          amount: number
+          callback_data: Json | null
+          checkout_request_id: string | null
+          created_at: string
+          id: string
+          merchant_request_id: string | null
+          mpesa_receipt_number: string | null
+          phone_number: string
+          result_code: number | null
+          result_desc: string | null
+          status: string
+          transaction_date: string | null
+          transaction_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          callback_data?: Json | null
+          checkout_request_id?: string | null
+          created_at?: string
+          id?: string
+          merchant_request_id?: string | null
+          mpesa_receipt_number?: string | null
+          phone_number: string
+          result_code?: number | null
+          result_desc?: string | null
+          status?: string
+          transaction_date?: string | null
+          transaction_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          callback_data?: Json | null
+          checkout_request_id?: string | null
+          created_at?: string
+          id?: string
+          merchant_request_id?: string | null
+          mpesa_receipt_number?: string | null
+          phone_number?: string
+          result_code?: number | null
+          result_desc?: string | null
+          status?: string
+          transaction_date?: string | null
+          transaction_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -3051,6 +3149,15 @@ export type Database = {
           expected_amount: number
         }[]
       }
+      initiate_mpesa_payment: {
+        Args: {
+          p_phone_number: string
+          p_amount: number
+          p_account_reference?: string
+          p_transaction_desc?: string
+        }
+        Returns: Json
+      }
       is_chama_admin: {
         Args: { chama_id_to_check: string }
         Returns: boolean
@@ -3072,6 +3179,16 @@ export type Database = {
           p_notes?: string
         }
         Returns: string
+      }
+      process_mpesa_callback: {
+        Args: {
+          p_transaction_id: string
+          p_result_code: number
+          p_result_desc: string
+          p_mpesa_receipt_number?: string
+          p_callback_data?: Json
+        }
+        Returns: Json
       }
       process_payment: {
         Args: {
