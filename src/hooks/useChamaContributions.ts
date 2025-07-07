@@ -64,7 +64,7 @@ export const useChamaContributions = (chamaId: string) => {
   const fetchContributionSummary = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.rpc('get_chama_contribution_summary', {
+      const { data, error } = await supabase.rpc('get_chama_contribution_summary' as any, {
         p_chama_id: chamaId
       });
 
@@ -74,7 +74,16 @@ export const useChamaContributions = (chamaId: string) => {
         return;
       }
 
-      setContributionSummary(data || []);
+      // Transform the data to ensure proper typing
+      const transformedData = (data as any[])?.map((item: any) => ({
+        member_id: item.member_id,
+        member_email: String(item.member_email || ''),
+        total_contributed: Number(item.total_contributed || 0),
+        last_contribution_date: item.last_contribution_date,
+        contribution_count: Number(item.contribution_count || 0)
+      })) || [];
+
+      setContributionSummary(transformedData);
     } catch (error) {
       console.error('Unexpected error fetching contribution summary:', error);
       setError('An unexpected error occurred');
