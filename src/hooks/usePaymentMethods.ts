@@ -41,7 +41,13 @@ export const usePaymentMethods = (chamaId: string) => {
         return;
       }
 
-      setPaymentMethods(data || []);
+      // Type-cast the data to ensure method_type is properly typed
+      const typedData = (data || []).map(method => ({
+        ...method,
+        method_type: method.method_type as 'till' | 'paybill' | 'phone'
+      }));
+
+      setPaymentMethods(typedData);
     } catch (error) {
       console.error('Unexpected error fetching payment methods:', error);
       setError('An unexpected error occurred');
