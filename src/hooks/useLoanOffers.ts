@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
@@ -11,6 +10,9 @@ export interface LoanOffer {
   offered_interest_rate: number;
   message: string | null;
   status: string;
+  payment_method?: string;
+  payment_number?: string;
+  disbursement_status?: string;
   created_at: string;
   updated_at: string;
 }
@@ -49,33 +51,34 @@ export const useLoanOffers = () => {
 
   const fetchOffers = async () => {
     try {
-      // Fetch offers that are either made by the current user (investor) 
-      // or on loan applications owned by the current user (borrower)
-      const { data, error } = await supabase
+      // First get offers made by the current user (investor)
+      const { data: investorOffers, error: investorError } = await supabase
+        .from('loan_offers')
+        .select('*')
+        .eq('investor_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (investorError) throw investorError;
+
+      // Then get offers on applications by the current user (borrower)
+      const { data: borrowerOffers, error: borrowerError } = await supabase
         .from('loan_offers')
         .select(`
           *,
           loan_applications!inner(borrower_id)
         `)
-        .or(`investor_id.eq.${user?.id},loan_applications.borrower_id.eq.${user?.id}`)
+        .eq('loan_applications.borrower_id', user?.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      
-      // Transform the data to flatten the structure
-      const transformedData = data?.map(offer => ({
-        id: offer.id,
-        loan_application_id: offer.loan_application_id,
-        investor_id: offer.investor_id,
-        offered_amount: offer.offered_amount,
-        offered_interest_rate: offer.offered_interest_rate,
-        message: offer.message,
-        status: offer.status,
-        created_at: offer.created_at,
-        updated_at: offer.updated_at
-      })) || [];
+      if (borrowerError) throw borrowerError;
 
-      setOffers(transformedData);
+      // Combine and deduplicate
+      const allOffers = [...(investorOffers || []), ...(borrowerOffers || [])];
+      const uniqueOffers = allOffers.filter((offer, index, self) => 
+        index === self.findIndex(o => o.id === offer.id)
+      );
+
+      setOffers(uniqueOffers);
     } catch (error) {
       console.error('Error fetching loan offers:', error);
     } finally {
@@ -132,11 +135,35 @@ export const useLoanOffers = () => {
     }
   };
 
+  const acceptOfferWithPayment = async (offerId: string, paymentMethod: string, paymentNumber: string) => {
+    try {
+      // Update the offer with payment details and mark as accepted
+      const { error } = await supabase
+        .from('loan_offers')
+        .update({
+          status: 'accepted',
+          payment_method: paymentMethod,
+          payment_number: paymentNumber,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', offerId);
+
+      if (error) throw error;
+
+      await fetchOffers();
+      return offerId;
+    } catch (error) {
+      console.error('Error accepting offer with payment:', error);
+      throw error;
+    }
+  };
+
   return { 
     offers, 
     loading, 
     createOffer, 
     updateOfferStatus,
+    acceptOfferWithPayment,
     refetch: fetchOffers
   };
 };
