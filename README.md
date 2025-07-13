@@ -5,7 +5,6 @@
 LendChain is a decentralized lending platform that enables users to access and offer crypto loans securely, transparently, and without intermediaries. This project is designed for speed, scalability, and a seamless user experience.
 
 ---
-
 ## 🚀 Features
 
 - 🌍 Decentralized lending & borrowing interface
