@@ -25,7 +25,8 @@ LendChain is a decentralized lending platform that enables users to access and o
 | UI Library  | [shadcn/ui](https://ui.shadcn.dev) |
 | Styling     | [Tailwind CSS](https://tailwindcss.com) |
 | Build Tool  | [Vite](https://vitejs.dev) |
-| Hosting     | [Lovable.dev](https://netlify.com) |
+| Hosting     | [netlify](https://digitalchama.netlify.app/)
+| Backend     | [express and node js plus supabase database]
 
 ---
 
